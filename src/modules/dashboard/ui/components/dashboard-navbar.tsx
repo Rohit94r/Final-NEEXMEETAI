@@ -6,6 +6,8 @@ import { PanelLeftCloseIcon, PanelLeftIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 
+
+import { DashboardUserButton } from "./dashboard-user-button";
 import { DashboardCommand } from "./dashboard-command";
 
 export const DashboardNavbar = () => {
