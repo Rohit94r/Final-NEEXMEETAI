@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import OpenAI from "openai";
 import { and, eq, not } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
