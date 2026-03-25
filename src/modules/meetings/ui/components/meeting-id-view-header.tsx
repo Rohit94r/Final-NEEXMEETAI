@@ -32,7 +32,7 @@ export const MeetingIdViewHeader = ({
   return (
     <div className="flex items-center justify-between">
       <Breadcrumb>
-        <BreadcrumbList>
+               <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="font-medium text-xl">
               <Link href="/meetings">
