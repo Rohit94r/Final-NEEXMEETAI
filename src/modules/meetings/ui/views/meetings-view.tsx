@@ -16,7 +16,7 @@ import { useMeetingsFilters } from "../../hooks/use-meetings-filters";
 export const MeetingsView = () => {
   const trpc = useTRPC();
   const router = useRouter();
-  const [filters, setFilters] = useMeetingsFilters();
+  const [filters, setFilters] = useMeetingsFilters();  
 
   const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions({
     ...filters,
