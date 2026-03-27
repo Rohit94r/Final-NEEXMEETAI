@@ -1,5 +1,5 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
+ create-next-app is an officially supported way to create Next.js apps. It offers a modern build setup with no configuration. rohit jadhav
 ## Getting Started
 
 First, run the development server:
