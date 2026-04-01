@@ -18,7 +18,7 @@ import "stream-chat-react/dist/css/v2/index.css";
 
 interface ChatUIProps {
   meetingId: string;
-  meetingName: string;
+  participantIds: string[];
   userId: string;
   userName: string;
   userImage: string | undefined;
@@ -26,7 +26,7 @@ interface ChatUIProps {
 
 export const ChatUI = ({
   meetingId,
-  meetingName,
+  participantIds,
   userId,
   userName,
   userImage,
@@ -39,7 +39,7 @@ export const ChatUI = ({
   const [channel, setChannel] = useState<StreamChannel>();
   const client = useCreateChatClient({
     apiKey: process.env.NEXT_PUBLIC_STREAM_CHAT_API_KEY!,
-    tokenOrProvider: generateChatToken,
+    tokenOrProvider: () => generateChatToken({ meetingId }),
     userData: {
       id: userId,
       name: userName,
@@ -51,11 +51,11 @@ export const ChatUI = ({
     if (!client) return;
 
     const channel = client.channel("messaging", meetingId, {
-      members: [userId],
+      members: participantIds,
     });
 
     setChannel(channel);
-  }, [client, meetingId, meetingName, userId]);
+  }, [client, meetingId, participantIds]);
 
   if (!client) {
     return (

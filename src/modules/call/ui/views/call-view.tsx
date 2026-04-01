@@ -28,5 +28,16 @@ export const CallView = ({
     );
   }
 
+  if (data.status === "upcoming" && !data.canManage) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <ErrorState
+          title="Waiting for host"
+          description="The meeting admin needs to start the meeting before invited members can join"
+        />
+      </div>
+    );
+  }
+
   return <CallProvider meetingId={meetingId} meetingName={data.name} />
 };

@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text('id').primaryKey(),
@@ -68,6 +68,10 @@ export const meetingStatus = pgEnum("meeting_status", [
   "cancelled"
 ]);
 
+export const meetingMemberRole = pgEnum("meeting_member_role", [
+  "member",
+]);
+
 export const meetings = pgTable("meetings", {
   id: text("id")
     .primaryKey()
@@ -88,3 +92,26 @@ export const meetings = pgTable("meetings", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const meetingMembers = pgTable(
+  "meeting_members",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    meetingId: text("meeting_id")
+      .notNull()
+      .references(() => meetings.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: meetingMemberRole("role").notNull().default("member"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    meetingUserUniqueIdx: uniqueIndex("meeting_members_meeting_user_idx").on(
+      table.meetingId,
+      table.userId,
+    ),
+  }),
+);

@@ -16,6 +16,8 @@ import { ProcessingState } from "../components/processing-state";
 import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
 import { MeetingIdViewHeader } from "../components/meeting-id-view-header";
 import { CompletedState } from "../components/completed-state";
+import { InviteMemberDialog } from "../components/invite-member-dialog";
+import { MeetingMembersCard } from "../components/meeting-members-card";
 
 interface Props {
   meetingId: string;
@@ -27,6 +29,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
   const queryClient = useQueryClient();
 
   const [updateMeetingDialogOpen, setUpdateMeetingDialogOpen] = useState(false);
+  const [inviteMemberDialogOpen, setInviteMemberDialogOpen] = useState(false);
 
   const [RemoveConfirmation, confirmRemove] = useConfirm(
     "Are you sure?",
@@ -71,12 +74,24 @@ export const MeetingIdView = ({ meetingId }: Props) => {
         onOpenChange={setUpdateMeetingDialogOpen}
         initialValues={data}
       />
+      <InviteMemberDialog
+        meetingId={meetingId}
+        open={inviteMemberDialogOpen}
+        onOpenChange={setInviteMemberDialogOpen}
+      />
       <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4">
         <MeetingIdViewHeader
           meetingId={meetingId}
           meetingName={data.name}
+          canManage={data.canManage}
           onEdit={() => setUpdateMeetingDialogOpen(true)}
           onRemove={handleRemoveMeeting}
+          onInvite={() => setInviteMemberDialogOpen(true)}
+        />
+        <MeetingMembersCard
+          meetingId={meetingId}
+          members={data.participants}
+          canManage={data.canManage}
         />
         {isCancelled && <CancelledState />}
         {isProcessing && <ProcessingState />}
@@ -85,6 +100,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
         {isUpcoming && (
           <UpcomingState
             meetingId={meetingId}
+            canManage={data.canManage}
           />
         )}
       </div>

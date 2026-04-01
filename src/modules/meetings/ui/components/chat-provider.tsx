@@ -7,10 +7,10 @@ import { ChatUI } from "./chat-ui";
 
 interface Props {
   meetingId: string;
-  meetingName: string;
+  participantIds: string[];
 }
 
-export const ChatProvider = ({ meetingId, meetingName }: Props) => {
+export const ChatProvider = ({ meetingId, participantIds }: Props) => {
   const { data, isPending } = authClient.useSession();
 
   if (isPending || !data?.user) {
@@ -25,7 +25,7 @@ export const ChatProvider = ({ meetingId, meetingName }: Props) => {
   return (
     <ChatUI
       meetingId={meetingId}
-      meetingName={meetingName}
+      participantIds={participantIds}
       userId={data.user.id}
       userName={data.user.name}
       userImage={data.user.image ?? ""}

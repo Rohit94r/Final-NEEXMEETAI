@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ChevronRightIcon, TrashIcon, PencilIcon, MoreVerticalIcon } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronRightIcon, TrashIcon, PencilIcon, MoreVerticalIcon, LinkIcon, UserPlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,18 +20,29 @@ import {
 interface Props {
   meetingId: string;
   meetingName: string;
+  canManage: boolean;
   onEdit: () => void;
   onRemove: () => void;
+  onInvite: () => void;
 }
 
 export const MeetingIdViewHeader = ({
   meetingId,
   meetingName,
+  canManage,
   onEdit,
-  onRemove
+  onRemove,
+  onInvite,
 }: Props) => {
+  const handleCopyLink = async () => {
+    const joinUrl = `${window.location.origin}/call/${meetingId}`;
+
+    await navigator.clipboard.writeText(joinUrl);
+    toast.success("Meeting link copied");
+  };
+
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-3 flex-wrap">
       <Breadcrumb>
                <BreadcrumbList>
           <BreadcrumbItem>
@@ -52,24 +64,37 @@ export const MeetingIdViewHeader = ({
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      {/* Without modal={false}, the dialog that this dropdown opens cause the website to get unclickable */}
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <MoreVerticalIcon />
+      <div className="flex items-center gap-2">
+        <Button type="button" variant="outline" onClick={handleCopyLink}>
+          <LinkIcon />
+          Share link
+        </Button>
+        {canManage && (
+          <Button type="button" onClick={onInvite}>
+            <UserPlusIcon />
+            Invite member
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onEdit}>
-            <PencilIcon className="size-4 text-black" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onRemove}>
-            <TrashIcon className="size-4 text-black" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        )}
+        {canManage && (
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <MoreVerticalIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onEdit}>
+                <PencilIcon className="size-4 text-black" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onRemove}>
+                <TrashIcon className="size-4 text-black" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     </div>
   );
 };

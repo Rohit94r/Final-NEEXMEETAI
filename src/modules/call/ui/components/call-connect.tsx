@@ -35,7 +35,10 @@ export const CallConnect = ({
   const { mutateAsync: generateToken } = useMutation(
     trpc.meetings.generateToken.mutationOptions(),
   );
-  const tokenProvider = useCallback(async () => generateToken(), [generateToken]);
+  const tokenProvider = useCallback(
+    async () => generateToken({ meetingId }),
+    [generateToken, meetingId],
+  );
 
   const [client, setClient] = useState<StreamVideoClient>();
   useEffect(() => {
