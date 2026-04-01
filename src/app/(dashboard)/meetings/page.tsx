@@ -5,7 +5,7 @@ import type { SearchParams } from "nuqs/server";
 import { ErrorBoundary } from "react-error-boundary";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-import { auth } from "@/lib/auth";
+import { getSessionOrNull } from "@/lib/auth";
 import { getQueryClient, trpc } from "@/trpc/server";
 
 import { loadSearchParams } from "@/modules/meetings/params";
@@ -23,9 +23,7 @@ interface Props {
 const Page = async ({ searchParams }: Props) => {
   const filters = await loadSearchParams(searchParams);
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSessionOrNull(await headers());
 
   if (!session) {
     redirect("/sign-in");

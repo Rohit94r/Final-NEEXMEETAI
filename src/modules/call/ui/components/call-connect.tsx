@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   Call,
@@ -35,6 +35,7 @@ export const CallConnect = ({
   const { mutateAsync: generateToken } = useMutation(
     trpc.meetings.generateToken.mutationOptions(),
   );
+  const tokenProvider = useCallback(async () => generateToken(), [generateToken]);
 
   const [client, setClient] = useState<StreamVideoClient>();
   useEffect(() => {
@@ -45,7 +46,13 @@ export const CallConnect = ({
         name: userName,
         image: userImage,
       },
-      tokenProvider: generateToken,
+      tokenProvider,
+      options: {
+        axiosRequestConfig: {
+          timeout: 15000,
+        },
+        locationHintTimeout: 10000,
+      },
     });
 
     setClient(_client);
@@ -54,7 +61,7 @@ export const CallConnect = ({
       _client.disconnectUser();
       setClient(undefined);
     };
-  }, [userId, userName, userImage, generateToken]);
+  }, [userId, userName, userImage, tokenProvider]);
 
   const [call, setCall] = useState<Call>();
   useEffect(() => {
@@ -68,7 +75,6 @@ export const CallConnect = ({
       return () => {
         if (_call.state.callingState !== CallingState.LEFT) {
           _call.leave();
-          _call.endCall();
           setCall(undefined);
         }
       };

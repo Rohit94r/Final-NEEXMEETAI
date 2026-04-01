@@ -19,8 +19,20 @@ import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
+import { getRequiredServerEnv } from "@/lib/env";
 
-const openaiClient = new OpenAI({ apiKey: process.env.GROQ_API_KEY!, baseURL: "https://api.groq.com/openai/v1" });
+let openaiClientInstance: OpenAI | null = null;
+
+function getOpenAiClient() {
+  if (!openaiClientInstance) {
+    openaiClientInstance = new OpenAI({
+      apiKey: getRequiredServerEnv("GROQ_API_KEY"),
+      baseURL: "https://api.groq.com/openai/v1",
+    });
+  }
+
+  return openaiClientInstance;
+}
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
   return streamVideo.verifyWebhook(body, signature);
@@ -97,7 +109,7 @@ export async function POST(req: NextRequest) {
     const call = streamVideo.video.call("default", meetingId);
     const realtimeClient = await streamVideo.video.connectOpenAi({
       call,
-      openAiApiKey: process.env.OPENAI_API_KEY!,
+      openAiApiKey: getRequiredServerEnv("OPENAI_API_KEY"),
       agentUserId: existingAgent.id,
     });
 
@@ -226,7 +238,7 @@ export async function POST(req: NextRequest) {
           content: message.text || "",
         }));
 
-      const GPTResponse = await openaiClient.chat.completions.create({
+      const GPTResponse = await getOpenAiClient().chat.completions.create({
         messages: [
           { role: "system", content: instructions },
           ...previousMessages,

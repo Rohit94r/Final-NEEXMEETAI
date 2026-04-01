@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
-import { auth } from '@/lib/auth';
+import { getSessionOrNull } from '@/lib/auth';
+import { hasServerEnv } from '@/lib/env';
 import { polarClient } from '@/lib/polar';
 import { MAX_FREE_AGENTS, MAX_FREE_MEETINGS } from '@/modules/premium/constants';
 import { initTRPC, TRPCError } from '@trpc/server';
@@ -28,9 +29,7 @@ export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSessionOrNull(await headers());
 
   if (!session) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Unauthorized" });
@@ -40,10 +39,6 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
 });
 export const premiumProcedure = (entity: "meetings" | "agents") =>
   protectedProcedure.use(async ({ ctx, next }) => {
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: ctx.auth.user.id,
-    });
-
     const [userMeetings] = await db
       .select({
         count: count(meetings.id),
@@ -58,7 +53,20 @@ export const premiumProcedure = (entity: "meetings" | "agents") =>
       .from(agents)
       .where(eq(agents.userId, ctx.auth.user.id));
 
-    const isPremium = customer.activeSubscriptions.length > 0;
+    let isPremium = false;
+
+    if (hasServerEnv("POLAR_ACCESS_TOKEN")) {
+      try {
+        const customer = await polarClient.customers.getStateExternal({
+          externalId: ctx.auth.user.id,
+        });
+
+        isPremium = customer.activeSubscriptions.length > 0;
+      } catch (error) {
+        console.error("Failed to fetch Polar subscription state", error);
+      }
+    }
+
     const isFreeAgentLimitReached = userAgents.count >= MAX_FREE_AGENTS;
     const isFreeMeetingLimitReached = userMeetings.count >= MAX_FREE_MEETINGS;
 
@@ -81,5 +89,5 @@ export const premiumProcedure = (entity: "meetings" | "agents") =>
       });
     }
 
-    return next({ ctx: { ...ctx, customer } });
+    return next({ ctx });
   });

@@ -5,13 +5,22 @@ import OpenAI from "openai";
 import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
 import { inngest } from "@/inngest/client";
+import { getRequiredServerEnv } from "@/lib/env";
 
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 
-const openaiClient = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY!,
-  baseURL: "https://api.groq.com/openai/v1"
-});
+let openaiClientInstance: OpenAI | null = null;
+
+function getOpenAiClient() {
+  if (!openaiClientInstance) {
+    openaiClientInstance = new OpenAI({
+      apiKey: getRequiredServerEnv("GROQ_API_KEY"),
+      baseURL: "https://api.groq.com/openai/v1",
+    });
+  }
+
+  return openaiClientInstance;
+}
 
 const systemPrompt = `
     You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
@@ -98,7 +107,7 @@ export const meetingsProcessing = inngest.createFunction(
     });
 
     const output = await step.run("summarize-transcript", async () => {
-      const gptResponse = await openaiClient.chat.completions.create({
+      const gptResponse = await getOpenAiClient().chat.completions.create({
         model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: systemPrompt.trim() },
@@ -119,4 +128,3 @@ export const meetingsProcessing = inngest.createFunction(
     })
   },
 );
-

@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev ",
+    "clean": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
+    "predev": "npm run clean",
+    "dev": "next dev",
+    "prebuild": "npm run clean",
     "build": "next build",
+    "prestart": "npm run clean",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "dev:webhook": "ngrok http 3000"

@@ -1,6 +1,7 @@
 import { eq, count } from "drizzle-orm";
 
 import { db } from "@/db";
+import { hasServerEnv } from "@/lib/env";
 import { polarClient } from "@/lib/polar";
 import { agents, meetings } from "@/db/schema";
 import {
@@ -10,6 +11,10 @@ import {
 
 export const premiumRouter = createTRPCRouter({
   getCurrentSubscription: protectedProcedure.query(async ({ ctx }) => {
+    if (!hasServerEnv("POLAR_ACCESS_TOKEN")) {
+      return null;
+    }
+
     const customer = await polarClient.customers.getStateExternal({
       externalId: ctx.auth.user.id,
     });
@@ -27,6 +32,10 @@ export const premiumRouter = createTRPCRouter({
     return product;
   }),
   getProducts: protectedProcedure.query(async () => {
+    if (!hasServerEnv("POLAR_ACCESS_TOKEN")) {
+      return [];
+    }
+
     const products = await polarClient.products.list({
       isArchived: false,
       isRecurring: true,
@@ -36,14 +45,20 @@ export const premiumRouter = createTRPCRouter({
     return products.result.items;
   }),
   getFreeUsage: protectedProcedure.query(async ({ ctx }) => {
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: ctx.auth.user.id,
-    });
+    if (hasServerEnv("POLAR_ACCESS_TOKEN")) {
+      try {
+        const customer = await polarClient.customers.getStateExternal({
+          externalId: ctx.auth.user.id,
+        });
 
-    const subscription = customer.activeSubscriptions[0];
+        const subscription = customer.activeSubscriptions[0];
 
-    if (subscription) {
-      return null;
+        if (subscription) {
+          return null;
+        }
+      } catch (error) {
+        console.error("Failed to fetch Polar free usage state", error);
+      }
     }
 
     const [userMeetings] = await db

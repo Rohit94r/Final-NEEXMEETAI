@@ -2,6 +2,37 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
  create-next-app is an officially supported way to create Next.js apps. It offers a modern build setup with no configuration. rohit jadhav
 ## Getting Started
 
+Create your local environment file before starting the app:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables for the app to boot correctly:
+
+```bash
+DATABASE_URL=
+BETTER_AUTH_SECRET=
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+Optional integrations you can add as needed:
+
+```bash
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+NEXT_PUBLIC_STREAM_CHAT_API_KEY=
+STREAM_CHAT_SECRET_KEY=
+NEXT_PUBLIC_STREAM_VIDEO_API_KEY=
+STREAM_VIDEO_SECRET_KEY=
+POLAR_ACCESS_TOKEN=
+GROQ_API_KEY=
+OPENAI_API_KEY=
+```
+
 First, run the development server:
 
 ```bash
