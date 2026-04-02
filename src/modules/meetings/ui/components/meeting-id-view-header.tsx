@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ChevronRightIcon, TrashIcon, PencilIcon, MoreVerticalIcon, LinkIcon, UserPlusIcon } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronRightIcon, TrashIcon, PencilIcon, MoreVerticalIcon, LinkIcon, UserPlusIcon, CopyIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useMeetingShare } from "@/hooks/use-meeting-share";
 import {
   DropdownMenu,
@@ -20,6 +22,7 @@ import {
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingCode: string;
   canManage: boolean;
   canShare: boolean;
   onEdit: () => void;
@@ -30,6 +33,7 @@ interface Props {
 export const MeetingIdViewHeader = ({
   meetingId,
   meetingName,
+  meetingCode,
   canManage,
   canShare,
   onEdit,
@@ -37,6 +41,10 @@ export const MeetingIdViewHeader = ({
   onInvite,
 }: Props) => {
   const handleCopyLink = useMeetingShare(meetingId);
+  const handleCopyCode = async () => {
+    await navigator.clipboard.writeText(meetingCode);
+    toast.success("Meeting code copied");
+  };
 
   return (
     <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -62,6 +70,13 @@ export const MeetingIdViewHeader = ({
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center gap-2">
+        <Badge variant="outline" className="px-3 py-2 font-mono tracking-[0.3em]">
+          {meetingCode}
+        </Badge>
+        <Button type="button" variant="outline" onClick={handleCopyCode}>
+          <CopyIcon />
+          Copy code
+        </Button>
         {canShare && (
           <Button type="button" variant="outline" onClick={handleCopyLink}>
             <LinkIcon />

@@ -19,7 +19,7 @@ import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
-import { getRequiredServerEnv } from "@/lib/env";
+import { getOptionalServerEnv, getRequiredServerEnv } from "@/lib/env";
 
 let openaiClientInstance: OpenAI | null = null;
 
@@ -111,11 +111,28 @@ export async function POST(req: NextRequest) {
       agentId: existingAgent.id,
     });
 
+    const openAiApiKey = getOptionalServerEnv("OPENAI_API_KEY");
+
+    if (!openAiApiKey) {
+      console.info(
+        "[webhook.call.session_started] OPENAI_API_KEY missing, skipping live voice agent. Groq summary and Ask AI remain enabled.",
+        {
+          meetingId,
+          agentId: existingAgent.id,
+        },
+      );
+
+      return NextResponse.json({
+        ok: true,
+        aiMode: "groq_assistant",
+      });
+    }
+
     try {
       const call = streamVideo.video.call("default", meetingId);
       const realtimeClient = await streamVideo.video.connectOpenAi({
         call,
-        openAiApiKey: getRequiredServerEnv("OPENAI_API_KEY"),
+        openAiApiKey,
         agentUserId: existingAgent.id,
       });
 

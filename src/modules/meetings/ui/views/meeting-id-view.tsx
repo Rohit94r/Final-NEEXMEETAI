@@ -19,6 +19,7 @@ import { MeetingIdViewHeader } from "../components/meeting-id-view-header";
 import { InviteMemberDialog } from "../components/invite-member-dialog";
 import { MeetingMembersCard } from "../components/meeting-members-card";
 import { MeetingJoinRequestsCard } from "../components/meeting-join-requests-card";
+import { MeetingAiOverviewCard } from "../components/meeting-ai-overview-card";
 
 const CompletedState = dynamic(
   () =>
@@ -98,6 +99,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
         <MeetingIdViewHeader
           meetingId={meetingId}
           meetingName={data.name}
+          meetingCode={data.secretCode}
           canManage={data.canManage}
           canShare={isUpcoming || isActive}
           onEdit={() => setUpdateMeetingDialogOpen(true)}
@@ -109,6 +111,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
           members={data.participants}
           canManage={data.canManage}
         />
+        <MeetingAiOverviewCard aiMode={data.aiMode} />
         {data.canManage && (
           <MeetingJoinRequestsCard
             meetingId={meetingId}

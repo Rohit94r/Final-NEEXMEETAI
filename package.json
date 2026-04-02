@@ -7,7 +7,6 @@
   },
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
-    "predev": "npm run clean",
     "dev": "next dev --port 3000",
     "prebuild": "npm run clean",
     "build": "next build",

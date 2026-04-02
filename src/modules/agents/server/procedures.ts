@@ -55,6 +55,36 @@ export const agentsRouter = createTRPCRouter({
 
       return removedAgent;
     }),
+  toggleStar: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        isStarred: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updatedAgent] = await db
+        .update(agents)
+        .set({
+          isStarred: input.isStarred,
+        })
+        .where(
+          and(
+            eq(agents.id, input.id),
+            eq(agents.userId, ctx.auth.user.id),
+          ),
+        )
+        .returning();
+
+      if (!updatedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Agent not found",
+        });
+      }
+
+      return updatedAgent;
+    }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {

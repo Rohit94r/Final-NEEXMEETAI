@@ -16,7 +16,7 @@ export const ActiveState = ({
       <EmptyState
         image="/upcoming.svg"
         title="Meeting is active"
-        description="Meeting will end once all participants have left"
+        description="Join now to collaborate live. Transcript, summary, recording, and Ask AI will be ready after the meeting."
       />
       <div className="flex flex-col-reverse lg:flex-row lg:justify-center items-center gap-2 w-full">
         <Button asChild className="w-full lg:w-auto">

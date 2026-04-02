@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { format } from "date-fns";
 import { ColumnDef } from "@tanstack/react-table"
 import {
@@ -8,14 +9,19 @@ import {
   ClockArrowUpIcon,
   ClockFadingIcon,
   CornerDownRightIcon,
+  EyeIcon,
   LoaderIcon,
+  LogInIcon,
+  StarIcon,
 } from "lucide-react"
 
 import { cn, formatDuration } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
 import { GeneratedAvatar } from "@/components/generated-avatar"
 
 import { MeetingGetMany } from "../../types"
+import { MeetingRowActions } from "./meeting-row-actions";
 
 const statusIconMap = {
   upcoming: ClockArrowUpIcon,
@@ -39,7 +45,12 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
     header: "Meeting Name",
     cell: ({ row }) => (
       <div className="flex flex-col gap-y-1">
-        <span className="font-semibold capitalize">{row.original.name}</span>
+        <div className="flex items-center gap-2">
+          {row.original.isStarred ? (
+            <StarIcon className="size-4 fill-yellow-400 text-yellow-500" />
+          ) : null}
+          <span className="font-semibold capitalize">{row.original.name}</span>
+        </div>
         <div className="flex items-center gap-x-2">
           <div className="flex items-center gap-x-1">
             <CornerDownRightIcon className="size-3 text-muted-foreground" />
@@ -84,6 +95,15 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
     },
   },
   {
+    accessorKey: "secretCode",
+    header: "Code",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="font-mono tracking-[0.3em]">
+        {row.original.secretCode}
+      </Badge>
+    ),
+  },
+  {
     accessorKey: "duration",
     header: "duration",
     cell: ({ row }) => (
@@ -95,5 +115,37 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
         {row.original.duration ? formatDuration(row.original.duration) : "No duration"}
       </Badge>
     ),
+  },
+  {
+    id: "actions",
+    header: "Action",
+    cell: ({ row }) => {
+      const isJoinable =
+        row.original.status === "upcoming" || row.original.status === "active";
+
+      return (
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            asChild
+            size="sm"
+            variant={isJoinable ? "default" : "outline"}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Link href={isJoinable ? `/call/${row.original.id}` : `/meetings/${row.original.id}`}>
+              {isJoinable ? <LogInIcon /> : <EyeIcon />}
+              {isJoinable ? "Join meeting" : "View details"}
+            </Link>
+          </Button>
+          <MeetingRowActions
+            meetingId={row.original.id}
+            meetingName={row.original.name}
+            agentId={row.original.agentId}
+            isStarred={row.original.isStarred}
+            isOwner={row.original.isOwner}
+            secretCode={row.original.secretCode}
+          />
+        </div>
+      );
+    },
   },
 ];

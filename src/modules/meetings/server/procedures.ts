@@ -6,6 +6,7 @@ import { and, count, desc, eq, exists, getTableColumns, ilike, inArray, or, sql 
 import { db } from "@/db";
 import { agents, meetingMembers, meetings, user } from "@/db/schema";
 import { generateAvatarUri } from "@/lib/avatar";
+import { hasServerEnv } from "@/lib/env";
 import { streamVideo } from "@/lib/stream-video";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
@@ -13,6 +14,30 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@
 import { MeetingStatus, StreamTranscriptItem } from "../types";
 import { meetingsInsertSchema, meetingsUpdateSchema } from "../schemas";
 import { streamChat } from "@/lib/stream-chat";
+
+function generateFourDigitMeetingCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+async function createUniqueMeetingCode() {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const candidate = generateFourDigitMeetingCode();
+    const [existingMeeting] = await db
+      .select({ id: meetings.id })
+      .from(meetings)
+      .where(eq(meetings.secretCode, candidate))
+      .limit(1);
+
+    if (!existingMeeting) {
+      return candidate;
+    }
+  }
+
+  throw new TRPCError({
+    code: "INTERNAL_SERVER_ERROR",
+    message: "Failed to generate a unique meeting code",
+  });
+}
 
 const buildMeetingAccessCondition = (userId: string) =>
   or(
@@ -155,6 +180,11 @@ export const meetingsRouter = createTRPCRouter({
         canManage: access.isOwner,
         accessState: access.accessState,
         canJoin: access.isOwner || access.accessState === "approved",
+        aiMode: hasServerEnv("OPENAI_API_KEY")
+          ? ("realtime_voice" as const)
+          : hasServerEnv("GROQ_API_KEY")
+            ? ("groq_assistant" as const)
+            : ("disabled" as const),
       };
     }),
   requestJoinAccess: protectedProcedure
@@ -203,6 +233,43 @@ export const meetingsRouter = createTRPCRouter({
       });
 
       return { status: "pending" as const };
+    }),
+  joinByCode: protectedProcedure
+    .input(
+      z.object({
+        code: z.string().regex(/^\d{4}$/, "Meeting code must be 4 digits"),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const [existingMeeting] = await db
+        .select({
+          id: meetings.id,
+          status: meetings.status,
+        })
+        .from(meetings)
+        .where(eq(meetings.secretCode, input.code));
+
+      if (!existingMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting code not found",
+        });
+      }
+
+      if (
+        existingMeeting.status === "completed" ||
+        existingMeeting.status === "processing" ||
+        existingMeeting.status === "cancelled"
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This meeting is no longer available to join",
+        });
+      }
+
+      return {
+        meetingId: existingMeeting.id,
+      };
     }),
   generateChatToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))
@@ -479,6 +546,32 @@ export const meetingsRouter = createTRPCRouter({
 
       return removedMember;
     }),
+  leaveMeeting: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [removedMembership] = await db
+        .delete(meetingMembers)
+        .where(
+          and(
+            eq(meetingMembers.meetingId, input.meetingId),
+            eq(meetingMembers.userId, ctx.auth.user.id),
+          ),
+        )
+        .returning();
+
+      if (!removedMembership) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found in your list",
+        });
+      }
+
+      return removedMembership;
+    }),
   admitMember: protectedProcedure
     .input(
       z.object({
@@ -640,13 +733,45 @@ export const meetingsRouter = createTRPCRouter({
 
       return updatedMeeting;
     }),
+  toggleStar: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        isStarred: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updatedMeeting] = await db
+        .update(meetings)
+        .set({
+          isStarred: input.isStarred,
+        })
+        .where(
+          and(
+            eq(meetings.id, input.id),
+            eq(meetings.userId, ctx.auth.user.id),
+          ),
+        )
+        .returning();
+
+      if (!updatedMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      return updatedMeeting;
+    }),
   create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
+      const secretCode = await createUniqueMeetingCode();
       const [createdMeeting] = await db
         .insert(meetings)
         .values({
           ...input,
+          secretCode,
           userId: ctx.auth.user.id,
         })
         .returning();
@@ -783,6 +908,11 @@ export const meetingsRouter = createTRPCRouter({
         ...members,
       ],
       pendingRequests,
+      aiMode: hasServerEnv("OPENAI_API_KEY")
+        ? ("realtime_voice" as const)
+        : hasServerEnv("GROQ_API_KEY")
+          ? ("groq_assistant" as const)
+          : ("disabled" as const),
     };
   }),
   getMany: protectedProcedure

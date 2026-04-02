@@ -1,12 +1,13 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { CornerDownRightIcon, VideoIcon } from "lucide-react"
+import { CornerDownRightIcon, StarIcon, VideoIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { GeneratedAvatar } from "@/components/generated-avatar"
 
 import { AgentsGetMany } from "../../types"
+import { AgentRowActions } from "./agent-row-actions";
 
 export const columns: ColumnDef<AgentsGetMany[number]>[] = [
   {
@@ -15,6 +16,9 @@ export const columns: ColumnDef<AgentsGetMany[number]>[] = [
     cell: ({ row }) => (
       <div className="flex flex-col gap-y-1">
         <div className="flex items-center gap-x-2">
+          {row.original.isStarred ? (
+            <StarIcon className="size-4 fill-yellow-400 text-yellow-500" />
+          ) : null}
           <GeneratedAvatar
             variant="botttsNeutral"
             seed={row.original.name}
@@ -43,5 +47,19 @@ export const columns: ColumnDef<AgentsGetMany[number]>[] = [
         {row.original.meetingCount} {row.original.meetingCount === 1 ? "meeting" : "meetings"}
       </Badge>
     )
-  }
+  },
+  {
+    id: "actions",
+    header: "Action",
+    cell: ({ row }) => (
+      <div className="flex items-center justify-end">
+        <AgentRowActions
+          agentId={row.original.id}
+          agentName={row.original.name}
+          instructions={row.original.instructions}
+          isStarred={row.original.isStarred}
+        />
+      </div>
+    ),
+  },
 ]
