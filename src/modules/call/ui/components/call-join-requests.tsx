@@ -81,7 +81,7 @@ export const CallJoinRequests = ({ meetingId }: Props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" variant="outline" className="relative">
+        <Button type="button" className="relative border border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white">
           <BellIcon />
           Requests
           {pendingRequests.length > 0 ? (

@@ -63,7 +63,7 @@ export const CallActive = ({
             meetingName={meetingName}
             aiMode={aiMode}
             trigger={
-              <Button type="button" variant="outline">
+              <Button type="button" className="border border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white">
                 <SparklesIcon />
                 Ask AI
               </Button>
@@ -74,7 +74,7 @@ export const CallActive = ({
             meetingCode={meetingCode}
             meetingName={meetingName}
             trigger={
-              <Button type="button" variant="outline">
+              <Button type="button" className="border border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white">
                 <LinkIcon />
                 Share
               </Button>
