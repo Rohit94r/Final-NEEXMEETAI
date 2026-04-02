@@ -1,12 +1,13 @@
 import { z } from "zod";
 import JSONL from "jsonl-parse-stringify";
 import { TRPCError } from "@trpc/server";
+import OpenAI from "openai";
 import { and, count, desc, eq, exists, getTableColumns, ilike, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { agents, meetingMembers, meetings, user } from "@/db/schema";
 import { generateAvatarUri } from "@/lib/avatar";
-import { hasServerEnv } from "@/lib/env";
+import { getRequiredServerEnv, hasServerEnv } from "@/lib/env";
 import { streamVideo } from "@/lib/stream-video";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
@@ -14,6 +15,19 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@
 import { MeetingStatus, StreamTranscriptItem } from "../types";
 import { meetingsInsertSchema, meetingsUpdateSchema } from "../schemas";
 import { streamChat } from "@/lib/stream-chat";
+
+let groqClientInstance: OpenAI | null = null;
+
+function getGroqClient() {
+  if (!groqClientInstance) {
+    groqClientInstance = new OpenAI({
+      apiKey: getRequiredServerEnv("GROQ_API_KEY"),
+      baseURL: "https://api.groq.com/openai/v1",
+    });
+  }
+
+  return groqClientInstance;
+}
 
 function generateFourDigitMeetingCode() {
   return Math.floor(1000 + Math.random() * 9000).toString();
@@ -61,6 +75,7 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
     .select({
       id: meetings.id,
       name: meetings.name,
+      secretCode: meetings.secretCode,
       ownerId: meetings.userId,
       status: meetings.status,
       transcriptUrl: meetings.transcriptUrl,
@@ -96,6 +111,7 @@ async function getMeetingJoinState(meetingId: string, userId: string) {
     .select({
       id: meetings.id,
       name: meetings.name,
+      secretCode: meetings.secretCode,
       ownerId: meetings.userId,
       status: meetings.status,
       transcriptUrl: meetings.transcriptUrl,
@@ -177,6 +193,7 @@ export const meetingsRouter = createTRPCRouter({
         id: access.id,
         name: access.name,
         status: access.status,
+        secretCode: access.secretCode,
         canManage: access.isOwner,
         accessState: access.accessState,
         canJoin: access.isOwner || access.accessState === "approved",
@@ -270,6 +287,101 @@ export const meetingsRouter = createTRPCRouter({
       return {
         meetingId: existingMeeting.id,
       };
+    }),
+  askLiveAssistant: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+        prompt: z.string().trim().min(2).max(2000),
+        history: z
+          .array(
+            z.object({
+              role: z.enum(["user", "assistant"]),
+              content: z.string().trim().min(1).max(4000),
+            }),
+          )
+          .max(8)
+          .default([]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const access = await getAccessibleMeeting(input.meetingId, ctx.auth.user.id);
+
+      if (!access) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      if (!hasServerEnv("GROQ_API_KEY")) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "GROQ_API_KEY is missing. Add it to .env.local to enable the meeting assistant.",
+        });
+      }
+
+      const [meetingWithAgent] = await db
+        .select({
+          id: meetings.id,
+          name: meetings.name,
+          status: meetings.status,
+          summary: meetings.summary,
+          agentName: agents.name,
+          agentInstructions: agents.instructions,
+        })
+        .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
+        .where(eq(meetings.id, input.meetingId))
+        .limit(1);
+
+      if (!meetingWithAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      const systemPrompt = `
+You are a professional in-meeting AI assistant for the meeting "${meetingWithAgent.name}".
+Current meeting status: ${meetingWithAgent.status}.
+Agent persona: ${meetingWithAgent.agentName}.
+
+Primary behavior:
+- Help participants with project questions, meeting doubts, action planning, and concise explanations.
+- Be practical, polished, and business-friendly.
+- If the user asks about information that is not present in the meeting context, say that clearly and then still try to help with the next best suggestion.
+- Keep answers concise but useful.
+
+Agent instructions:
+${meetingWithAgent.agentInstructions}
+
+Meeting summary, if available:
+${meetingWithAgent.summary ?? "No final summary is available yet because the meeting is still in progress."}
+      `.trim();
+
+      const completion = await getGroqClient().chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...input.history.map((message) => ({
+            role: message.role,
+            content: message.content,
+          })),
+          { role: "user", content: input.prompt },
+        ],
+      });
+
+      const answer = completion.choices[0]?.message?.content?.trim();
+
+      if (!answer) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "The meeting assistant did not return a response.",
+        });
+      }
+
+      return { answer };
     }),
   generateChatToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))

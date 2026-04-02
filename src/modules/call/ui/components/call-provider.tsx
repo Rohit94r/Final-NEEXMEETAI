@@ -10,10 +10,18 @@ import { CallConnect } from "./call-connect";
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingCode: string;
   canManage: boolean;
+  aiMode: "realtime_voice" | "groq_assistant" | "disabled";
 };
 
-export const CallProvider = ({ meetingId, meetingName, canManage }: Props) => {
+export const CallProvider = ({
+  meetingId,
+  meetingName,
+  meetingCode,
+  canManage,
+  aiMode,
+}: Props) => {
   const { data, isPending } = authClient.useSession();
 
   if (!data || isPending) {
@@ -28,7 +36,9 @@ export const CallProvider = ({ meetingId, meetingName, canManage }: Props) => {
     <CallConnect
       meetingId={meetingId}
       meetingName={meetingName}
+      meetingCode={meetingCode}
       canManage={canManage}
+      aiMode={aiMode}
       autoJoin={!canManage}
       userId={data.user.id}
       userName={data.user.name}

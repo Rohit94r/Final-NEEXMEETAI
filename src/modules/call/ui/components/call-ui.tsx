@@ -14,14 +14,18 @@ import { CallEnded } from "./call-ended";
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingCode: string;
   canManage: boolean;
+  aiMode: "realtime_voice" | "groq_assistant" | "disabled";
   autoJoin?: boolean;
 };
 
 export const CallUI = ({
   meetingId,
   meetingName,
+  meetingCode,
   canManage,
+  aiMode,
   autoJoin = false,
 }: Props) => {
   const call = useCall();
@@ -109,7 +113,9 @@ export const CallUI = ({
         <CallActive
           meetingId={meetingId}
           meetingName={meetingName}
+          meetingCode={meetingCode}
           canManage={canManage}
+          aiMode={aiMode}
           onLeave={handleLeave}
           isLeaving={isLeaving}
         />

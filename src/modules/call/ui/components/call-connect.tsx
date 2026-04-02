@@ -19,7 +19,9 @@ import { CallUI } from "./call-ui";
 interface Props {
   meetingId: string;
   meetingName: string;
+  meetingCode: string;
   canManage: boolean;
+  aiMode: "realtime_voice" | "groq_assistant" | "disabled";
   autoJoin?: boolean;
   userId: string;
   userName: string;
@@ -29,7 +31,9 @@ interface Props {
 export const CallConnect = ({
   meetingId,
   meetingName,
+  meetingCode,
   canManage,
+  aiMode,
   autoJoin = false,
   userId,
   userName,
@@ -101,7 +105,9 @@ export const CallConnect = ({
         <CallUI
           meetingId={meetingId}
           meetingName={meetingName}
+          meetingCode={meetingCode}
           canManage={canManage}
+          aiMode={aiMode}
           autoJoin={autoJoin}
         />
       </StreamCall>

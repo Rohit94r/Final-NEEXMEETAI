@@ -80,7 +80,9 @@ export const CallView = ({
     <CallProvider
       meetingId={meetingId}
       meetingName={data.name}
+      meetingCode={data.secretCode}
       canManage={data.canManage}
+      aiMode={data.aiMode}
     />
   );
 };
