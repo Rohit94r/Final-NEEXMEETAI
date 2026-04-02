@@ -23,14 +23,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { getSafeCallbackUrl } from "../../lib/callback-url";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, { message: "Password is required" }),
 });
 
-export const SignInView = () => {
+interface Props {
+  callbackUrl?: string;
+}
+
+export const SignInView = ({ callbackUrl }: Props) => {
   const router = useRouter();
+  const safeCallbackUrl = getSafeCallbackUrl(callbackUrl);
 
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,12 +57,12 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
-        callbackURL: "/",
+        callbackURL: safeCallbackUrl,
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
+          router.push(safeCallbackUrl);
         },
         onError: ({ error }) => {
           setPending(false);
@@ -73,7 +79,7 @@ export const SignInView = () => {
     authClient.signIn.social(
       {
         provider: provider,
-        callbackURL: "/"
+        callbackURL: safeCallbackUrl
       },
       {
         onSuccess: () => {

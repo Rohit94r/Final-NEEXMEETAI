@@ -1,11 +1,6 @@
-import { db } from '@/db';
-import { agents, meetings } from '@/db/schema';
 import { getSessionOrNull } from '@/lib/auth';
-import { hasServerEnv } from '@/lib/env';
-import { polarClient } from '@/lib/polar';
-import { MAX_FREE_AGENTS, MAX_FREE_MEETINGS } from '@/modules/premium/constants';
+import { getEntityCreationAccess } from '@/modules/premium/lib/subscription';
 import { initTRPC, TRPCError } from '@trpc/server';
-import { count, eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { cache } from 'react';
 export const createTRPCContext = cache(async () => {
@@ -39,50 +34,16 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
 });
 export const premiumProcedure = (entity: "meetings" | "agents") =>
   protectedProcedure.use(async ({ ctx, next }) => {
-    const [userMeetings] = await db
-      .select({
-        count: count(meetings.id),
-      })
-      .from(meetings)
-      .where(eq(meetings.userId, ctx.auth.user.id));
+    const access = await getEntityCreationAccess(ctx.auth.user.id, entity);
 
-    const [userAgents] = await db
-      .select({
-        count: count(agents.id),
-      })
-      .from(agents)
-      .where(eq(agents.userId, ctx.auth.user.id));
-
-    let isPremium = false;
-
-    if (hasServerEnv("POLAR_ACCESS_TOKEN")) {
-      try {
-        const customer = await polarClient.customers.getStateExternal({
-          externalId: ctx.auth.user.id,
-        });
-
-        isPremium = customer.activeSubscriptions.length > 0;
-      } catch (error) {
-        console.error("Failed to fetch Polar subscription state", error);
-      }
-    }
-
-    const isFreeAgentLimitReached = userAgents.count >= MAX_FREE_AGENTS;
-    const isFreeMeetingLimitReached = userMeetings.count >= MAX_FREE_MEETINGS;
-
-    const shouldThrowMeetingError =
-      entity === "meetings" && isFreeMeetingLimitReached && !isPremium;
-    const shouldThrowAgentError =
-      entity === "agents" && isFreeAgentLimitReached && !isPremium;
-
-    if (shouldThrowMeetingError) {
+    if (entity === "meetings" && access.isBlocked) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "You have reached the maximum number of free meetings",
       });
     }
 
-    if (shouldThrowAgentError) {
+    if (entity === "agents" && access.isBlocked) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "You have reached the maximum number of free agents",

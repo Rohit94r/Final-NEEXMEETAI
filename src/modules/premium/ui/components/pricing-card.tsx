@@ -61,6 +61,7 @@ interface Props extends VariantProps<typeof pricingCardVariants> {
   className?: string;
   buttonText: string;
   onClick: () => void;
+  disabled?: boolean;
 };
 
 export const PricingCard = ({
@@ -74,6 +75,7 @@ export const PricingCard = ({
   className,
   buttonText,
   onClick,
+  disabled = false,
 }: Props) => {
   return (
     <div className={cn(pricingCardVariants({ variant }), className, "border")}>
@@ -117,6 +119,7 @@ export const PricingCard = ({
         size="lg"
         variant={variant === "highlighted" ? "default" : "outline"}
         onClick={onClick}
+        disabled={disabled}
       >
         {buttonText}
       </Button>
@@ -141,4 +144,3 @@ export const PricingCard = ({
     </div>
   );
 };
-

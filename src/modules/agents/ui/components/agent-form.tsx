@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { toast } from "sonner";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -91,6 +92,13 @@ export const AgentForm = ({
   const isEdit = !!initialValues?.id;
   const isPending = createAgent.isPending || updateAgent.isPending;
 
+  useEffect(() => {
+    form.reset({
+      name: initialValues?.name ?? "",
+      instructions: initialValues?.instructions ?? "",
+    });
+  }, [form, initialValues]);
+
   const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
     if (isEdit) {
       updateAgent.mutate({ ...values, id: initialValues.id });
@@ -103,7 +111,7 @@ export const AgentForm = ({
     <Form {...form}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <GeneratedAvatar
-          seed={form.watch("name")}
+          seed={form.watch("name") || "Agent"}
           variant="botttsNeutral"
           className="border size-16"
         />

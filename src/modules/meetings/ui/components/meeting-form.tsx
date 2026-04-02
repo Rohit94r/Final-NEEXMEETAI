@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -104,6 +104,13 @@ export const MeetingForm = ({
 
   const isEdit = !!initialValues?.id;
   const isPending = createMeeting.isPending || updateMeeting.isPending;
+
+  useEffect(() => {
+    form.reset({
+      name: initialValues?.name ?? "",
+      agentId: initialValues?.agentId ?? "",
+    });
+  }, [form, initialValues]);
 
   const onSubmit = (values: z.infer<typeof meetingsInsertSchema>) => {
     if (isEdit) {

@@ -106,16 +106,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Agent not found" }, { status: 404 });
     }
 
-    const call = streamVideo.video.call("default", meetingId);
-    const realtimeClient = await streamVideo.video.connectOpenAi({
-      call,
-      openAiApiKey: getRequiredServerEnv("OPENAI_API_KEY"),
-      agentUserId: existingAgent.id,
+    console.info("[webhook.call.session_started] Starting AI agent session", {
+      meetingId,
+      agentId: existingAgent.id,
     });
 
-    realtimeClient.updateSession({
-      instructions: existingAgent.instructions,
-    });
+    try {
+      const call = streamVideo.video.call("default", meetingId);
+      const realtimeClient = await streamVideo.video.connectOpenAi({
+        call,
+        openAiApiKey: getRequiredServerEnv("OPENAI_API_KEY"),
+        agentUserId: existingAgent.id,
+      });
+
+      realtimeClient.updateSession({
+        instructions: existingAgent.instructions,
+      });
+    } catch (error) {
+      console.error("[webhook.call.session_started] Failed to attach AI agent", {
+        meetingId,
+        agentId: existingAgent.id,
+        error,
+      });
+
+      return NextResponse.json(
+        { error: "Failed to start AI agent session" },
+        { status: 500 },
+      );
+    }
   } else if (eventType === "call.session_participant_left") {
     const event = payload as CallSessionParticipantLeftEvent;
     const meetingId = event.call_cid.split(":")[1]; // call_cid is formatted as "type:id"
@@ -124,8 +142,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
     }
 
-    const call = streamVideo.video.call("default", meetingId);
-    await call.end();
+    console.info("[webhook.call.session_participant_left] Participant left", {
+      meetingId,
+      participantUserId: event.participant?.user?.id ?? null,
+    });
   } else if (eventType === "call.session_ended") {
     const event = payload as CallEndedEvent;
     const meetingId = event.call.custom?.meetingId;

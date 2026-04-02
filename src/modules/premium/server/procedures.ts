@@ -1,83 +1,50 @@
-import { eq, count } from "drizzle-orm";
-
-import { db } from "@/db";
-import { hasServerEnv } from "@/lib/env";
-import { polarClient } from "@/lib/polar";
-import { agents, meetings } from "@/db/schema";
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/trpc/init";
+import {
+  getFreeUsageCounts,
+  getSubscriptionState,
+} from "../lib/subscription";
 
 export const premiumRouter = createTRPCRouter({
-  getCurrentSubscription: protectedProcedure.query(async ({ ctx }) => {
-    if (!hasServerEnv("POLAR_ACCESS_TOKEN")) {
-      return null;
-    }
+  getCurrentSubscription: protectedProcedure.query(async () => {
+    const subscription = await getSubscriptionState();
 
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: ctx.auth.user.id,
-    });
-
-    const subscription = customer.activeSubscriptions[0];
-
-    if (!subscription) {
-      return null;
-    }
-
-    const product = await polarClient.products.get({
-      id: subscription.productId,
-    });
-
-    return product;
+    return subscription.currentPlan;
   }),
   getProducts: protectedProcedure.query(async () => {
-    if (!hasServerEnv("POLAR_ACCESS_TOKEN")) {
-      return [];
-    }
+    const subscription = await getSubscriptionState();
 
-    const products = await polarClient.products.list({
-      isArchived: false,
-      isRecurring: true,
-      sorting: ["price_amount"],
-    });
-
-    return products.result.items;
+    return subscription.plans.map((plan) => ({
+      id: plan.id,
+      name: plan.name,
+      description: plan.description,
+      metadata: {
+        variant: plan.variant,
+        badge: plan.badge,
+        isPlaceholder: true,
+      },
+      prices: [
+        {
+          amountType: "fixed" as const,
+          priceAmount: plan.price * 100,
+          recurringInterval: plan.interval,
+        },
+      ],
+      benefits: plan.features.map((feature) => ({
+        description: feature,
+      })),
+      isAvailable: plan.isAvailable,
+    }));
   }),
   getFreeUsage: protectedProcedure.query(async ({ ctx }) => {
-    if (hasServerEnv("POLAR_ACCESS_TOKEN")) {
-      try {
-        const customer = await polarClient.customers.getStateExternal({
-          externalId: ctx.auth.user.id,
-        });
+    const subscription = await getSubscriptionState();
 
-        const subscription = customer.activeSubscriptions[0];
-
-        if (subscription) {
-          return null;
-        }
-      } catch (error) {
-        console.error("Failed to fetch Polar free usage state", error);
-      }
+    if (subscription.isPremium) {
+      return null;
     }
 
-    const [userMeetings] = await db
-      .select({
-        count: count(meetings.id),
-      })
-      .from(meetings)
-      .where(eq(meetings.userId, ctx.auth.user.id));
-
-    const [userAgents] = await db
-      .select({
-        count: count(agents.id),
-      })
-      .from(agents)
-      .where(eq(agents.userId, ctx.auth.user.id));
-
-    return {
-      meetingCount: userMeetings.count,
-      agentCount: userAgents.count,
-    };
+    return getFreeUsageCounts(ctx.auth.user.id);
   })
 });

@@ -1,9 +1,9 @@
 "use client";
 
+import { toast } from "sonner";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
-import { authClient } from "@/lib/auth-client";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 
@@ -16,9 +16,8 @@ export const UpgradeView = () => {
     trpc.premium.getProducts.queryOptions()
   );
 
-  const { data: currentSubscription } = useSuspenseQuery(
-    trpc.premium.getCurrentSubscription.queryOptions()
-  );
+  useSuspenseQuery(trpc.premium.getCurrentSubscription.queryOptions());
+  const currentPlanName = "Free";
 
   return (
     <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-10">
@@ -26,24 +25,32 @@ export const UpgradeView = () => {
         <h5 className="font-medium text-2xl md:text-3xl">
           You are on the{" "}
           <span className="font-semibold text-primary">
-            {currentSubscription?.name ?? "Free"}
+            {currentPlanName}
           </span>{" "}
           plan
         </h5>
+        <p className="max-w-2xl text-center text-sm text-muted-foreground">
+          Billing is intentionally disabled for now. This page keeps the plan
+          structure ready for a future Stripe or Polar integration without
+          turning payments on yet.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map((product) => {
-            const isCurrentProduct = currentSubscription?.id === product.id;
-            const isPremium = !!currentSubscription;
+            const isCurrentProduct = product.id === "free";
+            const isPremium = false;
+            const isAvailable = (product as { isAvailable?: boolean }).isAvailable ?? false;
 
-            let buttonText = "Upgrade";
-            let onClick = () => authClient.checkout({ products: [product.id] });
+            let buttonText = isAvailable ? "Current Plan" : "Coming Soon";
+            const onClick = () => {
+              toast.message("Billing placeholder", {
+                description: "Payment checkout will be connected in a future release.",
+              });
+            };
 
             if (isCurrentProduct) {
-              buttonText = "Manage";
-              onClick = () => authClient.customer.portal();
+              buttonText = "Current Plan";
             } else if (isPremium) {
-              buttonText = "Change Plan";
-              onClick = () => authClient.customer.portal();
+              buttonText = isAvailable ? "Manage Later" : "Coming Soon";
             }
 
             return (
@@ -68,6 +75,7 @@ export const UpgradeView = () => {
                   (benefit) => benefit.description
                 )}
                 badge={product.metadata.badge as string | null}
+                disabled={!isAvailable || isCurrentProduct}
               />
             )
           })}

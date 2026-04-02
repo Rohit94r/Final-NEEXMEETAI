@@ -84,6 +84,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
           meetingId={meetingId}
           meetingName={data.name}
           canManage={data.canManage}
+          canShare={isUpcoming || isActive}
           onEdit={() => setUpdateMeetingDialogOpen(true)}
           onRemove={handleRemoveMeeting}
           onInvite={() => setInviteMemberDialogOpen(true)}

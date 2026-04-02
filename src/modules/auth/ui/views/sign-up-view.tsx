@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { getSafeCallbackUrl } from "../../lib/callback-url";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -35,8 +36,13 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
-export const SignUpView = () => {
+interface Props {
+  callbackUrl?: string;
+}
+
+export const SignUpView = ({ callbackUrl }: Props) => {
   const router = useRouter();
+  const safeCallbackUrl = getSafeCallbackUrl(callbackUrl);
 
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,12 +66,12 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: "/",
+        callbackURL: safeCallbackUrl,
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
+          router.push(safeCallbackUrl);
         },
         onError: ({ error }) => {
           setPending(false);
@@ -83,7 +89,7 @@ export const SignUpView = () => {
     authClient.signIn.social(
       {
         provider: provider,
-        callbackURL: "/",
+        callbackURL: safeCallbackUrl,
       },
       {
         onSuccess: () => {
@@ -199,7 +205,7 @@ export const SignUpView = () => {
                   type="submit"
                   className="w-full"
                 >
-                  Sign in
+                  Sign up
                 </Button>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">

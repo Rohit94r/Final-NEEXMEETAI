@@ -64,11 +64,93 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
   };
 }
 
+async function ensureCallAccess(meetingId: string, userId: string) {
+  const [existingMeeting] = await db
+    .select({
+      id: meetings.id,
+      name: meetings.name,
+      ownerId: meetings.userId,
+      status: meetings.status,
+      transcriptUrl: meetings.transcriptUrl,
+    })
+    .from(meetings)
+    .where(eq(meetings.id, meetingId));
+
+  if (!existingMeeting) {
+    return null;
+  }
+
+  if (existingMeeting.ownerId === userId) {
+    return {
+      ...existingMeeting,
+      isOwner: true,
+    };
+  }
+
+  const [existingMember] = await db
+    .select({
+      id: meetingMembers.id,
+    })
+    .from(meetingMembers)
+    .where(
+      and(
+        eq(meetingMembers.meetingId, meetingId),
+        eq(meetingMembers.userId, userId),
+      ),
+    );
+
+  if (!existingMember && ["upcoming", "active"].includes(existingMeeting.status)) {
+    console.info("[meetings.ensureCallAccess] Adding link-based participant", {
+      meetingId,
+      userId,
+      status: existingMeeting.status,
+    });
+
+    await db
+      .insert(meetingMembers)
+      .values({
+        meetingId,
+        userId,
+      })
+      .onConflictDoNothing();
+  }
+
+  const hasAccess = existingMember || ["upcoming", "active"].includes(existingMeeting.status);
+
+  if (!hasAccess) {
+    return null;
+  }
+
+  return {
+    ...existingMeeting,
+    isOwner: false,
+  };
+}
+
 export const meetingsRouter = createTRPCRouter({
+  getCallDetails: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const access = await ensureCallAccess(input.id, ctx.auth.user.id);
+
+      if (!access) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      return {
+        id: access.id,
+        name: access.name,
+        status: access.status,
+        canManage: access.isOwner,
+      };
+    }),
   generateChatToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-    const access = await getAccessibleMeeting(input.meetingId, ctx.auth.user.id);
+    const access = await ensureCallAccess(input.meetingId, ctx.auth.user.id);
 
     if (!access) {
       throw new TRPCError({
@@ -173,7 +255,7 @@ export const meetingsRouter = createTRPCRouter({
   generateToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-    const access = await getAccessibleMeeting(input.meetingId, ctx.auth.user.id);
+    const access = await ensureCallAccess(input.meetingId, ctx.auth.user.id);
 
     if (!access) {
       throw new TRPCError({

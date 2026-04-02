@@ -19,13 +19,13 @@ const Page = async ({ params }: Props) => {
   const session = await getSessionOrNull(await headers());
 
   if (!session) {
-    redirect("/sign-in");
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent(`/call/${meetingId}`)}`);
   }
 
 
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(
-    trpc.meetings.getOne.queryOptions({ id: meetingId }),
+    trpc.meetings.getCallDetails.queryOptions({ id: meetingId }),
   );
 
   return (
