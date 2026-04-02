@@ -7,8 +7,8 @@ export const user = pgTable("user", {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
   image: text('image'),
-  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull(),
 });
 
 export const session = pgTable("session", {
@@ -19,14 +19,14 @@ export const session = pgTable("session", {
   updatedAt: timestamp('updated_at').notNull(),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-  userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' })
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 });
 
 export const account = pgTable("account", {
   id: text('id').primaryKey(),
   accountId: text('account_id').notNull(),
   providerId: text('provider_id').notNull(),
-  userId: text('user_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
   idToken: text('id_token'),
@@ -35,7 +35,7 @@ export const account = pgTable("account", {
   scope: text('scope'),
   password: text('password'),
   createdAt: timestamp('created_at').notNull(),
-  updatedAt: timestamp('updated_at').notNull()
+  updatedAt: timestamp('updated_at').notNull(),
 });
 
 export const verification = pgTable("verification", {
@@ -43,56 +43,37 @@ export const verification = pgTable("verification", {
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()),
-  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date())
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()),
+  updatedAt: timestamp('updated_at').$defaultFn(() => new Date()),
 });
 
 export const agents = pgTable("agents", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => nanoid()),
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
   name: text("name").notNull(),
   isStarred: boolean("is_starred").notNull().default(false),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   instructions: text("instructions").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const meetingStatus = pgEnum("meeting_status", [
-  "upcoming",
-  "active",
-  "completed",
-  "processing",
-  "cancelled"
+  "upcoming", "active", "completed", "processing", "cancelled",
 ]);
 
-export const meetingMemberRole = pgEnum("meeting_member_role", [
-  "member",
-]);
+export const meetingMemberRole = pgEnum("meeting_member_role", ["member"]);
 
-export const meetingMemberStatus = pgEnum("meeting_member_status", [
-  "pending",
-  "approved",
-]);
+export const meetingMemberStatus = pgEnum("meeting_member_status", ["pending", "approved"]);
 
 export const meetings = pgTable(
   "meetings",
   {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => nanoid()),
+    id: text("id").primaryKey().$defaultFn(() => nanoid()),
     name: text("name").notNull(),
     secretCode: text("secret_code").notNull(),
     isStarred: boolean("is_starred").notNull().default(false),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    agentId: text("agent_id")
-      .notNull()
-      .references(() => agents.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    agentId: text("agent_id").notNull().references(() => agents.id, { onDelete: "cascade" }),
     status: meetingStatus("status").notNull().default("upcoming"),
     startedAt: timestamp("started_at"),
     endedAt: timestamp("ended_at"),
@@ -110,23 +91,52 @@ export const meetings = pgTable(
 export const meetingMembers = pgTable(
   "meeting_members",
   {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => nanoid()),
-    meetingId: text("meeting_id")
-      .notNull()
-      .references(() => meetings.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    id: text("id").primaryKey().$defaultFn(() => nanoid()),
+    meetingId: text("meeting_id").notNull().references(() => meetings.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     role: meetingMemberRole("role").notNull().default("member"),
     status: meetingMemberStatus("status").notNull().default("approved"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
-    meetingUserUniqueIdx: uniqueIndex("meeting_members_meeting_user_idx").on(
-      table.meetingId,
-      table.userId,
-    ),
+    meetingUserUniqueIdx: uniqueIndex("meeting_members_meeting_user_idx").on(table.meetingId, table.userId),
   }),
 );
+
+// ─── Workspace ────────────────────────────────────────────────────────────────
+
+export const taskStatus = pgEnum("task_status", ["todo", "in_progress", "done"]);
+export const taskPriority = pgEnum("task_priority", ["low", "medium", "high"]);
+
+export const tasks = pgTable("tasks", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: taskStatus("status").notNull().default("todo"),
+  priority: taskPriority("priority").notNull().default("medium"),
+  assigneeName: text("assignee_name"),
+  dueDate: timestamp("due_date"),
+  meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const decisions = pgTable("decisions", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  content: text("content").notNull(),
+  context: text("context"),
+  meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const documents = pgTable("documents", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

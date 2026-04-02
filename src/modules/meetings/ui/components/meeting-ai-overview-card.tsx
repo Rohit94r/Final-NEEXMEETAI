@@ -16,18 +16,28 @@ const modeConfig = {
   realtime_voice: {
     title: "Realtime AI agent enabled",
     description:
-      "Your meeting assistant can join the live call, and you still get transcript, summary, recording, and Ask AI afterwards.",
+      "Your AI agent joins the live call as a voice participant. Transcript, summary, recording, and Ask AI are all available after the meeting.",
     badge: "Live voice",
     badgeClassName: "bg-emerald-500/15 text-emerald-700 border-emerald-700/10",
     icon: BotIcon,
+    features: [
+      { icon: FileTextIcon, label: "Auto transcript" },
+      { icon: BrainCircuitIcon, label: "AI summary" },
+      { icon: MessageSquareIcon, label: "Ask AI" },
+    ],
   },
   groq_assistant: {
     title: "Groq meeting assistant enabled",
     description:
-      "Live voice bot is disabled, but transcript, recording, AI summary, and Ask AI remain available after the meeting with your Groq setup.",
-    badge: "No-cost AI",
+      "AI summary and Ask AI are powered by your Groq setup. Auto transcript and recording are available after the meeting.",
+    badge: "Groq AI",
     badgeClassName: "bg-blue-500/15 text-blue-700 border-blue-700/10",
     icon: BrainCircuitIcon,
+    features: [
+      { icon: FileTextIcon, label: "Auto transcript" },
+      { icon: BrainCircuitIcon, label: "AI summary" },
+      { icon: MessageSquareIcon, label: "Ask AI" },
+    ],
   },
   disabled: {
     title: "AI setup is incomplete",
@@ -36,23 +46,9 @@ const modeConfig = {
     badge: "AI off",
     badgeClassName: "bg-amber-500/15 text-amber-700 border-amber-700/10",
     icon: MicOffIcon,
+    features: [],
   },
 } as const;
-
-const featureItems = [
-  {
-    icon: FileTextIcon,
-    label: "Auto transcript",
-  },
-  {
-    icon: BrainCircuitIcon,
-    label: "AI summary",
-  },
-  {
-    icon: MessageSquareIcon,
-    label: "Ask AI",
-  },
-];
 
 export const MeetingAiOverviewCard = ({ aiMode }: Props) => {
   const config = modeConfig[aiMode];
@@ -77,7 +73,7 @@ export const MeetingAiOverviewCard = ({ aiMode }: Props) => {
         </Badge>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        {featureItems.map((item) => (
+        {config.features.map((item) => (
           <div
             key={item.label}
             className="inline-flex items-center gap-2 rounded-full border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"

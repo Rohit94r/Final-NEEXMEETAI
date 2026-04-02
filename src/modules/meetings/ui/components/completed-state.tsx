@@ -6,6 +6,8 @@ import {
   BookOpenTextIcon,
   FileVideoIcon,
   ClockFadingIcon,
+  CheckSquareIcon,
+  LightbulbIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -18,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { formatDuration } from "@/lib/utils";
 import { Transcript } from "./transcript";
 import { ChatProvider } from "./chat-provider";
+import { TasksPanel } from "@/modules/workspace/ui/components/tasks-panel";
+import { DecisionsPanel } from "@/modules/workspace/ui/components/decisions-panel";
 
 interface Props {
   data: MeetingGetOne;
@@ -58,6 +62,20 @@ export const CompletedState = ({ data }: Props) => {
                 <SparklesIcon />
                 Ask AI
               </TabsTrigger>
+              <TabsTrigger
+                value="tasks"
+                className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground"
+              >
+                <CheckSquareIcon />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger
+                value="decisions"
+                className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground"
+              >
+                <LightbulbIcon />
+                Decisions
+              </TabsTrigger>
              </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -67,6 +85,16 @@ export const CompletedState = ({ data }: Props) => {
             meetingId={data.id}
             participantIds={data.participants.map((participant) => participant.id)}
           />
+        </TabsContent>
+        <TabsContent value="tasks">
+          <div className="bg-white rounded-lg border px-4 py-5">
+            <TasksPanel meetingId={data.id} showExtract />
+          </div>
+        </TabsContent>
+        <TabsContent value="decisions">
+          <div className="bg-white rounded-lg border px-4 py-5">
+            <DecisionsPanel meetingId={data.id} showExtract />
+          </div>
         </TabsContent>
         <TabsContent value="transcript">
           <Transcript meetingId={data.id} />
