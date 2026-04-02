@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CallingState, StreamTheme, useCall } from "@stream-io/video-react-sdk";
+import {
+  CallingState,
+  StreamTheme,
+  useCall,
+  useCallStateHooks,
+} from "@stream-io/video-react-sdk";
 
 import { CallLobby } from "./call-lobby";
 import { CallActive } from "./call-active";
@@ -10,15 +15,23 @@ interface Props {
   meetingId: string;
   meetingName: string;
   canManage: boolean;
+  autoJoin?: boolean;
 };
 
-export const CallUI = ({ meetingId, meetingName, canManage }: Props) => {
+export const CallUI = ({
+  meetingId,
+  meetingName,
+  canManage,
+  autoJoin = false,
+}: Props) => {
   const call = useCall();
+  const { useCallCallingState } = useCallStateHooks();
+  const callingState = useCallCallingState();
   const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
-  const handleJoin = async () => {
+  const handleJoin = useCallback(async () => {
     if (!call || isJoining) return;
 
     if (call.state.callingState !== CallingState.IDLE) {
@@ -38,7 +51,7 @@ export const CallUI = ({ meetingId, meetingName, canManage }: Props) => {
     } finally {
       setIsJoining(false);
     }
-  };
+  }, [call, isJoining]);
 
   const handleLeave = async () => {
     if (!call || isLeaving) return;
@@ -62,6 +75,32 @@ export const CallUI = ({ meetingId, meetingName, canManage }: Props) => {
       setIsLeaving(false);
     }
   };
+
+  useEffect(() => {
+    if (!autoJoin || !call || isJoining || show !== "lobby") {
+      return;
+    }
+
+    void handleJoin();
+  }, [autoJoin, call, handleJoin, isJoining, show]);
+
+  useEffect(() => {
+    if (!call) {
+      return;
+    }
+
+    if (
+      callingState === CallingState.LEFT ||
+      callingState === CallingState.OFFLINE
+    ) {
+      setShow("ended");
+      return;
+    }
+
+    if (callingState === CallingState.JOINED) {
+      setShow("call");
+    }
+  }, [call, callingState]);
 
   return (
     <StreamTheme className="h-full">

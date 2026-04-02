@@ -2,14 +2,16 @@
   "name": "nexmeetai",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20 <23"
+  },
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
     "predev": "npm run clean",
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
     "prebuild": "npm run clean",
     "build": "next build",
-    "prestart": "npm run clean",
-    "start": "next start",
+    "start": "next start --port 3000",
     "lint": "eslint .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",

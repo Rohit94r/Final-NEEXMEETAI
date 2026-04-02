@@ -72,6 +72,11 @@ export const meetingMemberRole = pgEnum("meeting_member_role", [
   "member",
 ]);
 
+export const meetingMemberStatus = pgEnum("meeting_member_status", [
+  "pending",
+  "approved",
+]);
+
 export const meetings = pgTable("meetings", {
   id: text("id")
     .primaryKey()
@@ -106,6 +111,7 @@ export const meetingMembers = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: meetingMemberRole("role").notNull().default("member"),
+    status: meetingMemberStatus("status").notNull().default("approved"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({

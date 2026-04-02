@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { agents, meetingMembers, meetings, user } from "@/db/schema";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamVideo } from "@/lib/stream-video";
-import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 
 import { MeetingStatus, StreamTranscriptItem } from "../types";
@@ -25,6 +25,7 @@ const buildMeetingAccessCondition = (userId: string) =>
           and(
             eq(meetingMembers.meetingId, meetings.id),
             eq(meetingMembers.userId, userId),
+            eq(meetingMembers.status, "approved"),
           ),
         ),
     ),
@@ -45,6 +46,7 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
       and(
         eq(meetingMembers.meetingId, meetings.id),
         eq(meetingMembers.userId, userId),
+        eq(meetingMembers.status, "approved"),
       ),
     )
     .where(
@@ -64,7 +66,7 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
   };
 }
 
-async function ensureCallAccess(meetingId: string, userId: string) {
+async function getMeetingJoinState(meetingId: string, userId: string) {
   const [existingMeeting] = await db
     .select({
       id: meetings.id,
@@ -84,12 +86,14 @@ async function ensureCallAccess(meetingId: string, userId: string) {
     return {
       ...existingMeeting,
       isOwner: true,
+      accessState: "owner" as const,
     };
   }
 
   const [existingMember] = await db
     .select({
       id: meetingMembers.id,
+      status: meetingMembers.status,
     })
     .from(meetingMembers)
     .where(
@@ -99,31 +103,35 @@ async function ensureCallAccess(meetingId: string, userId: string) {
       ),
     );
 
-  if (!existingMember && ["upcoming", "active"].includes(existingMeeting.status)) {
-    console.info("[meetings.ensureCallAccess] Adding link-based participant", {
-      meetingId,
-      userId,
-      status: existingMeeting.status,
-    });
+  if (existingMember?.status === "approved") {
+    const canEnterCall =
+      existingMeeting.status === "upcoming" ||
+      existingMeeting.status === "active";
 
-    await db
-      .insert(meetingMembers)
-      .values({
-        meetingId,
-        userId,
-      })
-      .onConflictDoNothing();
+    return {
+      ...existingMeeting,
+      isOwner: false,
+      accessState: canEnterCall
+        ? ("approved" as const)
+        : ("waiting_for_host" as const),
+    };
   }
 
-  const hasAccess = existingMember || ["upcoming", "active"].includes(existingMeeting.status);
-
-  if (!hasAccess) {
-    return null;
+  if (existingMember?.status === "pending") {
+    return {
+      ...existingMeeting,
+      isOwner: false,
+      accessState: "pending" as const,
+    };
   }
 
   return {
     ...existingMeeting,
     isOwner: false,
+    accessState:
+      existingMeeting.status === "upcoming" || existingMeeting.status === "active"
+        ? ("can_request_access" as const)
+        : ("blocked" as const),
   };
 }
 
@@ -131,7 +139,7 @@ export const meetingsRouter = createTRPCRouter({
   getCallDetails: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
-      const access = await ensureCallAccess(input.id, ctx.auth.user.id);
+      const access = await getMeetingJoinState(input.id, ctx.auth.user.id);
 
       if (!access) {
         throw new TRPCError({
@@ -145,14 +153,63 @@ export const meetingsRouter = createTRPCRouter({
         name: access.name,
         status: access.status,
         canManage: access.isOwner,
+        accessState: access.accessState,
+        canJoin: access.isOwner || access.accessState === "approved",
       };
+    }),
+  requestJoinAccess: protectedProcedure
+    .input(z.object({ meetingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const access = await getMeetingJoinState(input.meetingId, ctx.auth.user.id);
+
+      if (!access) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      if (access.isOwner) {
+        return { status: "owner" as const };
+      }
+
+      if (access.accessState === "blocked") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This meeting is no longer accepting new participants",
+        });
+      }
+
+      if (access.accessState === "approved") {
+        return { status: "approved" as const };
+      }
+
+      if (access.accessState === "pending") {
+        return { status: "pending" as const };
+      }
+
+      await db
+        .insert(meetingMembers)
+        .values({
+          meetingId: input.meetingId,
+          userId: ctx.auth.user.id,
+          status: "pending",
+        })
+        .onConflictDoNothing();
+
+      console.info("[meetings.requestJoinAccess] Pending join request created", {
+        meetingId: input.meetingId,
+        userId: ctx.auth.user.id,
+      });
+
+      return { status: "pending" as const };
     }),
   generateChatToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-    const access = await ensureCallAccess(input.meetingId, ctx.auth.user.id);
+    const access = await getMeetingJoinState(input.meetingId, ctx.auth.user.id);
 
-    if (!access) {
+    if (!access || (!access.isOwner && access.accessState !== "approved")) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Meeting not found",
@@ -255,9 +312,9 @@ export const meetingsRouter = createTRPCRouter({
   generateToken: protectedProcedure
     .input(z.object({ meetingId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-    const access = await ensureCallAccess(input.meetingId, ctx.auth.user.id);
+    const access = await getMeetingJoinState(input.meetingId, ctx.auth.user.id);
 
-    if (!access) {
+    if (!access || (!access.isOwner && access.accessState !== "approved")) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Meeting not found",
@@ -357,6 +414,7 @@ export const meetingsRouter = createTRPCRouter({
         .values({
           meetingId: input.meetingId,
           userId: invitedUser.id,
+          status: "approved",
         })
         .returning();
 
@@ -407,6 +465,7 @@ export const meetingsRouter = createTRPCRouter({
           and(
             eq(meetingMembers.meetingId, input.meetingId),
             eq(meetingMembers.userId, input.memberUserId),
+            eq(meetingMembers.status, "approved"),
           ),
         )
         .returning();
@@ -419,6 +478,122 @@ export const meetingsRouter = createTRPCRouter({
       }
 
       return removedMember;
+    }),
+  admitMember: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+        memberUserId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [existingMeeting] = await db
+        .select()
+        .from(meetings)
+        .where(
+          and(
+            eq(meetings.id, input.meetingId),
+            eq(meetings.userId, ctx.auth.user.id),
+          ),
+        );
+
+      if (!existingMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      const [approvedMember] = await db
+        .update(meetingMembers)
+        .set({ status: "approved" })
+        .where(
+          and(
+            eq(meetingMembers.meetingId, input.meetingId),
+            eq(meetingMembers.userId, input.memberUserId),
+            eq(meetingMembers.status, "pending"),
+          ),
+        )
+        .returning();
+
+      if (!approvedMember) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Join request not found",
+        });
+      }
+
+      const [approvedUser] = await db
+        .select({
+          id: user.id,
+          name: user.name,
+          image: user.image,
+        })
+        .from(user)
+        .where(eq(user.id, input.memberUserId));
+
+      if (approvedUser) {
+        await streamVideo.upsertUsers([
+          {
+            id: approvedUser.id,
+            name: approvedUser.name,
+            role: "user",
+            image:
+              approvedUser.image ??
+              generateAvatarUri({
+                seed: approvedUser.name,
+                variant: "initials",
+              }),
+          },
+        ]);
+      }
+
+      return approvedMember;
+    }),
+  rejectMember: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+        memberUserId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [existingMeeting] = await db
+        .select()
+        .from(meetings)
+        .where(
+          and(
+            eq(meetings.id, input.meetingId),
+            eq(meetings.userId, ctx.auth.user.id),
+          ),
+        );
+
+      if (!existingMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      const [rejectedMember] = await db
+        .delete(meetingMembers)
+        .where(
+          and(
+            eq(meetingMembers.meetingId, input.meetingId),
+            eq(meetingMembers.userId, input.memberUserId),
+            eq(meetingMembers.status, "pending"),
+          ),
+        )
+        .returning();
+
+      if (!rejectedMember) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Join request not found",
+        });
+      }
+
+      return rejectedMember;
     }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -465,7 +640,7 @@ export const meetingsRouter = createTRPCRouter({
 
       return updatedMeeting;
     }),
-  create: premiumProcedure("meetings")
+  create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
       const [createdMeeting] = await db
@@ -556,7 +731,7 @@ export const meetingsRouter = createTRPCRouter({
       throw new TRPCError({ code: "NOT_FOUND", message: "Meeting not found" });
     }
 
-    const members = await db
+      const members = await db
       .select({
         id: user.id,
         name: user.name,
@@ -567,7 +742,31 @@ export const meetingsRouter = createTRPCRouter({
       })
       .from(meetingMembers)
       .innerJoin(user, eq(meetingMembers.userId, user.id))
-      .where(eq(meetingMembers.meetingId, input.id));
+      .where(
+        and(
+          eq(meetingMembers.meetingId, input.id),
+          eq(meetingMembers.status, "approved"),
+        ),
+      );
+
+    const pendingRequests = existingMeeting.isOwner
+      ? await db
+          .select({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            requestedAt: meetingMembers.createdAt,
+          })
+          .from(meetingMembers)
+          .innerJoin(user, eq(meetingMembers.userId, user.id))
+          .where(
+            and(
+              eq(meetingMembers.meetingId, input.id),
+              eq(meetingMembers.status, "pending"),
+            ),
+          )
+      : [];
 
     return {
       ...existingMeeting,
@@ -583,6 +782,7 @@ export const meetingsRouter = createTRPCRouter({
         },
         ...members,
       ],
+      pendingRequests,
     };
   }),
   getMany: protectedProcedure

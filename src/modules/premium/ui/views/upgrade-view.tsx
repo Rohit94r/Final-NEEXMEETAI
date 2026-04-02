@@ -1,22 +1,63 @@
 "use client";
 
 import { toast } from "sonner";
-import { useSuspenseQuery } from "@tanstack/react-query";
-
-import { useTRPC } from "@/trpc/client";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 
 import { PricingCard } from "../components/pricing-card";
 
+const placeholderPlans = [
+  {
+    id: "free",
+    title: "Free",
+    description: "Good for trying the product locally while billing is offline.",
+    price: 0,
+    priceSuffix: "/month",
+    badge: "Current",
+    variant: "default" as const,
+    buttonText: "Current Plan",
+    disabled: true,
+    features: [
+      "Create and run meetings without billing limits",
+      "Create AI agents",
+      "Use host approval for join requests",
+    ],
+  },
+  {
+    id: "pro",
+    title: "Pro",
+    description: "Reserved for future Stripe or Polar checkout integration.",
+    price: 19,
+    priceSuffix: "/month",
+    badge: "Coming Soon",
+    variant: "highlighted" as const,
+    buttonText: "Coming Soon",
+    disabled: true,
+    features: [
+      "Advanced meeting analytics",
+      "Priority AI processing",
+      "More automation controls",
+    ],
+  },
+  {
+    id: "business",
+    title: "Business",
+    description: "Placeholder tier for team billing and admin features.",
+    price: 49,
+    priceSuffix: "/month",
+    badge: null,
+    variant: "default" as const,
+    buttonText: "Coming Soon",
+    disabled: true,
+    features: [
+      "Workspace-level controls",
+      "Usage reporting",
+      "Future team billing support",
+    ],
+  },
+];
+
 export const UpgradeView = () => {
-  const trpc = useTRPC();
-
-   const { data: products } = useSuspenseQuery(
-    trpc.premium.getProducts.queryOptions()
-  );
-
-  useSuspenseQuery(trpc.premium.getCurrentSubscription.queryOptions());
   const currentPlanName = "Free";
 
   return (
@@ -35,47 +76,26 @@ export const UpgradeView = () => {
           turning payments on yet.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {products.map((product) => {
-            const isCurrentProduct = product.id === "free";
-            const isPremium = false;
-            const isAvailable = (product as { isAvailable?: boolean }).isAvailable ?? false;
-
-            let buttonText = isAvailable ? "Current Plan" : "Coming Soon";
+          {placeholderPlans.map((plan) => {
             const onClick = () => {
               toast.message("Billing placeholder", {
                 description: "Payment checkout will be connected in a future release.",
               });
             };
 
-            if (isCurrentProduct) {
-              buttonText = "Current Plan";
-            } else if (isPremium) {
-              buttonText = isAvailable ? "Manage Later" : "Coming Soon";
-            }
-
             return (
               <PricingCard
-                key={product.id}
-                buttonText={buttonText}
+                key={plan.id}
+                buttonText={plan.buttonText}
                 onClick={onClick}
-                variant={
-                  product.metadata.variant === "highlighted"
-                    ? "highlighted"
-                    : "default"
-                }
-                title={product.name}
-                price={
-                  product.prices[0].amountType === "fixed"
-                    ? product.prices[0].priceAmount / 100
-                    : 0
-                }
-                description={product.description}
-                priceSuffix={`/${(product.prices[0] as unknown as Record<string, string>).recurringInterval ?? "month"}`}
-                features={product.benefits.map(
-                  (benefit) => benefit.description
-                )}
-                badge={product.metadata.badge as string | null}
-                disabled={!isAvailable || isCurrentProduct}
+                variant={plan.variant}
+                title={plan.title}
+                price={plan.price}
+                description={plan.description}
+                priceSuffix={plan.priceSuffix}
+                features={plan.features}
+                badge={plan.badge}
+                disabled={plan.disabled}
               />
             )
           })}

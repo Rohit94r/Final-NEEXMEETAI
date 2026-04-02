@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -15,9 +16,23 @@ import { CancelledState } from "../components/cancelled-state";
 import { ProcessingState } from "../components/processing-state";
 import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
 import { MeetingIdViewHeader } from "../components/meeting-id-view-header";
-import { CompletedState } from "../components/completed-state";
 import { InviteMemberDialog } from "../components/invite-member-dialog";
 import { MeetingMembersCard } from "../components/meeting-members-card";
+import { MeetingJoinRequestsCard } from "../components/meeting-join-requests-card";
+
+const CompletedState = dynamic(
+  () =>
+    import("../components/completed-state").then((mod) => mod.CompletedState),
+  {
+    ssr: false,
+    loading: () => (
+      <LoadingState
+        title="Loading Meeting Summary"
+        description="Preparing summary, transcript, and chat"
+      />
+    ),
+  },
+);
 
 interface Props {
   meetingId: string;
@@ -37,16 +52,16 @@ export const MeetingIdView = ({ meetingId }: Props) => {
   );
 
   const { data } = useSuspenseQuery(
-    trpc.meetings.getOne.queryOptions({ id: meetingId }),
+    {
+      ...trpc.meetings.getOne.queryOptions({ id: meetingId }),
+      refetchInterval: 3000,
+    },
   );
 
   const removeMeeting = useMutation(
     trpc.meetings.remove.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.meetings.getMany.queryOptions({}));
-        await queryClient.invalidateQueries(
-          trpc.premium.getFreeUsage.queryOptions(),
-        );
         router.push("/meetings");
       },
     }),
@@ -94,6 +109,12 @@ export const MeetingIdView = ({ meetingId }: Props) => {
           members={data.participants}
           canManage={data.canManage}
         />
+        {data.canManage && (
+          <MeetingJoinRequestsCard
+            meetingId={meetingId}
+            requests={data.pendingRequests}
+          />
+        )}
         {isCancelled && <CancelledState />}
         {isProcessing && <ProcessingState />}
         {isCompleted && <CompletedState data={data} />}

@@ -20,6 +20,7 @@ interface Props {
   meetingId: string;
   meetingName: string;
   canManage: boolean;
+  autoJoin?: boolean;
   userId: string;
   userName: string;
   userImage: string;
@@ -29,6 +30,7 @@ export const CallConnect = ({
   meetingId,
   meetingName,
   canManage,
+  autoJoin = false,
   userId,
   userName,
   userImage,
@@ -100,6 +102,7 @@ export const CallConnect = ({
           meetingId={meetingId}
           meetingName={meetingName}
           canManage={canManage}
+          autoJoin={autoJoin}
         />
       </StreamCall>
     </StreamVideo>

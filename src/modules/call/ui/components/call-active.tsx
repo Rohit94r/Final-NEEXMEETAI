@@ -8,6 +8,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useMeetingShare } from "@/hooks/use-meeting-share";
+import { CallJoinRequests } from "./call-join-requests";
 
 interface Props {
   meetingId: string;
@@ -49,6 +50,7 @@ export const CallActive = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {canManage ? <CallJoinRequests meetingId={meetingId} /> : null}
           <Button type="button" variant="outline" onClick={handleShare}>
             <LinkIcon />
             Share link

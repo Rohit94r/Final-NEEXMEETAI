@@ -29,6 +29,7 @@ export const CallProvider = ({ meetingId, meetingName, canManage }: Props) => {
       meetingId={meetingId}
       meetingName={meetingName}
       canManage={canManage}
+      autoJoin={!canManage}
       userId={data.user.id}
       userName={data.user.name}
       userImage={

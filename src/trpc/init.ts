@@ -1,5 +1,4 @@
 import { getSessionOrNull } from '@/lib/auth';
-import { getEntityCreationAccess } from '@/modules/premium/lib/subscription';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { headers } from 'next/headers';
 import { cache } from 'react';
@@ -32,23 +31,3 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
 
   return next({ ctx: { ...ctx, auth: session } });
 });
-export const premiumProcedure = (entity: "meetings" | "agents") =>
-  protectedProcedure.use(async ({ ctx, next }) => {
-    const access = await getEntityCreationAccess(ctx.auth.user.id, entity);
-
-    if (entity === "meetings" && access.isBlocked) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You have reached the maximum number of free meetings",
-      });
-    }
-
-    if (entity === "agents" && access.isBlocked) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You have reached the maximum number of free agents",
-      });
-    }
-
-    return next({ ctx });
-  });
