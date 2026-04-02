@@ -62,7 +62,6 @@ export const meetingStatus = pgEnum("meeting_status", [
 ]);
 
 export const meetingMemberRole = pgEnum("meeting_member_role", ["member"]);
-
 export const meetingMemberStatus = pgEnum("meeting_member_status", ["pending", "approved"]);
 
 export const meetings = pgTable(
@@ -74,6 +73,7 @@ export const meetings = pgTable(
     isStarred: boolean("is_starred").notNull().default(false),
     userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     agentId: text("agent_id").notNull().references(() => agents.id, { onDelete: "cascade" }),
+    roomId: text("room_id"),  // set after rooms table defined — FK added via alter
     status: meetingStatus("status").notNull().default("upcoming"),
     startedAt: timestamp("started_at"),
     endedAt: timestamp("ended_at"),
@@ -117,6 +117,7 @@ export const tasks = pgTable("tasks", {
   assigneeName: text("assignee_name"),
   dueDate: timestamp("due_date"),
   meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  roomId: text("room_id"),  // FK added after rooms table
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -127,6 +128,7 @@ export const decisions = pgTable("decisions", {
   content: text("content").notNull(),
   context: text("context"),
   meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  roomId: text("room_id"),  // FK added after rooms table
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -136,7 +138,39 @@ export const documents = pgTable("documents", {
   title: text("title").notNull(),
   content: text("content").notNull().default(""),
   meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  roomId: text("room_id"),  // FK added after rooms table
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// ─── Rooms ────────────────────────────────────────────────────────────────────
+
+export const roomMemberRole = pgEnum("room_member_role", ["admin", "member"]);
+
+export const rooms = pgTable("rooms", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  name: text("name").notNull(),
+  description: text("description"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  isStarred: boolean("is_starred").notNull().default(false),
+  inviteCode: text("invite_code").notNull().$defaultFn(() => nanoid(8)),
+  ownerId: text("owner_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  defaultAgentId: text("default_agent_id").references(() => agents.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const roomMembers = pgTable(
+  "room_members",
+  {
+    id: text("id").primaryKey().$defaultFn(() => nanoid()),
+    roomId: text("room_id").notNull().references(() => rooms.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    role: roomMemberRole("role").notNull().default("member"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    roomMemberUniqueIdx: uniqueIndex("room_members_room_user_idx").on(table.roomId, table.userId),
+  }),
+);

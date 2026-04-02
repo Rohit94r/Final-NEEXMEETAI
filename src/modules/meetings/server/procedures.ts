@@ -5,7 +5,7 @@ import OpenAI from "openai";
 import { and, count, desc, eq, exists, getTableColumns, ilike, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { agents, meetingMembers, meetings, user } from "@/db/schema";
+import { agents, meetingMembers, meetings, roomMembers, user } from "@/db/schema";
 import { generateAvatarUri } from "@/lib/avatar";
 import { getRequiredServerEnv, hasServerEnv } from "@/lib/env";
 import { streamVideo } from "@/lib/stream-video";
@@ -68,6 +68,18 @@ const buildMeetingAccessCondition = (userId: string) =>
           ),
         ),
     ),
+    // room members can access all meetings inside their room
+    exists(
+      db
+        .select({ id: roomMembers.id })
+        .from(roomMembers)
+        .where(
+          and(
+            eq(roomMembers.roomId, meetings.roomId),
+            eq(roomMembers.userId, userId),
+          ),
+        ),
+    ),
   );
 
 async function getAccessibleMeeting(meetingId: string, userId: string) {
@@ -79,6 +91,7 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
       ownerId: meetings.userId,
       status: meetings.status,
       transcriptUrl: meetings.transcriptUrl,
+      roomId: meetings.roomId,
     })
     .from(meetings)
     .leftJoin(
@@ -89,16 +102,25 @@ async function getAccessibleMeeting(meetingId: string, userId: string) {
         eq(meetingMembers.status, "approved"),
       ),
     )
+    .leftJoin(
+      roomMembers,
+      and(
+        eq(roomMembers.roomId, meetings.roomId),
+        eq(roomMembers.userId, userId),
+      ),
+    )
     .where(
       and(
         eq(meetings.id, meetingId),
-        or(eq(meetings.userId, userId), eq(meetingMembers.userId, userId)),
+        or(
+          eq(meetings.userId, userId),
+          eq(meetingMembers.userId, userId),
+          eq(roomMembers.userId, userId),
+        ),
       ),
     );
 
-  if (!existingMeeting) {
-    return null;
-  }
+  if (!existingMeeting) return null;
 
   return {
     ...existingMeeting,

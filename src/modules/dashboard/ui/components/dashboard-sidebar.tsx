@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BotIcon, VideoIcon, LayoutDashboardIcon } from "lucide-react";
+import { BotIcon, VideoIcon, LayoutDashboardIcon, UsersIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +31,11 @@ const firstSection = [
     icon: BotIcon,
     label: "Agents",
     href: "/agents",
+  },
+  {
+    icon: UsersIcon,
+    label: "Rooms",
+    href: "/rooms",
   },
   {
     icon: LayoutDashboardIcon,

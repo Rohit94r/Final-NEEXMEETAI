@@ -41,10 +41,11 @@ const statusLabel = { todo: "To Do", in_progress: "In Progress", done: "Done" };
 
 interface Props {
   meetingId?: string;
+  roomId?: string;
   showExtract?: boolean;
 }
 
-export const TasksPanel = ({ meetingId, showExtract = false }: Props) => {
+export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -57,6 +58,7 @@ export const TasksPanel = ({ meetingId, showExtract = false }: Props) => {
     trpc.workspace.tasks.getMany.queryOptions({
       status: statusFilter !== "all" ? (statusFilter as "todo" | "in_progress" | "done") : undefined,
       meetingId: meetingId ?? undefined,
+      roomId: roomId ?? undefined,
     }),
   );
 
@@ -139,7 +141,7 @@ export const TasksPanel = ({ meetingId, showExtract = false }: Props) => {
                 </Select>
                 <Button
                   disabled={!title.trim() || createTask.isPending}
-                  onClick={() => createTask.mutate({ title, assigneeName: assigneeName || null, priority, meetingId: meetingId ?? null })}
+                  onClick={() => createTask.mutate({ title, assigneeName: assigneeName || null, priority, meetingId: meetingId ?? null, roomId: roomId ?? null })}
                 >
                   {createTask.isPending ? <LoaderIcon className="size-4 animate-spin" /> : null}
                   Create Task

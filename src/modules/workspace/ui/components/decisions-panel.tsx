@@ -19,10 +19,11 @@ import {
 
 interface Props {
   meetingId?: string;
+  roomId?: string;
   showExtract?: boolean;
 }
 
-export const DecisionsPanel = ({ meetingId, showExtract = false }: Props) => {
+export const DecisionsPanel = ({ meetingId, roomId, showExtract = false }: Props) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -30,15 +31,20 @@ export const DecisionsPanel = ({ meetingId, showExtract = false }: Props) => {
   const [context, setContext] = useState("");
 
   const decisions = useQuery(
-    meetingId
-      ? trpc.workspace.decisions.getByMeeting.queryOptions({ meetingId })
-      : trpc.workspace.decisions.getMany.queryOptions(),
+    roomId
+      ? trpc.workspace.decisions.getByRoom.queryOptions({ roomId })
+      : meetingId
+        ? trpc.workspace.decisions.getByMeeting.queryOptions({ meetingId })
+        : trpc.workspace.decisions.getMany.queryOptions(),
   );
 
   const invalidate = () => {
     queryClient.invalidateQueries(trpc.workspace.decisions.getMany.queryOptions());
     if (meetingId) {
       queryClient.invalidateQueries(trpc.workspace.decisions.getByMeeting.queryOptions({ meetingId }));
+    }
+    if (roomId) {
+      queryClient.invalidateQueries(trpc.workspace.decisions.getByRoom.queryOptions({ roomId }));
     }
   };
 
@@ -84,7 +90,7 @@ export const DecisionsPanel = ({ meetingId, showExtract = false }: Props) => {
                 <Textarea placeholder="Context — who decided it and why (optional)" value={context} onChange={(e) => setContext(e.target.value)} rows={3} />
                 <Button
                   disabled={!content.trim() || create.isPending}
-                  onClick={() => create.mutate({ content, context: context || null, meetingId: meetingId ?? null })}
+                  onClick={() => create.mutate({ content, context: context || null, meetingId: meetingId ?? null, roomId: roomId ?? null })}
                 >
                   {create.isPending ? <LoaderIcon className="size-4 animate-spin" /> : null}
                   Save Decision

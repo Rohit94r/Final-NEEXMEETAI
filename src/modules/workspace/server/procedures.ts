@@ -26,14 +26,20 @@ const tasksRouter = createTRPCRouter({
     .input(z.object({
       status: z.enum(["todo", "in_progress", "done"]).nullish(),
       meetingId: z.string().nullish(),
+      roomId: z.string().nullish(),
       search: z.string().nullish(),
     }))
     .query(async ({ ctx, input }) => {
+      // when scoped to a room, show all room tasks (not just current user's)
+      const ownerFilter = input.roomId
+        ? eq(tasks.roomId, input.roomId)
+        : eq(tasks.userId, ctx.auth.user.id);
+
       return db.select().from(tasks).where(
         and(
-          eq(tasks.userId, ctx.auth.user.id),
+          ownerFilter,
           input.status ? eq(tasks.status, input.status) : undefined,
-          input.meetingId ? eq(tasks.meetingId, input.meetingId) : undefined,
+          !input.roomId && input.meetingId ? eq(tasks.meetingId, input.meetingId) : undefined,
           input.search ? ilike(tasks.title, `%${input.search}%`) : undefined,
         ),
       ).orderBy(desc(tasks.createdAt));
@@ -56,6 +62,7 @@ const tasksRouter = createTRPCRouter({
       assigneeName: z.string().nullish(),
       dueDate: z.string().nullish(),
       meetingId: z.string().nullish(),
+      roomId: z.string().nullish(),
     }))
     .mutation(async ({ ctx, input }) => {
       const [created] = await db.insert(tasks).values({
@@ -162,11 +169,20 @@ const decisionsRouter = createTRPCRouter({
       ).orderBy(desc(decisions.createdAt));
     }),
 
+  getByRoom: protectedProcedure
+    .input(z.object({ roomId: z.string() }))
+    .query(async ({ input }) => {
+      return db.select().from(decisions)
+        .where(eq(decisions.roomId, input.roomId))
+        .orderBy(desc(decisions.createdAt));
+    }),
+
   create: protectedProcedure
     .input(z.object({
       content: z.string().min(1).max(500),
       context: z.string().nullish(),
       meetingId: z.string().nullish(),
+      roomId: z.string().nullish(),
     }))
     .mutation(async ({ ctx, input }) => {
       const [created] = await db.insert(decisions)

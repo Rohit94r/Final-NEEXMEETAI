@@ -20,6 +20,7 @@ import { InviteMemberDialog } from "../components/invite-member-dialog";
 import { MeetingMembersCard } from "../components/meeting-members-card";
 import { MeetingJoinRequestsCard } from "../components/meeting-join-requests-card";
 import { MeetingAiOverviewCard } from "../components/meeting-ai-overview-card";
+import { RoomUpcomingState } from "../components/room-upcoming-state";
 
 const CompletedState = dynamic(
   () =>
@@ -81,6 +82,7 @@ export const MeetingIdView = ({ meetingId }: Props) => {
   const isCancelled = data.status === "cancelled";
   const isCompleted = data.status === "completed";
   const isProcessing = data.status === "processing";
+  const isRoomMeeting = !!data.roomId;
 
   return (
     <>
@@ -123,10 +125,11 @@ export const MeetingIdView = ({ meetingId }: Props) => {
         {isCompleted && <CompletedState data={data} />}
         {isActive && <ActiveState meetingId={meetingId} />}
         {isUpcoming && (
-          <UpcomingState
-            meetingId={meetingId}
-            canManage={data.canManage}
-          />
+          isRoomMeeting ? (
+            <RoomUpcomingState meetingId={meetingId} canManage={data.canManage} />
+          ) : (
+            <UpcomingState meetingId={meetingId} canManage={data.canManage} />
+          )
         )}
       </div>
     </>
