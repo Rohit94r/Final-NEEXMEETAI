@@ -149,6 +149,8 @@ export const documents = pgTable("documents", {
 // ─── Rooms ────────────────────────────────────────────────────────────────────
 
 export const roomMemberRole = pgEnum("room_member_role", ["admin", "member"]);
+export const attendanceStatus = pgEnum("attendance_status", ["present", "absent", "late"]);
+export const reasonStatus = pgEnum("reason_status", ["pending", "approved", "rejected"]);
 
 export const rooms = pgTable("rooms", {
   id: text("id").primaryKey().$defaultFn(() => nanoid()),
@@ -201,5 +203,29 @@ export const threads = pgTable("threads", {
   parentMessageId: text("parent_message_id").notNull().references(() => messages.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ─── Presence System ─────────────────────────────────────────────────────────
+
+export const attendance = pgTable("attendance", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  roomId: text("room_id").notNull().references(() => rooms.id, { onDelete: "cascade" }),
+  date: text("date").notNull(), // Format: YYYY-MM-DD
+  status: attendanceStatus("status").notNull(),
+  photoUrl: text("photo_url").notNull(),
+  location: text("location"), // "Lat, Long" or City
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+}, (table) => ({
+  userRoomDateIdx: uniqueIndex("attendance_user_room_date_idx").on(table.userId, table.roomId, table.date),
+}));
+
+export const attendanceReasons = pgTable("attendance_reasons", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  attendanceId: text("attendance_id").notNull().references(() => attendance.id, { onDelete: "cascade" }),
+  reason: text("reason").notNull(),
+  status: reasonStatus("status").notNull().default("pending"),
+  reviewedBy: text("reviewed_by").references(() => user.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

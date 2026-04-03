@@ -2,6 +2,7 @@ import { agentsRouter } from '@/modules/agents/server/procedures';
 import { meetingsRouter } from '@/modules/meetings/server/procedures';
 import { workspaceRouter } from '@/modules/workspace/server/procedures';
 import { roomsRouter } from '@/modules/rooms/server/procedures';
+import { presenceRouter } from '@/modules/presence/server/procedures';
 
 import { pulseRouter } from '@/modules/pulse/server/procedures';
 
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   workspace: workspaceRouter,
   rooms: roomsRouter,
   pulse: pulseRouter,
+  presence: presenceRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

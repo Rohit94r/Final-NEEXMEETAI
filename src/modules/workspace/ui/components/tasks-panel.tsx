@@ -3,13 +3,24 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { PlusIcon, TrashIcon, SparklesIcon, LoaderIcon, CalendarIcon, UserIcon } from "lucide-react";
+import { 
+  PlusIcon, TrashIcon, SparklesIcon, LoaderIcon, CalendarIcon, UserIcon, 
+  CheckCircle2Icon, ClockIcon, XCircleIcon, FingerprintIcon 
+} from "lucide-react";
 import { format } from "date-fns";
 
+import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -62,6 +73,25 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
     }),
   );
 
+  const { data: attendance } = useQuery(
+    trpc.presence.getByRoom.queryOptions(
+      { roomId: roomId as string, date: format(new Date(), "yyyy-MM-dd") },
+      { enabled: !!roomId }
+    )
+  );
+
+  const getAssigneePresence = (name: string | null) => {
+    if (!name || !attendance) return null;
+    const record = attendance.find(a => a.user.name.toLowerCase() === name.toLowerCase());
+    return record?.status || null;
+  };
+
+  const statusIcons: any = {
+    present: <CheckCircle2Icon className="size-2.5 text-emerald-500" />,
+    late: <ClockIcon className="size-2.5 text-amber-500" />,
+    absent: <XCircleIcon className="size-2.5 text-red-500" />,
+  };
+
   const invalidate = () =>
     queryClient.invalidateQueries(trpc.workspace.tasks.getMany.queryOptions({}));
 
@@ -97,8 +127,50 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="flex flex-col gap-6">
+      {/* Attendance Summary Bar (for visibility) */}
+      {roomId && attendance && attendance.length > 0 && (
+        <div className="bg-slate-50/80 border-2 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm backdrop-blur-sm animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-3">
+             <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-inner">
+                <FingerprintIcon className="size-5 text-primary" />
+             </div>
+             <div>
+                <h3 className="text-sm font-bold tracking-tight">Today's Presence</h3>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase opacity-60 tracking-wider">Verified Team Snapshot</p>
+             </div>
+          </div>
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar max-w-full">
+             {attendance.map((att: any) => (
+                <TooltipProvider key={att.user.id}>
+                   <Tooltip>
+                      <TooltipTrigger asChild>
+                         <div className="flex items-center gap-1.5 p-1 px-2 rounded-full bg-white border-2 hover:border-primary/30 transition-all cursor-default">
+                            <div className="relative">
+                               <Avatar className="size-6 rounded-lg pointer-events-none border ring-1 ring-slate-100">
+                                  <AvatarImage src={att.user.image || ""} />
+                                  <AvatarFallback className="text-[10px] font-bold uppercase rounded-lg bg-slate-50">{att.user.name.charAt(0)}</AvatarFallback>
+                               </Avatar>
+                               <div className={cn(
+                                  "absolute -bottom-0.5 -right-0.5 size-2 rounded-full border border-white",
+                                  att.status === "present" ? "bg-emerald-500" :
+                                  att.status === "late" ? "bg-amber-500" : "bg-red-500"
+                               )} />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 truncate max-w-[60px]">{att.user.name}</span>
+                         </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                         <p className="text-xs font-bold uppercase tracking-tight">{att.user.name} ({att.status})</p>
+                      </TooltipContent>
+                   </Tooltip>
+                </TooltipProvider>
+             ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-36 h-8 text-sm">
             <SelectValue />
@@ -174,9 +246,20 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
                     {task.priority}
                   </Badge>
                   {task.assigneeName && (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <UserIcon className="size-3" />{task.assigneeName}
-                    </span>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 group">
+                      {roomId && getAssigneePresence(task.assigneeName) && (
+                         <div className="flex items-center mr-0.5">
+                            <div className={cn(
+                               "size-2 rounded-full",
+                               getAssigneePresence(task.assigneeName) === "present" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
+                               getAssigneePresence(task.assigneeName) === "late" ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" : 
+                               "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                            )} />
+                         </div>
+                      )}
+                      <UserIcon className="size-3 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-slate-700">{task.assigneeName}</span>
+                    </div>
                   )}
                   {task.dueDate && (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">

@@ -9,11 +9,12 @@ import {
   UsersIcon, CopyIcon, VideoIcon, CheckSquareIcon, LightbulbIcon,
   UserPlusIcon, LogOutIcon, TrashIcon, ChevronRightIcon, LoaderIcon,
   LockIcon, GlobeIcon, MoreVerticalIcon, PencilIcon, StarIcon,
-  CalendarIcon, ClockIcon, ActivityIcon,
+  CalendarIcon, ClockIcon, ActivityIcon, FingerprintIcon,
 } from "lucide-react";
-import { format, isToday, isFuture } from "date-fns";
+import { format, isToday, isFuture, isSameDay } from "date-fns";
 
 import { useTRPC } from "@/trpc/client";
+import { useConfirm } from "@/hooks/use-confirm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -34,7 +35,9 @@ import { GeneratedAvatar } from "@/components/generated-avatar";
 import { TasksPanel } from "@/modules/workspace/ui/components/tasks-panel";
 import { DecisionsPanel } from "@/modules/workspace/ui/components/decisions-panel";
 import { RoomMeetingDialog } from "../components/room-meeting-dialog";
+import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-meeting-dialog";
 import { PulsePanel } from "@/modules/pulse/ui/components/pulse-panel";
+import { PresencePanel } from "@/modules/presence/ui/components/presence-panel";
 
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
   upcoming:   { label: "Scheduled",  color: "bg-blue-50 text-blue-700 border-blue-200",       dot: "bg-blue-400" },
@@ -50,6 +53,39 @@ export const RoomIdView = ({ roomId }: Props) => {
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [updateMeetingOpen, setUpdateMeetingOpen] = useState(false);
+  const [meetingToUpdate, setMeetingToUpdate] = useState<any>(null);
+
+  const [ConfirmDelete, confirmDelete] = useConfirm(
+    "Delete Meeting?",
+    "This will permanently delete this meeting and all its data."
+  );
+
+  const invalidate = async () => {
+    await queryClient.invalidateQueries(trpc.rooms.getMeetings.queryOptions({ roomId }));
+  };
+
+  const removeMeeting = useMutation(
+    trpc.meetings.remove.mutationOptions({
+      onSuccess: () => {
+        toast.success("Meeting deleted");
+        invalidate();
+      },
+      onError: (e) => toast.error(e.message),
+    }),
+  );
+
+  const onDeleteMeeting = async (id: string) => {
+    const confirmed = await confirmDelete();
+    if (confirmed) {
+      removeMeeting.mutate({ id });
+    }
+  };
+
+  const onEditMeeting = (meeting: any) => {
+    setMeetingToUpdate(meeting);
+    setUpdateMeetingOpen(true);
+  };
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
@@ -213,8 +249,9 @@ export const RoomIdView = ({ roomId }: Props) => {
           <TabsList className="p-0 bg-background justify-start rounded-none h-13">
             {[
               { value: "meetings",  icon: VideoIcon,        label: "Meetings" },
-              { value: "pulse",     icon: ActivityIcon,    label: "Pulse" },
+              { value: "presence",  icon: FingerprintIcon,  label: "Presence" },
               { value: "tasks",     icon: CheckSquareIcon,  label: "Tasks" },
+              { value: "pulse",     icon: ActivityIcon,     label: "Pulse" },
               { value: "decisions", icon: LightbulbIcon,    label: "Decisions" },
               { value: "members",   icon: UsersIcon,        label: "Members" },
             ].map((tab) => (
@@ -281,6 +318,35 @@ export const RoomIdView = ({ roomId }: Props) => {
                             <Link href={`/call/${meeting.id}`}>Join</Link>
                           </Button>
                         )}
+                        
+                        {room.isOwner && (
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 p-0 text-muted-foreground hover:text-foreground"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVerticalIcon className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40">
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting); }}>
+                                <PencilIcon className="size-3.5 mr-2" />
+                                Edit / Reschedule
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-red-600 focus:text-red-600"
+                                onClick={(e) => { e.stopPropagation(); onDeleteMeeting(meeting.id); }}
+                              >
+                                <TrashIcon className="size-3.5 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </div>
                   );
@@ -298,12 +364,15 @@ export const RoomIdView = ({ roomId }: Props) => {
                   {upcomingMeetings.map((meeting) => {
                     const cfg = statusConfig[meeting.status] ?? statusConfig.upcoming;
                     return (
-                      <Link key={meeting.id} href={`/meetings/${meeting.id}`}
-                        className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
+                      <div
+                        key={meeting.id}
+                        onClick={() => router.push(`/meetings/${meeting.id}`)}
+                        className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer group"
+                      >
                         <div className="flex items-start gap-3 min-w-0">
                           <div className={`mt-1.5 size-2 rounded-full shrink-0 ${cfg.dot}`} />
                           <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">{meeting.name}</p>
+                            <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{meeting.name}</p>
                             {meeting.topic && <p className="text-xs text-muted-foreground truncate">{meeting.topic}</p>}
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <CalendarIcon className="size-3 text-muted-foreground" />
@@ -313,8 +382,38 @@ export const RoomIdView = ({ roomId }: Props) => {
                             </div>
                           </div>
                         </div>
-                        <Badge variant="outline" className={`text-xs shrink-0 ${cfg.color}`}>{cfg.label}</Badge>
-                      </Link>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Badge variant="outline" className={`text-xs ${cfg.color}`}>{cfg.label}</Badge>
+                          {room.isOwner && (
+                            <DropdownMenu modal={false}>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 p-0 text-muted-foreground hover:text-foreground"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreVerticalIcon className="size-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-40">
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting); }}>
+                                  <PencilIcon className="size-3.5 mr-2" />
+                                  Edit / Reschedule
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  className="text-red-600 focus:text-red-600"
+                                  onClick={(e) => { e.stopPropagation(); onDeleteMeeting(meeting.id); }}
+                                >
+                                  <TrashIcon className="size-3.5 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -350,6 +449,11 @@ export const RoomIdView = ({ roomId }: Props) => {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        {/* ── Presence ─────────────────────────────────────────────────── */}
+        <TabsContent value="presence" className="mt-4 outline-none">
+          <PresencePanel roomId={roomId} isOwner={room.isOwner} />
         </TabsContent>
 
         {/* ── Pulse ────────────────────────────────────────────────────── */}
@@ -401,6 +505,14 @@ export const RoomIdView = ({ roomId }: Props) => {
           </div>
         </TabsContent>
       </Tabs>
+      <ConfirmDelete />
+      {meetingToUpdate && (
+        <UpdateMeetingDialog
+          open={updateMeetingOpen}
+          onOpenChange={setUpdateMeetingOpen}
+          initialValues={meetingToUpdate}
+        />
+      )}
     </div>
   );
 };
