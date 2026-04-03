@@ -10,6 +10,7 @@ import { generateAvatarUri } from "@/lib/avatar";
 import { getRequiredServerEnv, hasServerEnv } from "@/lib/env";
 import { streamVideo } from "@/lib/stream-video";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { sendPulseNotification } from "@/modules/pulse/server/procedures";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 
 import { MeetingStatus, StreamTranscriptItem } from "../types";
@@ -555,6 +556,18 @@ ${meetingWithAgent.summary ?? "No final summary is available yet because the mee
       validity_in_seconds: issuedAt,
     });
 
+    // Ensure the call exists on Stream side (Self-healing)
+    const call = streamVideo.video.call("default", input.meetingId);
+    await call.getOrCreate({
+      data: {
+        created_by_id: access.ownerId,
+        custom: {
+          meetingId: access.id,
+          meetingName: access.name
+        },
+      },
+    });
+
     return token;
   }),
   inviteMember: protectedProcedure
@@ -878,6 +891,26 @@ ${meetingWithAgent.summary ?? "No final summary is available yet because the mee
         });
       }
 
+      if (updatedMeeting && updatedMeeting.roomId) {
+        if (input.status === "active") {
+          await sendPulseNotification({
+            roomId: updatedMeeting.roomId,
+            channelName: "#meetings",
+            content: `🚀 Meeting started: **${updatedMeeting.name}**`,
+            userId: ctx.auth.user.id,
+            meetingId: updatedMeeting.id,
+          });
+        } else if (input.status === "completed") {
+          await sendPulseNotification({
+            roomId: updatedMeeting.roomId,
+            channelName: "#meetings",
+            content: `✅ Meeting ended: **${updatedMeeting.name}**. Recording and summary are being processed.`,
+            userId: ctx.auth.user.id,
+            meetingId: updatedMeeting.id,
+          });
+        }
+      }
+
       return updatedMeeting;
     }),
   toggleStar: protectedProcedure
@@ -968,6 +1001,16 @@ ${meetingWithAgent.summary ?? "No final summary is available yet because the mee
           }),
         },
       ]);
+
+      if (createdMeeting && createdMeeting.roomId) {
+        await sendPulseNotification({
+          roomId: createdMeeting.roomId,
+          channelName: "#meetings",
+          content: `📅 New meeting scheduled: **${createdMeeting.name}**`,
+          userId: ctx.auth.user.id,
+          meetingId: createdMeeting.id,
+        });
+      }
 
       return createdMeeting;
     }),

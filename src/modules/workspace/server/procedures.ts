@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { decisions, documents, meetings, tasks } from "@/db/schema";
 import { hasServerEnv, getRequiredServerEnv } from "@/lib/env";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { sendPulseNotification } from "@/modules/pulse/server/procedures";
 
 let groqClient: OpenAI | null = null;
 function getGroqClient() {
@@ -70,6 +71,18 @@ const tasksRouter = createTRPCRouter({
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         userId: ctx.auth.user.id,
       }).returning();
+
+      if (created && input.roomId) {
+        await sendPulseNotification({
+          roomId: input.roomId,
+          channelName: "#tasks",
+          content: `📝 New task created: **${created.title}**`,
+          userId: ctx.auth.user.id,
+          taskId: created.id,
+          meetingId: input.meetingId ?? undefined,
+        });
+      }
+
       return created;
     }),
 
@@ -90,6 +103,17 @@ const tasksRouter = createTRPCRouter({
         .where(and(eq(tasks.id, id), eq(tasks.userId, ctx.auth.user.id)))
         .returning();
       if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+
+      if (updated.roomId && input.status === "done") {
+        await sendPulseNotification({
+          roomId: updated.roomId,
+          channelName: "#tasks",
+          content: `✅ Task completed: **${updated.title}**`,
+          userId: ctx.auth.user.id,
+          taskId: updated.id,
+        });
+      }
+
       return updated;
     }),
 
@@ -187,6 +211,17 @@ const decisionsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const [created] = await db.insert(decisions)
         .values({ ...input, userId: ctx.auth.user.id }).returning();
+
+      if (created && input.roomId) {
+        await sendPulseNotification({
+          roomId: input.roomId,
+          channelName: "#general",
+          content: `💡 New decision recorded: **${created.content}**`,
+          userId: ctx.auth.user.id,
+          meetingId: input.meetingId ?? undefined,
+        });
+      }
+
       return created;
     }),
 

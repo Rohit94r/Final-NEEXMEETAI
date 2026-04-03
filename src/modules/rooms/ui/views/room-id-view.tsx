@@ -9,7 +9,7 @@ import {
   UsersIcon, CopyIcon, VideoIcon, CheckSquareIcon, LightbulbIcon,
   UserPlusIcon, LogOutIcon, TrashIcon, ChevronRightIcon, LoaderIcon,
   LockIcon, GlobeIcon, MoreVerticalIcon, PencilIcon, StarIcon,
-  CalendarIcon, ClockIcon,
+  CalendarIcon, ClockIcon, ActivityIcon,
 } from "lucide-react";
 import { format, isToday, isFuture } from "date-fns";
 
@@ -34,6 +34,7 @@ import { GeneratedAvatar } from "@/components/generated-avatar";
 import { TasksPanel } from "@/modules/workspace/ui/components/tasks-panel";
 import { DecisionsPanel } from "@/modules/workspace/ui/components/decisions-panel";
 import { RoomMeetingDialog } from "../components/room-meeting-dialog";
+import { PulsePanel } from "@/modules/pulse/ui/components/pulse-panel";
 
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
   upcoming:   { label: "Scheduled",  color: "bg-blue-50 text-blue-700 border-blue-200",       dot: "bg-blue-400" },
@@ -212,6 +213,7 @@ export const RoomIdView = ({ roomId }: Props) => {
           <TabsList className="p-0 bg-background justify-start rounded-none h-13">
             {[
               { value: "meetings",  icon: VideoIcon,        label: "Meetings" },
+              { value: "pulse",     icon: ActivityIcon,    label: "Pulse" },
               { value: "tasks",     icon: CheckSquareIcon,  label: "Tasks" },
               { value: "decisions", icon: LightbulbIcon,    label: "Decisions" },
               { value: "members",   icon: UsersIcon,        label: "Members" },
@@ -348,6 +350,11 @@ export const RoomIdView = ({ roomId }: Props) => {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        {/* ── Pulse ────────────────────────────────────────────────────── */}
+        <TabsContent value="pulse" className="mt-4 outline-none">
+          <PulsePanel roomId={roomId} />
         </TabsContent>
 
         {/* ── Tasks ────────────────────────────────────────────────────── */}

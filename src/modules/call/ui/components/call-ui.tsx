@@ -34,12 +34,17 @@ export const CallUI = ({
   const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const joinInProgress = useCallback(() => isJoining, [isJoining]);
 
   const handleJoin = useCallback(async () => {
-    if (!call || isJoining) return;
+    if (!call || isJoining || joinInProgress()) return;
 
-    if (call.state.callingState !== CallingState.IDLE) {
-      setShow("call");
+    // Use current state as source of truth
+    const currentState = call.state.callingState;
+    if (currentState !== CallingState.IDLE) {
+      if (currentState === CallingState.JOINED) {
+        setShow("call");
+      }
       return;
     }
 
@@ -49,13 +54,18 @@ export const CallUI = ({
       setShow("call");
     } catch (error) {
       console.error("Failed to join call", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to join call",
-      );
+      // If we're already joined but local state was out of sync, just show the call
+      if (error instanceof Error && error.message.includes("shall be called only once")) {
+        setShow("call");
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to join call",
+        );
+      }
     } finally {
       setIsJoining(false);
     }
-  }, [call, isJoining]);
+  }, [call, isJoining, joinInProgress]);
 
   const handleLeave = async () => {
     if (!call || isLeaving) return;

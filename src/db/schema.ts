@@ -176,3 +176,30 @@ export const roomMembers = pgTable(
     roomMemberUniqueIdx: uniqueIndex("room_members_room_user_idx").on(table.roomId, table.userId),
   }),
 );
+
+// ─── Pulse (Communication System) ───────────────────────────────────────────
+
+export const channels = pgTable("channels", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  name: text("name").notNull(),
+  roomId: text("room_id").notNull().references(() => rooms.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const messages = pgTable("messages", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  content: text("content").notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  channelId: text("channel_id").notNull().references(() => channels.id, { onDelete: "cascade" }),
+  meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
+  taskId: text("task_id").references(() => tasks.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const threads = pgTable("threads", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+  parentMessageId: text("parent_message_id").notNull().references(() => messages.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

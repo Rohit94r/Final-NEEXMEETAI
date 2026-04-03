@@ -151,54 +151,56 @@ export const RoomsView = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {sorted.map((room) => (
             <div
               key={room.id}
-              className="rounded-xl border bg-white flex flex-col hover:shadow-md transition-shadow"
+              className="rounded-2xl border-2 bg-white flex flex-col hover:shadow-xl hover:border-primary/20 transition-all duration-300 min-h-[220px]"
             >
               {/* Card top — clickable */}
-              <Link href={`/rooms/${room.id}`} className="flex flex-col gap-3 px-5 pt-5 pb-4 flex-1">
+              <Link href={`/rooms/${room.id}`} className="flex flex-col gap-4 px-6 pt-6 pb-5 flex-1">
                 {/* Icon + name row */}
-                <div className="flex items-start gap-3">
-                  <div className="rounded-xl bg-sidebar-accent/40 p-3 shrink-0">
-                    <UsersIcon className="size-5 text-sidebar-accent-foreground" />
+                <div className="flex items-start gap-4">
+                  <div className="rounded-2xl bg-primary/5 p-4 shrink-0 shadow-sm border border-primary/10">
+                    <UsersIcon className="size-6 text-primary" />
                   </div>
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="min-w-0 flex-1 pt-1">
+                    <div className="flex items-start gap-2 flex-wrap">
                       {room.isStarred && (
-                        <StarIcon className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                        <StarIcon className="size-4 fill-amber-400 text-amber-400 shrink-0 mt-1" />
                       )}
-                      <p className="font-semibold text-base truncate">{room.name}</p>
+                      <h3 className="font-bold text-xl leading-tight text-foreground break-words">
+                        {room.name}
+                      </h3>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {room.isPrivate ? "Private room" : "Public room"}
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mt-1.5 opacity-70">
+                      {room.isPrivate ? "Private space" : "Public space"}
                     </p>
                   </div>
                 </div>
 
                 {/* Description */}
                 {room.description ? (
-                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {room.description}
                   </p>
                 ) : (
-                  <p className="text-sm text-muted-foreground/50 italic">No description</p>
+                  <p className="text-sm text-muted-foreground/40 italic">No description provided</p>
                 )}
               </Link>
 
               {/* Card footer */}
-              <div className="flex items-center justify-between px-5 py-3 border-t bg-muted/20 rounded-b-xl">
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="text-xs gap-1">
+              <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50/50 rounded-b-2xl">
+                <div className="flex items-center gap-4">
+                  <Badge variant="secondary" className="px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-white border">
                     {room.isPrivate
-                      ? <><LockIcon className="size-3" />Private</>
-                      : <><GlobeIcon className="size-3" />Public</>
+                      ? <><LockIcon className="size-3 mr-1" />Private</>
+                      : <><GlobeIcon className="size-3 mr-1" />Public</>
                     }
                   </Badge>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <CalendarIcon className="size-3" />
-                    {format(new Date(room.createdAt), "MMM d")}
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <CalendarIcon className="size-3.5 opacity-60" />
+                    {format(new Date(room.createdAt), "MMM d, yyyy")}
                   </span>
                 </div>
 
