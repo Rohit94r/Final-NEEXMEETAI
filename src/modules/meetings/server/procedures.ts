@@ -137,6 +137,7 @@ async function getMeetingJoinState(meetingId: string, userId: string) {
       ownerId: meetings.userId,
       status: meetings.status,
       transcriptUrl: meetings.transcriptUrl,
+      roomId: meetings.roomId,
     })
     .from(meetings)
     .where(eq(meetings.id, meetingId));
@@ -166,7 +167,19 @@ async function getMeetingJoinState(meetingId: string, userId: string) {
       ),
     );
 
-  if (existingMember?.status === "approved") {
+  const [existingRoomMember] = existingMeeting.roomId
+    ? await db
+        .select({ id: roomMembers.id })
+        .from(roomMembers)
+        .where(
+          and(
+            eq(roomMembers.roomId, existingMeeting.roomId),
+            eq(roomMembers.userId, userId),
+          ),
+        )
+    : [null];
+
+  if (existingMember?.status === "approved" || existingRoomMember) {
     const canEnterCall =
       existingMeeting.status === "upcoming" ||
       existingMeeting.status === "active";

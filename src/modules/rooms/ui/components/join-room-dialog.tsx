@@ -30,10 +30,15 @@ export const JoinRoomDialog = ({ trigger }: Props) => {
   const join = useMutation(
     trpc.rooms.joinByCode.mutationOptions({
       onSuccess: (data) => {
-        toast.success("Joined room");
         setOpen(false);
         setCode("");
-        router.push(`/rooms/${data.roomId}`);
+        if (data.alreadyMember) {
+          // User is already a member — navigate directly without a "Joined" toast
+          router.push(`/rooms/${data.roomId}`);
+        } else {
+          toast.success("Successfully joined the room!");
+          router.push(`/rooms/${data.roomId}`);
+        }
       },
       onError: (e) => toast.error(e.message),
     }),

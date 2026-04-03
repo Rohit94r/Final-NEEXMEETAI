@@ -73,8 +73,10 @@ export const meetings = pgTable(
     isStarred: boolean("is_starred").notNull().default(false),
     userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     agentId: text("agent_id").notNull().references(() => agents.id, { onDelete: "cascade" }),
-    roomId: text("room_id"),  // set after rooms table defined — FK added via alter
+    roomId: text("room_id"),
     status: meetingStatus("status").notNull().default("upcoming"),
+    scheduledAt: timestamp("scheduled_at"),
+    topic: text("topic"),
     startedAt: timestamp("started_at"),
     endedAt: timestamp("ended_at"),
     transcriptUrl: text("transcript_url"),

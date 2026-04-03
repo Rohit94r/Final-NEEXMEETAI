@@ -20,6 +20,7 @@ import {
 import { format } from "date-fns";
 
 import { useTRPC } from "@/trpc/client";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ import { JoinRoomDialog } from "../components/join-room-dialog";
 
 export const RoomsView = () => {
   const trpc = useTRPC();
+  const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
   const { data: roomsList, isPending } = useQuery(trpc.rooms.getMany.queryOptions());
 
@@ -201,7 +203,7 @@ export const RoomsView = () => {
                 </div>
 
                 {/* Three-dot menu — only for owner */}
-                {room.ownerId === room.ownerId && (
+                {room.ownerId === session?.user?.id && (
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Button

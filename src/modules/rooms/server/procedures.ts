@@ -5,6 +5,7 @@ import { and, desc, eq, or } from "drizzle-orm";
 import { db } from "@/db";
 import { agents, decisions, meetings, roomMembers, rooms, tasks, user } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { getOptionalServerEnv } from "@/lib/env";
 
 // helper — check room access (owner or member)
 async function getRoomAccess(roomId: string, userId: string) {
@@ -243,6 +244,8 @@ export const roomsRouter = createTRPCRouter({
         roomId: z.string(),
         name: z.string().min(1).max(200),
         agentId: z.string().min(1),
+        topic: z.string().max(300).nullish(),
+        scheduledAt: z.string().min(1), // ISO string from client
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -259,16 +262,70 @@ export const roomsRouter = createTRPCRouter({
       }
       if (!secretCode) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not generate meeting code" });
 
+      const scheduledDate = new Date(input.scheduledAt);
+
       const [created] = await db
         .insert(meetings)
         .values({
           name: input.name,
           agentId: input.agentId,
           roomId: input.roomId,
+          topic: input.topic ?? null,
+          scheduledAt: scheduledDate,
           secretCode,
           userId: ctx.auth.user.id,
         })
         .returning();
+
+      // send email notification to all room members
+      const resendKey = getOptionalServerEnv("RESEND_API_KEY");
+      if (resendKey) {
+        const allMembers = await db
+          .select({ email: user.email, name: user.name })
+          .from(roomMembers)
+          .innerJoin(user, eq(roomMembers.userId, user.id))
+          .where(eq(roomMembers.roomId, input.roomId));
+
+        const adminUser = await db
+          .select({ email: user.email, name: user.name })
+          .from(user)
+          .where(eq(user.id, ctx.auth.user.id))
+          .then((r) => r[0]);
+
+        const recipients = allMembers.map((m) => m.email);
+        if (recipients.length > 0) {
+          const dateStr = scheduledDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+          const timeStr = scheduledDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+          const appUrl = getOptionalServerEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
+
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "NeexMeet <onboarding@resend.dev>",
+              to: recipients,
+              subject: `📅 Meeting Scheduled: ${input.name} — ${dateStr} at ${timeStr}`,
+              html: `
+                <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+                  <h2 style="margin:0 0 8px">Meeting Scheduled</h2>
+                  <p style="color:#555;margin:0 0 20px">You have a new meeting in <strong>${access.room.name}</strong></p>
+                  <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+                    <tr><td style="padding:8px 0;color:#888;width:100px">Meeting</td><td style="padding:8px 0;font-weight:600">${input.name}</td></tr>
+                    ${input.topic ? `<tr><td style="padding:8px 0;color:#888">Topic</td><td style="padding:8px 0">${input.topic}</td></tr>` : ""}
+                    <tr><td style="padding:8px 0;color:#888">Date</td><td style="padding:8px 0">${dateStr}</td></tr>
+                    <tr><td style="padding:8px 0;color:#888">Time</td><td style="padding:8px 0">${timeStr}</td></tr>
+                    <tr><td style="padding:8px 0;color:#888">Scheduled by</td><td style="padding:8px 0">${adminUser?.name ?? "Admin"}</td></tr>
+                  </table>
+                  <a href="${appUrl}/meetings/${created.id}" style="display:inline-block;background:#000;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px">View Meeting</a>
+                </div>
+              `,
+            }),
+          }).catch(() => { /* email failure should not break meeting creation */ });
+        }
+      }
 
       return created;
     }),
