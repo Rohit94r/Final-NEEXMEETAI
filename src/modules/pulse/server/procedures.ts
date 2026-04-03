@@ -171,7 +171,7 @@ export const pulseRouter = createTRPCRouter({
 
   getByMessage: protectedProcedure
     .input(z.object({ messageId: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const result = await db
         .select({
           id: threads.id,

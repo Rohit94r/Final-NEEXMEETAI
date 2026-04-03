@@ -41,11 +41,18 @@ interface AdminAttendanceViewProps {
   roomId: string;
 }
 
+interface ReasonWithUser {
+  id: string;
+  content: string;
+  status: "pending" | "approved" | "rejected";
+  userName: string;
+}
+
 export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
   const trpc = useTRPC();
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [search, setSearch] = useState("");
-  const [selectedReason, setSelectedReason] = useState<any>(null);
+  const [selectedReason, setSelectedReason] = useState<ReasonWithUser | null>(null);
 
   const { data: presenceData, refetch } = useQuery({
     ...trpc.presence.getByRoom.queryOptions({ 
@@ -56,7 +63,6 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
   });
 
   const attendanceList = presenceData?.attendance || [];
-  const roomInfo = presenceData?.room;
 
   const reviewMutation = useMutation(trpc.presence.reviewReason.mutationOptions({
     onSuccess: () => {
@@ -64,14 +70,14 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
       refetch();
       setSelectedReason(null);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e) => toast.error(e.message),
   }));
 
-  const filtered = attendanceList.filter((a: any) => 
+  const filtered = attendanceList.filter((a) => 
     a.user.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const statusIcons: any = {
+  const statusIcons: Record<string, React.ReactNode> = {
     present: <CheckCircle2Icon className="size-4 text-emerald-500" />,
     late: <ClockIcon className="size-4 text-amber-500" />,
     absent: <XCircleIcon className="size-4 text-red-500" />,
@@ -139,7 +145,7 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
                    </div>
                 </TableCell>
               </TableRow>
-            ) : filtered.map((att: any) => (
+            ) : filtered.map((att) => (
               <TableRow key={att.id || att.user.id} className="hover:bg-slate-50/50 transition-colors">
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -193,13 +199,18 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
                              "cursor-pointer hover:scale-105 transition-transform",
                              att.reason.status === "pending" ? "bg-red-500 hover:bg-red-600" : ""
                           )}
-                          onClick={() => setSelectedReason({ ...att.reason, userName: att.user.name })}
+                          onClick={() => setSelectedReason({ 
+                            id: att.reason!.id, 
+                            content: att.reason!.content, 
+                            status: att.reason!.status as "pending" | "approved" | "rejected", 
+                            userName: att.user.name 
+                          })}
                        >
                           <MessageSquareIcon className="size-3 mr-1" />
                           Review Reason
                        </Badge>
                     )}
-                    <Button variant="ghost" size="sm" className="size-8 p-0 rounded-lg" onClick={() => window.open(att.photoUrl, "_blank")}>
+                    <Button variant="ghost" size="sm" className="size-8 p-0 rounded-lg" onClick={() => window.open(att.photoUrl || "", "_blank")}>
                        <EyeIcon className="size-4" />
                     </Button>
                   </div>
@@ -226,7 +237,7 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
             
             <div className="p-8">
                <div className="p-5 rounded-2xl bg-slate-50 border-2 border-slate-100 italic text-sm text-slate-700 leading-relaxed shadow-inner">
-                  "{selectedReason.content}"
+                  &quot;{selectedReason.content}&quot;
                </div>
                
                {selectedReason.status !== "pending" && (

@@ -5,7 +5,6 @@ import { HashIcon, MessageSquareIcon, XIcon } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 import { ChannelsSidebar } from "./channels-sidebar";
 import { ChatWindow } from "./chat-window";

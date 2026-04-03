@@ -11,7 +11,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { PulsePanel } from "./pulse-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 

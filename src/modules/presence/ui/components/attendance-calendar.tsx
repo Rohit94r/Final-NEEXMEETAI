@@ -5,7 +5,6 @@ import {
   CalendarIcon, 
   ChevronLeftIcon, 
   ChevronRightIcon, 
-  AlertCircleIcon,
   CheckCircle2Icon,
   ClockIcon,
   XCircleIcon
@@ -15,18 +14,15 @@ import {
   startOfMonth, 
   endOfMonth, 
   eachDayOfInterval, 
-  isSameMonth, 
   isSameDay, 
   addMonths, 
   subMonths,
   isBefore,
-  isAfter,
   startOfDay
 } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -34,8 +30,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+interface AttendanceRecord {
+  date: string;
+  status: "present" | "late" | "absent" | "before_join";
+}
+
 interface AttendanceCalendarProps {
-  attendanceData: any[]; // Records array
+  attendanceData: AttendanceRecord[];
   joinedAt?: Date | string;
   onSelectDate: (date: Date, status: string | null) => void;
   currentDate?: Date;
@@ -67,18 +68,18 @@ export const AttendanceCalendar = ({
     if (record) return record.status;
     
     const today = startOfDay(new Date());
-    if (isBefore(day, today)) return "absent"; // Past missed days are auto-absent
-    return null; // Future or today (pending)
+    if (isBefore(day, today)) return "absent"; 
+    return null;
   };
 
-  const statusColors: any = {
+  const statusColors: Record<string, string> = {
     present: "bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-200",
     late: "bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-200",
     absent: "bg-red-500 text-white border-red-600 shadow-sm shadow-red-200",
     before_join: "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed opacity-40",
   };
 
-  const statusIcons: any = {
+  const statusIcons: Record<string, React.ReactNode> = {
     present: <CheckCircle2Icon className="size-3" />,
     late: <ClockIcon className="size-3" />,
     absent: <XCircleIcon className="size-3" />,

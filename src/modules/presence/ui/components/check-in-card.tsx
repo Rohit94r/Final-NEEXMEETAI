@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { CameraIcon, MapPinIcon, LoaderIcon, CheckCircle2Icon } from "lucide-react";
+import { CameraIcon, LoaderIcon, CheckCircle2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
@@ -9,7 +9,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 interface CheckInCardProps {
   roomId: string;
@@ -24,7 +23,7 @@ export const CheckInCard = ({ roomId, onSuccess, alreadyCheckedIn = false }: Che
       toast.success("Attendance marked successfully!");
       if (onSuccess) onSuccess();
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e) => toast.error(e.message),
   }));
 
   const [stream, setStream] = useState<MediaStream | null>(null);

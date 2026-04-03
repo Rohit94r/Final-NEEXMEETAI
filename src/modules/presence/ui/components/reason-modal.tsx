@@ -10,7 +10,6 @@ import { useTRPC } from "@/trpc/client";
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
   DialogTitle, 
   DialogDescription,
   DialogFooter
@@ -42,7 +41,7 @@ export const ReasonModal = ({
       onSuccess();
       onOpenChange(false);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e) => toast.error(e.message),
   }));
 
   const handleSubmit = () => {

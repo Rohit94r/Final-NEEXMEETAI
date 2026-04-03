@@ -4,13 +4,12 @@ import { useState, useMemo } from "react";
 import { format, isSameDay } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { 
-  UsersIcon, 
-  TargetIcon, 
-  HistoryIcon, 
+  TargetIcon,
   ShieldCheckIcon,
   PieChartIcon,
   TargetIcon as AccountabilityIcon
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,30 +18,29 @@ import { AttendanceCalendar } from "./attendance-calendar";
 import { AdminAttendanceView } from "./admin-attendance-view";
 import { ReasonModal } from "./reason-modal";
 
-interface PresencePanelProps {
+interface Props {
   roomId: string;
   isOwner?: boolean;
 }
 
-export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) => {
+export const PresencePanel = ({ roomId, isOwner }: Props) => {
   const trpc = useTRPC();
-  const today = format(new Date(), "yyyy-MM-dd");
-  const [currentMonth, setCurrentMonth] = useState(format(new Date(), "yyyy-MM"));
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [reasonModalOpen, setReasonModalOpen] = useState(false);
+  const today = format(new Date(), "yyyy-MM-dd");
 
   const { data: calendarData, refetch: refetchCalendar } = useQuery({
-    ...trpc.presence.getCalendar.queryOptions({
+    ...trpc.presence.getCalendar.queryOptions({ 
       roomId,
-      month: currentMonth
+      month: format(new Date(), "yyyy-MM")
     }),
     staleTime: 30000,
   });
 
-  const records = calendarData?.records || [];
+  const records = useMemo(() => calendarData?.records || [], [calendarData?.records]);
   const joinedAt = calendarData?.joinedAt;
 
-  const { data: presenceData, refetch: refetchToday } = useQuery({
+  const { refetch: refetchToday } = useQuery({
     ...trpc.presence.getByRoom.queryOptions({
       roomId,
       date: today
@@ -51,19 +49,19 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
   });
 
   const alreadyCheckedIn = useMemo(() => {
-    return !!records.find((a: any) => a.date === today);
+    return !!records.find((a: { date: string }) => a.date === today);
   }, [records, today]);
 
   const stats = useMemo(() => {
-    if (!joinedAt) return { rate: "0%", total: 0, late: 0, streak: 0 };
+    if (!joinedAt) return { rate: "0%", total: 1, late: 0, present: 0 };
     
     const joined = new Date(joinedAt);
     const todayDate = new Date();
     const diffTime = Math.abs(todayDate.getTime() - joined.getTime());
     const totalDaysSinceJoin = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     
-    const presentCount = records.filter((r: any) => r.status === "present" || r.status === "late").length;
-    const lateCount = records.filter((r: any) => r.status === "late").length;
+    const presentCount = records.filter((r: { status: string }) => r.status === "present" || r.status === "late").length;
+    const lateCount = records.filter((r: { status: string }) => r.status === "late").length;
     const rate = Math.round((presentCount / totalDaysSinceJoin) * 100);
     
     return { 
@@ -170,7 +168,7 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
         onOpenChange={setReasonModalOpen} 
         roomId={roomId} 
         date={selectedDate} 
-        onSuccess={handleSuccess}
+        onSuccess={() => { toast.success("Checked in successfully!"); handleSuccess(); }}
       />
     </div>
   );

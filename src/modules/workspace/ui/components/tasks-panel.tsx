@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { 
   PlusIcon, TrashIcon, SparklesIcon, LoaderIcon, CalendarIcon, UserIcon, 
-  CheckCircle2Icon, ClockIcon, XCircleIcon, FingerprintIcon 
+  FingerprintIcon 
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -73,7 +73,7 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
     }),
   );
 
-  const { data: attendance } = useQuery(
+  const { data: attendanceData } = useQuery(
     trpc.presence.getByRoom.queryOptions(
       { roomId: roomId as string, date: format(new Date(), "yyyy-MM-dd") },
       { enabled: !!roomId }
@@ -81,15 +81,9 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
   );
 
   const getAssigneePresence = (name: string | null) => {
-    if (!name || !attendance) return null;
-    const record = attendance.find(a => a.user.name.toLowerCase() === name.toLowerCase());
+    if (!name || !attendanceData?.attendance) return null;
+    const record = attendanceData.attendance.find(a => a.user.name.toLowerCase() === name.toLowerCase());
     return record?.status || null;
-  };
-
-  const statusIcons: any = {
-    present: <CheckCircle2Icon className="size-2.5 text-emerald-500" />,
-    late: <ClockIcon className="size-2.5 text-amber-500" />,
-    absent: <XCircleIcon className="size-2.5 text-red-500" />,
   };
 
   const invalidate = () =>
@@ -129,19 +123,19 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
   return (
     <div className="flex flex-col gap-6">
       {/* Attendance Summary Bar (for visibility) */}
-      {roomId && attendance && attendance.length > 0 && (
+      {roomId && attendanceData?.attendance && attendanceData.attendance.length > 0 && (
         <div className="bg-slate-50/80 border-2 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm backdrop-blur-sm animate-in slide-in-from-top-4 duration-500">
           <div className="flex items-center gap-3">
              <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-inner">
                 <FingerprintIcon className="size-5 text-primary" />
              </div>
-             <div>
-                <h3 className="text-sm font-bold tracking-tight">Today's Presence</h3>
+              <div>
+                <h3 className="text-sm font-bold tracking-tight">Today&apos;s Presence</h3>
                 <p className="text-[10px] text-muted-foreground font-bold uppercase opacity-60 tracking-wider">Verified Team Snapshot</p>
-             </div>
+              </div>
           </div>
           <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar max-w-full">
-             {attendance.map((att: any) => (
+             {attendanceData.attendance.map((att) => (
                 <TooltipProvider key={att.user.id}>
                    <Tooltip>
                       <TooltipTrigger asChild>

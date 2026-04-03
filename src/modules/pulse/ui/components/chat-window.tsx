@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { HashIcon, SendIcon, LoaderIcon, MessageCircleIcon, CalendarIcon, CheckSquareIcon } from "lucide-react";
+import { SendIcon, LoaderIcon, MessageCircleIcon, CalendarIcon, CheckSquareIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 

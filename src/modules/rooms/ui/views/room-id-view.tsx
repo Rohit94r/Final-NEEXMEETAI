@@ -5,13 +5,28 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  UsersIcon, CopyIcon, VideoIcon, CheckSquareIcon, LightbulbIcon,
-  UserPlusIcon, LogOutIcon, TrashIcon, ChevronRightIcon, LoaderIcon,
-  LockIcon, GlobeIcon, MoreVerticalIcon, PencilIcon, StarIcon,
-  CalendarIcon, ClockIcon, ActivityIcon, FingerprintIcon,
+import { 
+  UsersIcon, 
+  MoreVerticalIcon, 
+  TrashIcon, 
+  VideoIcon, 
+  ClockIcon, 
+  LogOutIcon,
+  GlobeIcon,
+  LockIcon,
+  StarIcon,
+  PencilIcon,
+  ChevronRightIcon,
+  LoaderIcon,
+  UserPlusIcon,
+  CopyIcon,
+  CheckSquareIcon,
+  LightbulbIcon,
+  ActivityIcon,
+  FingerprintIcon,
+  CalendarIcon
 } from "lucide-react";
-import { format, isToday, isFuture, isSameDay } from "date-fns";
+import { format, isToday, isFuture } from "date-fns";
 
 import { useTRPC } from "@/trpc/client";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -31,10 +46,11 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GeneratedAvatar } from "@/components/generated-avatar";
 import { TasksPanel } from "@/modules/workspace/ui/components/tasks-panel";
 import { DecisionsPanel } from "@/modules/workspace/ui/components/decisions-panel";
 import { RoomMeetingDialog } from "../components/room-meeting-dialog";
+import { GeneratedAvatar } from "@/components/generated-avatar";
+import { MeetingGetOne } from "@/modules/meetings/types";
 import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-meeting-dialog";
 import { PulsePanel } from "@/modules/pulse/ui/components/pulse-panel";
 import { PresencePanel } from "@/modules/presence/ui/components/presence-panel";
@@ -54,7 +70,7 @@ export const RoomIdView = ({ roomId }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [updateMeetingOpen, setUpdateMeetingOpen] = useState(false);
-  const [meetingToUpdate, setMeetingToUpdate] = useState<any>(null);
+  const [meetingToUpdate, setMeetingToUpdate] = useState<MeetingGetOne | null>(null);
 
   const [ConfirmDelete, confirmDelete] = useConfirm(
     "Delete Meeting?",
@@ -82,7 +98,7 @@ export const RoomIdView = ({ roomId }: Props) => {
     }
   };
 
-  const onEditMeeting = (meeting: any) => {
+  const onEditMeeting = (meeting: MeetingGetOne) => {
     setMeetingToUpdate(meeting);
     setUpdateMeetingOpen(true);
   };
@@ -145,6 +161,12 @@ export const RoomIdView = ({ roomId }: Props) => {
 
   return (
     <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4 overflow-y-auto">
+      <ConfirmDelete />
+      <UpdateMeetingDialog 
+        open={updateMeetingOpen} 
+        onOpenChange={setUpdateMeetingOpen} 
+        initialValues={meetingToUpdate as MeetingGetOne} 
+      />
 
       {/* Rename dialog */}
       <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
@@ -334,7 +356,7 @@ export const RoomIdView = ({ roomId }: Props) => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-40">
-                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting); }}>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting as MeetingGetOne); }}>
                                 <PencilIcon className="size-3.5 mr-2" />
                                 Edit / Reschedule
                               </DropdownMenuItem>
@@ -399,7 +421,7 @@ export const RoomIdView = ({ roomId }: Props) => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting); }}>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEditMeeting(meeting as MeetingGetOne); }}>
                                   <PencilIcon className="size-3.5 mr-2" />
                                   Edit / Reschedule
                                 </DropdownMenuItem>
