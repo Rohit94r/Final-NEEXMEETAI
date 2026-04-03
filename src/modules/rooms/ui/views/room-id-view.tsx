@@ -91,10 +91,14 @@ export const RoomIdView = ({ roomId }: Props) => {
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameName, setRenameName] = useState("");
 
-  const { data: room, isPending } = useQuery(trpc.rooms.getOne.queryOptions({ id: roomId }));
+  const { data: room, isPending } = useQuery({
+    ...trpc.rooms.getOne.queryOptions({ id: roomId }),
+    staleTime: 30000,
+  });
   const { data: roomMeetings } = useQuery({
     ...trpc.rooms.getMeetings.queryOptions({ roomId }),
     refetchInterval: 30000,
+    staleTime: 30000,
   });
 
   const invalidateRoom  = () => queryClient.invalidateQueries(trpc.rooms.getOne.queryOptions({ id: roomId }));

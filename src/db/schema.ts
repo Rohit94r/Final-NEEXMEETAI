@@ -87,6 +87,7 @@ export const meetings = pgTable(
   },
   (table) => ({
     meetingSecretCodeIdx: uniqueIndex("meetings_secret_code_idx").on(table.secretCode),
+    meetingRoomIdx: uniqueIndex("meetings_room_idx").on(table.roomId, table.id), // composite for speed
   }),
 );
 
@@ -123,7 +124,9 @@ export const tasks = pgTable("tasks", {
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  taskRoomIdx: uniqueIndex("tasks_room_idx").on(table.roomId, table.id),
+}));
 
 export const decisions = pgTable("decisions", {
   id: text("id").primaryKey().$defaultFn(() => nanoid()),
@@ -133,7 +136,9 @@ export const decisions = pgTable("decisions", {
   roomId: text("room_id"),  // FK added after rooms table
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  decisionRoomIdx: uniqueIndex("decisions_room_idx").on(table.roomId, table.id),
+}));
 
 export const documents = pgTable("documents", {
   id: text("id").primaryKey().$defaultFn(() => nanoid()),
@@ -144,7 +149,9 @@ export const documents = pgTable("documents", {
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  documentRoomIdx: uniqueIndex("documents_room_idx").on(table.roomId, table.id),
+}));
 
 // ─── Rooms ────────────────────────────────────────────────────────────────────
 
@@ -186,7 +193,9 @@ export const channels = pgTable("channels", {
   name: text("name").notNull(),
   roomId: text("room_id").notNull().references(() => rooms.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  channelRoomIdx: uniqueIndex("channels_room_idx").on(table.roomId, table.id),
+}));
 
 export const messages = pgTable("messages", {
   id: text("id").primaryKey().$defaultFn(() => nanoid()),
@@ -196,7 +205,9 @@ export const messages = pgTable("messages", {
   meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
   taskId: text("task_id").references(() => tasks.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => ({
+  messageChannelIdx: uniqueIndex("messages_channel_idx").on(table.channelId, table.id),
+}));
 
 export const threads = pgTable("threads", {
   id: text("id").primaryKey().$defaultFn(() => nanoid()),
@@ -219,6 +230,7 @@ export const attendance = pgTable("attendance", {
   timestamp: timestamp("timestamp").notNull().defaultNow(),
 }, (table) => ({
   userRoomDateIdx: uniqueIndex("attendance_user_room_date_idx").on(table.userId, table.roomId, table.date),
+  attendanceRoomIdx: uniqueIndex("attendance_room_idx").on(table.roomId, table.id),
 }));
 
 export const attendanceReasons = pgTable("attendance_reasons", {

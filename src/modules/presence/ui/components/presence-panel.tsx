@@ -31,18 +31,24 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [reasonModalOpen, setReasonModalOpen] = useState(false);
 
-  const { data: calendarData, refetch: refetchCalendar } = useQuery(trpc.presence.getCalendar.queryOptions({
-    roomId,
-    month: currentMonth
-  }));
+  const { data: calendarData, refetch: refetchCalendar } = useQuery({
+    ...trpc.presence.getCalendar.queryOptions({
+      roomId,
+      month: currentMonth
+    }),
+    staleTime: 30000,
+  });
 
   const records = calendarData?.records || [];
   const joinedAt = calendarData?.joinedAt;
 
-  const { data: presenceData, refetch: refetchToday } = useQuery(trpc.presence.getByRoom.queryOptions({
-    roomId,
-    date: today
-  }));
+  const { data: presenceData, refetch: refetchToday } = useQuery({
+    ...trpc.presence.getByRoom.queryOptions({
+      roomId,
+      date: today
+    }),
+    staleTime: 30000,
+  });
 
   const alreadyCheckedIn = useMemo(() => {
     return !!records.find((a: any) => a.date === today);

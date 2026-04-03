@@ -30,7 +30,10 @@ export const ChannelsSidebar = ({ roomId, activeId, onSelect }: Props) => {
   const [newChannelOpen, setNewChannelOpen] = useState(false);
   const [newName, setNewName] = useState("");
 
-  const { data: channels, isPending } = useQuery(trpc.pulse.getByRoom.queryOptions({ roomId }));
+  const { data: channels, isPending } = useQuery({
+    ...trpc.pulse.getByRoom.queryOptions({ roomId }),
+    staleTime: 30000,
+  });
 
   const create = useMutation(
     trpc.pulse.createChannel.mutationOptions({

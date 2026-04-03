@@ -27,6 +27,7 @@ export const ChatWindow = ({ channelId, onOpenThread }: Props) => {
   const { data: messages, isPending } = useQuery({
     ...trpc.pulse.getByChannel.queryOptions({ channelId }),
     refetchInterval: 3000, // Simple real-time feel
+    staleTime: 5000,
   });
 
   const send = useMutation(

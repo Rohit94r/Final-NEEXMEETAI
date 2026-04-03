@@ -47,10 +47,13 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
   const [search, setSearch] = useState("");
   const [selectedReason, setSelectedReason] = useState<any>(null);
 
-  const { data: presenceData, refetch } = useQuery(trpc.presence.getByRoom.queryOptions({ 
-    roomId, 
-    date: selectedDate 
-  }));
+  const { data: presenceData, refetch } = useQuery({
+    ...trpc.presence.getByRoom.queryOptions({ 
+      roomId, 
+      date: selectedDate 
+    }),
+    staleTime: 30000,
+  });
 
   const attendanceList = presenceData?.attendance || [];
   const roomInfo = presenceData?.room;
