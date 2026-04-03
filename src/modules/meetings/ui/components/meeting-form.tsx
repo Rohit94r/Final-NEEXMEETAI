@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -77,6 +78,11 @@ export const MeetingForm = ({
             trpc.meetings.getOne.queryOptions({ id: initialValues.id }),
           );
         }
+        if (initialValues?.roomId) {
+          await queryClient.invalidateQueries(
+            trpc.rooms.getMeetings.queryOptions({ roomId: initialValues.roomId }),
+          );
+        }
         onSuccess?.();
       },
       onError: (error) => {
@@ -90,6 +96,9 @@ export const MeetingForm = ({
     defaultValues: {
       name: initialValues?.name ?? "",
       agentId: initialValues?.agentId ?? "",
+      topic: initialValues?.topic ?? "",
+      scheduledAt: initialValues?.scheduledAt ? format(new Date(initialValues.scheduledAt), "yyyy-MM-dd'T'HH:mm") : "",
+      roomId: initialValues?.roomId ?? undefined,
     },
   });
 
@@ -100,6 +109,9 @@ export const MeetingForm = ({
     form.reset({
       name: initialValues?.name ?? "",
       agentId: initialValues?.agentId ?? "",
+      topic: initialValues?.topic ?? "",
+      scheduledAt: initialValues?.scheduledAt ? format(new Date(initialValues.scheduledAt), "yyyy-MM-dd'T'HH:mm") : "",
+      roomId: initialValues?.roomId ?? undefined,
     });
   }, [form, initialValues]);
 
@@ -123,7 +135,37 @@ export const MeetingForm = ({
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g. Math Consultations" />
+                  <Input {...field} placeholder="e.g. Weekly Sync" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="topic"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Topic (Focus)</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g. Design Review" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="scheduledAt"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Schedule Time</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    type="datetime-local" 
+                    value={field.value instanceof Date ? format(field.value, "yyyy-MM-dd'T'HH:mm") : (field.value || "")} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

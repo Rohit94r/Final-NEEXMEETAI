@@ -36,14 +36,37 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
     month: currentMonth
   }));
 
-  const { data: todayAttendance, refetch: refetchToday } = useQuery(trpc.presence.getByRoom.queryOptions({
+  const records = calendarData?.records || [];
+  const joinedAt = calendarData?.joinedAt;
+
+  const { data: presenceData, refetch: refetchToday } = useQuery(trpc.presence.getByRoom.queryOptions({
     roomId,
     date: today
   }));
 
   const alreadyCheckedIn = useMemo(() => {
-    return !!calendarData?.find((a: any) => a.date === today);
-  }, [calendarData, today]);
+    return !!records.find((a: any) => a.date === today);
+  }, [records, today]);
+
+  const stats = useMemo(() => {
+    if (!joinedAt) return { rate: "0%", total: 0, late: 0, streak: 0 };
+    
+    const joined = new Date(joinedAt);
+    const todayDate = new Date();
+    const diffTime = Math.abs(todayDate.getTime() - joined.getTime());
+    const totalDaysSinceJoin = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    
+    const presentCount = records.filter((r: any) => r.status === "present" || r.status === "late").length;
+    const lateCount = records.filter((r: any) => r.status === "late").length;
+    const rate = Math.round((presentCount / totalDaysSinceJoin) * 100);
+    
+    return { 
+      rate: `${rate}%`, 
+      total: totalDaysSinceJoin, 
+      late: lateCount,
+      present: presentCount 
+    };
+  }, [records, joinedAt]);
 
   const onSelectDate = (date: Date, status: string | null) => {
     setSelectedDate(date);
@@ -96,26 +119,26 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
                  onSuccess={handleSuccess}
                />
                
-               {/* Stats / Highlights - Optional enhancement */}
                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="p-4 rounded-2xl border-2 bg-emerald-50/50 flex flex-col gap-1 shadow-sm">
                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Attendance Rate</span>
-                     <span className="text-2xl font-bold text-emerald-900">92%</span>
+                     <span className="text-2xl font-bold text-emerald-900">{stats.rate}</span>
                   </div>
                   <div className="p-4 rounded-2xl border-2 bg-amber-50/50 flex flex-col gap-1 shadow-sm">
                      <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Late Counts</span>
-                     <span className="text-2xl font-bold text-amber-900">3d</span>
+                     <span className="text-2xl font-bold text-amber-900">{stats.late}d</span>
                   </div>
                   <div className="hidden md:flex p-4 rounded-2xl border-2 bg-indigo-50/50 flex flex-col gap-1 shadow-sm">
-                     <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Overall Rank</span>
-                     <span className="text-2xl font-bold text-indigo-900">#2</span>
+                     <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Days Joined</span>
+                     <span className="text-2xl font-bold text-indigo-900">{stats.total}d</span>
                   </div>
                </div>
             </div>
 
             <div className="flex flex-col gap-8">
                <AttendanceCalendar 
-                 attendanceData={calendarData || []} 
+                 attendanceData={records} 
+                 joinedAt={joinedAt}
                  onSelectDate={onSelectDate}
                  currentDate={selectedDate}
                />
@@ -123,8 +146,8 @@ export const PresencePanel = ({ roomId, isOwner = false }: PresencePanelProps) =
                <div className="p-6 rounded-2xl border-2 bg-slate-50 flex items-center gap-4 text-center justify-center border-dashed group cursor-default">
                   <TargetIcon className="size-8 text-slate-300 group-hover:text-primary transition-colors duration-500 hover:scale-110" />
                   <div className="text-left">
-                     <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Active Streak</p>
-                     <p className="text-lg font-extrabold text-slate-700">12 Days Active</p>
+                     <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">Active Presence</p>
+                     <p className="text-lg font-extrabold text-slate-700">{stats.present} Days Verified</p>
                   </div>
                </div>
             </div>

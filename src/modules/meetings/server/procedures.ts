@@ -873,12 +873,16 @@ ${meetingWithAgent.summary ?? "No final summary is available yet because the mee
   update: protectedProcedure
     .input(meetingsUpdateSchema)
     .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
       const [updatedMeeting] = await db
         .update(meetings)
-        .set(input)
+        .set({
+          ...data,
+          scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
+        })
         .where(
           and(
-            eq(meetings.id, input.id),
+            eq(meetings.id, id),
             eq(meetings.userId, ctx.auth.user.id),
           )
         )
@@ -951,6 +955,7 @@ ${meetingWithAgent.summary ?? "No final summary is available yet because the mee
         .insert(meetings)
         .values({
           ...input,
+          scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
           secretCode,
           userId: ctx.auth.user.id,
         })

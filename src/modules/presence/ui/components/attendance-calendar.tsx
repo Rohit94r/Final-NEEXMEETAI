@@ -35,13 +35,15 @@ import {
 } from "@/components/ui/tooltip";
 
 interface AttendanceCalendarProps {
-  attendanceData: any[]; // Results from presence.getCalendar
+  attendanceData: any[]; // Records array
+  joinedAt?: Date | string;
   onSelectDate: (date: Date, status: string | null) => void;
   currentDate?: Date;
 }
 
 export const AttendanceCalendar = ({ 
   attendanceData, 
+  joinedAt,
   onSelectDate,
   currentDate = new Date() 
 }: AttendanceCalendarProps) => {
@@ -53,26 +55,34 @@ export const AttendanceCalendar = ({
   });
 
   const getDayStatus = (day: Date) => {
+    // Check if before join
+    if (joinedAt) {
+      const joinedDate = startOfDay(new Date(joinedAt));
+      if (isBefore(day, joinedDate)) return "before_join";
+    }
+
     const dateStr = format(day, "yyyy-MM-dd");
     const record = attendanceData.find(a => a.date === dateStr);
     
     if (record) return record.status;
     
     const today = startOfDay(new Date());
-    if (isBefore(day, today)) return "absent"; // If in past and no record, marked as absent
-    return null; // Future or today (not yet marked)
+    if (isBefore(day, today)) return "absent"; // Past missed days are auto-absent
+    return null; // Future or today (pending)
   };
 
   const statusColors: any = {
     present: "bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-200",
     late: "bg-amber-500 text-white border-amber-600 shadow-sm shadow-amber-200",
     absent: "bg-red-500 text-white border-red-600 shadow-sm shadow-red-200",
+    before_join: "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed opacity-40",
   };
 
   const statusIcons: any = {
     present: <CheckCircle2Icon className="size-3" />,
     late: <ClockIcon className="size-3" />,
     absent: <XCircleIcon className="size-3" />,
+    before_join: null,
   };
 
   return (

@@ -47,10 +47,13 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
   const [search, setSearch] = useState("");
   const [selectedReason, setSelectedReason] = useState<any>(null);
 
-  const { data: attendanceList, refetch } = useQuery(trpc.presence.getByRoom.queryOptions({ 
+  const { data: presenceData, refetch } = useQuery(trpc.presence.getByRoom.queryOptions({ 
     roomId, 
     date: selectedDate 
   }));
+
+  const attendanceList = presenceData?.attendance || [];
+  const roomInfo = presenceData?.room;
 
   const reviewMutation = useMutation(trpc.presence.reviewReason.mutationOptions({
     onSuccess: () => {
@@ -61,7 +64,7 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
     onError: (e: any) => toast.error(e.message),
   }));
 
-  const filtered = attendanceList?.filter((a: any) => 
+  const filtered = attendanceList.filter((a: any) => 
     a.user.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -119,12 +122,12 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
               <TableHead className="w-[300px] font-bold text-[10px] uppercase tracking-widest text-slate-400">Member</TableHead>
               <TableHead className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Status</TableHead>
               <TableHead className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Timestamp</TableHead>
-              <TableHead className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Location</TableHead>
+              <TableHead className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Joined Room</TableHead>
               <TableHead className="text-right font-bold text-[10px] uppercase tracking-widest text-slate-400">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered?.length === 0 ? (
+            {filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-64 text-center">
                    <div className="flex flex-col items-center gap-3 opacity-30">
@@ -133,8 +136,8 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
                    </div>
                 </TableCell>
               </TableRow>
-            ) : filtered?.map((att: any) => (
-              <TableRow key={att.id} className="hover:bg-slate-50/50 transition-colors">
+            ) : filtered.map((att: any) => (
+              <TableRow key={att.id || att.user.id} className="hover:bg-slate-50/50 transition-colors">
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="size-9 rounded-xl border-2 border-white shadow-sm ring-1 ring-slate-100">
@@ -145,7 +148,7 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
                     </Avatar>
                     <div className="min-w-0">
                       <p className="text-sm font-bold truncate">{att.user.name}</p>
-                      <p className="text-[10px] font-semibold text-muted-foreground truncate uppercase opacity-50">Member</p>
+                      <p className="text-[10px] font-bold text-indigo-500 truncate uppercase opacity-80">{att.member.role}</p>
                     </div>
                   </div>
                 </TableCell>
@@ -153,30 +156,30 @@ export const AdminAttendanceView = ({ roomId }: AdminAttendanceViewProps) => {
                   <div className="flex items-center gap-2">
                     <div className={cn(
                        "p-1.5 rounded-lg border",
-                       att.status === "present" ? "bg-emerald-50 border-emerald-100" :
+                       (att.status === "present" || !att.status) ? "bg-emerald-50 border-emerald-100" :
                        att.status === "late" ? "bg-amber-50 border-amber-100" : "bg-red-50 border-red-100"
                     )}>
-                       {statusIcons[att.status]}
+                       {statusIcons[att.status || "absent"]}
                     </div>
                     <span className={cn(
                        "text-xs font-bold uppercase tracking-tight",
                        att.status === "present" ? "text-emerald-600" :
                        att.status === "late" ? "text-amber-600" : "text-red-600"
                     )}>
-                      {att.status}
+                      {att.status || "absent"}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span className="text-xs font-semibold text-slate-600">
-                    {format(new Date(att.timestamp), "h:mm:ss aa")}
+                    {att.timestamp ? format(new Date(att.timestamp), "h:mm:ss aa") : "--:--:--"}
                   </span>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 group cursor-default">
-                    <ClockIcon className="size-3 opacity-40" />
-                    <span>{att.location || "N/A"}</span>
-                  </div>
+                   <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Joined</span>
+                      <span className="text-xs font-bold text-slate-700">{format(new Date(att.member.joinedAt), "MMM d, yyyy")}</span>
+                   </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">

@@ -21,7 +21,7 @@ async function getRoomAccess(roomId: string, userId: string) {
   
   // Check if owner
   if (room.ownerId === userId) {
-    return { member: { role: "admin", userId }, room };
+    return { member: { role: "admin", userId, joinedAt: room.createdAt }, room };
   }
 
   const [member] = await db
@@ -29,7 +29,9 @@ async function getRoomAccess(roomId: string, userId: string) {
     .from(roomMembers)
     .where(and(eq(roomMembers.roomId, roomId), eq(roomMembers.userId, userId)));
 
-  return member ? { member, room } : null;
+  if (!member) return null;
+
+  return { member: { ...member, joinedAt: member.createdAt }, room };
 }
 
 export const presenceRouter = createTRPCRouter({
@@ -118,22 +120,31 @@ export const presenceRouter = createTRPCRouter({
             name: user.name,
             image: user.image,
           },
+          member: {
+            joinedAt: roomMembers.createdAt,
+            role: roomMembers.role,
+          },
           reason: {
             id: attendanceReasons.id,
             content: attendanceReasons.reason,
             status: attendanceReasons.status,
           }
         })
-        .from(attendance)
-        .innerJoin(user, eq(attendance.userId, user.id))
-        .leftJoin(attendanceReasons, eq(attendanceReasons.attendanceId, attendance.id))
-        .where(and(
-          eq(attendance.roomId, input.roomId),
-          eq(attendance.date, targetDate)
+        .from(user)
+        .innerJoin(roomMembers, eq(roomMembers.userId, user.id))
+        .leftJoin(attendance, and(
+           eq(attendance.userId, user.id),
+           eq(attendance.roomId, input.roomId),
+           eq(attendance.date, targetDate)
         ))
+        .leftJoin(attendanceReasons, eq(attendanceReasons.attendanceId, attendance.id))
+        .where(eq(roomMembers.roomId, input.roomId))
         .orderBy(desc(attendance.timestamp));
 
-      return result;
+      return {
+        attendance: result,
+        room: access.room
+      };
     }),
 
   getCalendar: protectedProcedure
@@ -152,14 +163,16 @@ export const presenceRouter = createTRPCRouter({
         .where(and(
           eq(attendance.roomId, input.roomId),
           eq(attendance.userId, ctx.auth.user.id),
-          // We can use prefix matching for the month date string
           and(
             gte(attendance.date, `${input.month}-01`),
             lte(attendance.date, `${input.month}-31`)
           )
         ));
 
-      return results;
+      return {
+        records: results,
+        joinedAt: access.member.joinedAt
+      };
     }),
 
   // ─── Reasons ───────────────────────────────────────────────────────────────

@@ -249,9 +249,9 @@ export const RoomIdView = ({ roomId }: Props) => {
           <TabsList className="p-0 bg-background justify-start rounded-none h-13">
             {[
               { value: "meetings",  icon: VideoIcon,        label: "Meetings" },
-              { value: "presence",  icon: FingerprintIcon,  label: "Presence" },
               { value: "tasks",     icon: CheckSquareIcon,  label: "Tasks" },
               { value: "pulse",     icon: ActivityIcon,     label: "Pulse" },
+              { value: "presence",  icon: FingerprintIcon,  label: "Presence" },
               { value: "decisions", icon: LightbulbIcon,    label: "Decisions" },
               { value: "members",   icon: UsersIcon,        label: "Members" },
             ].map((tab) => (
@@ -266,8 +266,6 @@ export const RoomIdView = ({ roomId }: Props) => {
         {/* ── Meetings ─────────────────────────────────────────────────── */}
         <TabsContent value="meetings" className="mt-4">
           <div className="flex flex-col gap-4">
-
-            {/* Today */}
             <div className="rounded-lg border bg-white">
               <div className="flex items-center justify-between px-4 py-3 border-b">
                 <div className="flex items-center gap-2">
@@ -451,9 +449,11 @@ export const RoomIdView = ({ roomId }: Props) => {
           </div>
         </TabsContent>
 
-        {/* ── Presence ─────────────────────────────────────────────────── */}
-        <TabsContent value="presence" className="mt-4 outline-none">
-          <PresencePanel roomId={roomId} isOwner={room.isOwner} />
+        {/* ── Tasks ────────────────────────────────────────────────────── */}
+        <TabsContent value="tasks" className="mt-4">
+          <div className="rounded-lg border bg-white px-4 py-5">
+            <TasksPanel roomId={roomId} />
+          </div>
         </TabsContent>
 
         {/* ── Pulse ────────────────────────────────────────────────────── */}
@@ -461,11 +461,9 @@ export const RoomIdView = ({ roomId }: Props) => {
           <PulsePanel roomId={roomId} />
         </TabsContent>
 
-        {/* ── Tasks ────────────────────────────────────────────────────── */}
-        <TabsContent value="tasks" className="mt-4">
-          <div className="rounded-lg border bg-white px-4 py-5">
-            <TasksPanel roomId={roomId} />
-          </div>
+        {/* ── Presence ─────────────────────────────────────────────────── */}
+        <TabsContent value="presence" className="mt-4 outline-none">
+          <PresencePanel roomId={roomId} isOwner={room.isOwner} />
         </TabsContent>
 
         {/* ── Decisions ────────────────────────────────────────────────── */}
