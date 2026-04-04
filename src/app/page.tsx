@@ -18,7 +18,7 @@ import {
   ZapIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductExperience } from "./_components/product-experience";
+import { ProductExperience } from "@/app/(marketing)/_components/product-experience";
 
 export default function LandingPage() {
   const [isMobile, setIsMobile] = useState(true);
@@ -164,7 +164,7 @@ export default function LandingPage() {
                 <br className="hidden md:block" /> automatically.
               </motion.h1>
               <motion.p variants={fadeUpVariant} className="text-xl text-muted-foreground max-w-[42rem] mx-auto lg:mx-0 leading-normal">
-                Stop taking notes and manually assigning tasks. NeexMeet listens, summarizes, and populates your team's workspace while you focus on the conversation.
+                Stop taking notes and manually assigning tasks. NeexMeet listens, summarizes, and populates your team&apos;s workspace while you focus on the conversation.
               </motion.p>
               <motion.div variants={fadeUpVariant} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
                 <Button size="lg" className="w-full sm:w-auto text-base h-12 px-8 shadow-[0_4px_14px_0_var(--color-primary)]/30 hover:shadow-[0_6px_20px_var(--color-primary)]/50 hover:scale-105 transition-all duration-300 ease-out" asChild>
