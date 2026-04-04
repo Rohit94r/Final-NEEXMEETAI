@@ -35,7 +35,7 @@ export const CallActive = ({
     <div className="flex flex-col justify-between p-4 h-full text-white">
       <div className="bg-[#101213] rounded-3xl p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4 min-w-0">
-          <Link href="/" className="flex items-center justify-center p-1 bg-white/10 rounded-full w-fit">
+          <Link href="/dashboard" className="flex items-center justify-center p-1 bg-white/10 rounded-full w-fit">
             <Image
               src="/logo.png"
               width={22}

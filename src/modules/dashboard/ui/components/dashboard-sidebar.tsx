@@ -50,7 +50,7 @@ export const DashboardSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader className="text-sidebar-accent-foreground">
-        <Link href="/" className="flex items-center gap-2 px-2 pt-2">
+        <Link href="/dashboard" className="flex items-center gap-2 px-2 pt-2">
           <Image
             src="/logo.png"
             height={36}
