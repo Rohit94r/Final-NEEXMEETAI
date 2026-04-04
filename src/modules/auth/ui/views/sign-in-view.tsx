@@ -76,6 +76,8 @@ export const SignInView = ({ callbackUrl }: Props) => {
     setError(null);
     setPending(true);
 
+    console.log("🔐 Attempting social login with provider:", provider);
+
     authClient.signIn.social(
       {
         provider: provider,
@@ -83,11 +85,13 @@ export const SignInView = ({ callbackUrl }: Props) => {
       },
       {
         onSuccess: () => {
+          console.log("✓ Social login successful");
           setPending(false);
         },
         onError: ({ error }) => {
+          console.error("✗ Social login error:", error);
           setPending(false);
-          setError(error.message)
+          setError(error.message || "Social login failed");
         },
       }
     );

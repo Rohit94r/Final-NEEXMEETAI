@@ -10,29 +10,34 @@ function getSocialProviders() {
   const googleClientId = getOptionalServerEnv("GOOGLE_CLIENT_ID");
   const googleClientSecret = getOptionalServerEnv("GOOGLE_CLIENT_SECRET");
 
-  return {
-    ...(githubClientId && githubClientSecret
-      ? {
-          github: {
-            clientId: githubClientId,
-            clientSecret: githubClientSecret,
-          },
-        }
-      : {}),
-    ...(googleClientId && googleClientSecret
-      ? {
-          google: {
-            clientId: googleClientId,
-            clientSecret: googleClientSecret,
-          },
-        }
-      : {}),
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const providers: Record<string, any> = {};
+
+  if (githubClientId && githubClientSecret) {
+    providers.github = {
+      clientId: githubClientId,
+      clientSecret: githubClientSecret,
+    };
+  }
+
+  if (googleClientId && googleClientSecret) {
+    providers.google = {
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+    };
+    console.log("✓ Google provider loaded with client ID:", googleClientId.substring(0, 20) + "...");
+  } else {
+    console.warn("⚠ Google provider not configured. GOOGLE_CLIENT_ID:", !!googleClientId, "GOOGLE_CLIENT_SECRET:", !!googleClientSecret);
+  }
+
+  return providers;
 }
 
 function createAuth() {
   const baseURL =
     getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL") ?? "http://localhost:3000";
+
+  console.log("🔐 Initializing Better Auth with baseURL:", baseURL);
 
   return betterAuth({
     secret: getRequiredServerEnv("BETTER_AUTH_SECRET"),
