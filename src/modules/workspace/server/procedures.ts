@@ -122,6 +122,7 @@ const tasksRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, dueDate, ...rest } = input;
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateData: any = { 
         ...rest, 
         dueDate: dueDate ? new Date(dueDate) : null, 

@@ -64,6 +64,7 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
   const [title, setTitle] = useState("");
   const [assigneeName, setAssigneeName] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
 
