@@ -55,11 +55,11 @@ export const DashboardSidebar = () => {
             src="/logo.svg"
             height={36}
             width={36}
-            alt="Meet.AI"
+            alt="NeexMeetAI"
             priority
             className="h-auto w-auto"
           />
-          <p className="text-2xl font-semibold">Meet.AI</p>
+          <p className="text-2xl font-semibold">NeexMeetAI</p>
         </Link>
       </SidebarHeader>
       <div className="px-4 py-2">

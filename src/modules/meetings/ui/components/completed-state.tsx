@@ -138,52 +138,58 @@ export const CompletedState = ({ data }: Props) => {
                 {data.duration ? formatDuration(data.duration) : "No duration"}
               </Badge>
               <div>
-                <Markdown
-                  components={{
-                    h1: (props) => (
-                      <h1 className="text-2xl font-medium mb-6" {...props} />
-                    ),
-                    h2: (props) => (
-                      <h2 className="text-xl font-medium mb-6" {...props} />
-                    ),
-                    h3: (props) => (
-                      <h3 className="text-lg font-medium mb-6" {...props} />
-                    ),
-                    h4: (props) => (
-                      <h4 className="text-base font-medium mb-6" {...props} />
-                    ),
-                    p: (props) => (
-                      <p className="mb-6 leading-relaxed" {...props} />
-                    ),
-                    ul: (props) => (
-                      <ul className="list-disc list-inside mb-6" {...props} />
-                    ),
-                    ol: (props) => (
-                      <ol
-                        className="list-decimal list-inside mb-6"
-                        {...props}
-                      />
-                    ),
-                    li: (props) => <li className="mb-1" {...props} />,
-                    strong: (props) => (
-                      <strong className="font-semibold" {...props} />
-                    ),
-                    code: (props) => (
-                      <code
-                        className="bg-gray-100 px-1 py-0.5 rounded"
-                        {...props}
-                      />
-                    ),
-                    blockquote: (props) => (
-                      <blockquote
-                        className="border-l-4 pl-4 italic my-4"
-                        {...props}
-                      />
-                    ),
-                  }}
-                >
-                  {data.summary}
-                </Markdown>
+                {data.summary ? (
+                  <Markdown
+                    components={{
+                      h1: (props) => (
+                        <h1 className="text-2xl font-medium mb-6" {...props} />
+                      ),
+                      h2: (props) => (
+                        <h2 className="text-xl font-medium mb-6" {...props} />
+                      ),
+                      h3: (props) => (
+                        <h3 className="text-lg font-medium mb-6" {...props} />
+                      ),
+                      h4: (props) => (
+                        <h4 className="text-base font-medium mb-6" {...props} />
+                      ),
+                      p: (props) => (
+                        <p className="mb-6 leading-relaxed" {...props} />
+                      ),
+                      ul: (props) => (
+                        <ul className="list-disc list-inside mb-6" {...props} />
+                      ),
+                      ol: (props) => (
+                        <ol
+                          className="list-decimal list-inside mb-6"
+                          {...props}
+                        />
+                      ),
+                      li: (props) => <li className="mb-1" {...props} />,
+                      strong: (props) => (
+                        <strong className="font-semibold" {...props} />
+                      ),
+                      code: (props) => (
+                        <code
+                          className="bg-gray-100 px-1 py-0.5 rounded"
+                          {...props}
+                        />
+                      ),
+                      blockquote: (props) => (
+                        <blockquote
+                          className="border-l-4 pl-4 italic my-4"
+                          {...props}
+                        />
+                      ),
+                    }}
+                  >
+                    {data.summary}
+                  </Markdown>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <p className="text-muted-foreground">No summary available yet.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

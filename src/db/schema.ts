@@ -119,6 +119,8 @@ export const tasks = pgTable("tasks", {
   priority: taskPriority("priority").notNull().default("medium"),
   assigneeName: text("assignee_name"),
   dueDate: timestamp("due_date"),
+  completedBy: text("completed_by").references(() => user.id, { onDelete: "set null" }),
+  completedAt: timestamp("completed_at"),
   meetingId: text("meeting_id").references(() => meetings.id, { onDelete: "set null" }),
   roomId: text("room_id"),  // FK added after rooms table
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),

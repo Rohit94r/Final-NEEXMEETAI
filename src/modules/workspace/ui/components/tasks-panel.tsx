@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { 
   PlusIcon, TrashIcon, SparklesIcon, LoaderIcon, CalendarIcon, UserIcon, 
-  FingerprintIcon 
+  FingerprintIcon, EyeIcon, InfoIcon, CheckCircle2Icon
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -64,6 +64,8 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
   const [title, setTitle] = useState("");
   const [assigneeName, setAssigneeName] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
 
   const tasks = useQuery(
     trpc.workspace.tasks.getMany.queryOptions({
@@ -182,6 +184,7 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
               size="sm"
               variant="outline"
               disabled={extractTasks.isPending}
+              className="hover:bg-primary/5 hover:text-primary transition-all duration-300"
               onClick={() => extractTasks.mutate({ meetingId })}
             >
               {extractTasks.isPending ? <LoaderIcon className="size-4 animate-spin" /> : <SparklesIcon className="size-4" />}
@@ -190,7 +193,10 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
           )}
           <Dialog open={newTaskOpen} onOpenChange={setNewTaskOpen}>
             <DialogTrigger asChild>
-              <Button size="sm"><PlusIcon className="size-4" />Add Task</Button>
+              <Button size="sm" className="shadow-md hover:shadow-lg transition-all active:scale-95">
+                <PlusIcon className="size-4" />
+                Add Task
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>New Task</DialogTitle></DialogHeader>
@@ -208,8 +214,9 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
                 <Button
                   disabled={!title.trim() || createTask.isPending}
                   onClick={() => createTask.mutate({ title, assigneeName: assigneeName || null, priority, meetingId: meetingId ?? null, roomId: roomId ?? null })}
+                  className="w-full"
                 >
-                  {createTask.isPending ? <LoaderIcon className="size-4 animate-spin" /> : null}
+                  {createTask.isPending ? <LoaderIcon className="size-4 animate-spin mr-2" /> : null}
                   Create Task
                 </Button>
               </div>
@@ -217,6 +224,74 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
           </Dialog>
         </div>
       </div>
+
+      <Dialog open={infoModalOpen} onOpenChange={setInfoModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <InfoIcon className="size-5 text-primary" />
+              Task Completion Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTask && (
+            <div className="flex flex-col gap-6 py-4">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Task</p>
+                <p className="text-lg font-bold">{selectedTask.title}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assigned To</p>
+                  <div className="flex items-center gap-2">
+                     <div className="size-8 rounded-full bg-slate-100 flex items-center justify-center">
+                        <UserIcon className="size-4 text-slate-500" />
+                     </div>
+                     <span className="font-medium">{selectedTask.assigneeName || "Unassigned"}</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority</p>
+                   <Badge className={cn("capitalize", priorityColors[selectedTask.priority as keyof typeof priorityColors])}>
+                      {selectedTask.priority}
+                   </Badge>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 space-y-4">
+                <div className="flex items-center gap-3">
+                   <div className="size-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200">
+                      <CheckCircle2Icon className="size-6 text-white" />
+                   </div>
+                   <div>
+                      <p className="text-xs font-bold text-emerald-800 uppercase tracking-tight">Status: Completed</p>
+                      <p className="text-sm text-emerald-600 font-medium">Successfully executed</p>
+                   </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                     <span className="text-xs font-medium text-emerald-700">Completed By</span>
+                     <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-emerald-100 shadow-sm">
+                        <Avatar className="size-5">
+                           <AvatarImage src={selectedTask.completedByUser?.image || ""} />
+                           <AvatarFallback className="text-[8px]">{selectedTask.completedByUser?.name?.charAt(0) || "?"}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs font-bold">{selectedTask.completedByUser?.name || "System"}</span>
+                     </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                     <span className="text-xs font-medium text-emerald-700">Completion Time</span>
+                     <span className="text-xs font-bold text-emerald-900">
+                        {selectedTask.completedAt ? format(new Date(selectedTask.completedAt), "MMM d, h:mm a") : "N/A"}
+                     </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-col gap-2">
         {tasks.isPending ? (
@@ -227,20 +302,29 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
           </div>
         ) : (
           tasks.data?.map((task) => (
-            <div key={task.id} className="flex items-start justify-between gap-3 rounded-lg border bg-white px-4 py-3">
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+            <div 
+              key={task.id} 
+              className={cn(
+                "group flex items-start justify-between gap-3 rounded-2xl border-2 bg-white px-5 py-4 transition-all duration-300 hover:shadow-md hover:border-primary/20",
+                task.status === "done" && "bg-slate-50/50"
+              )}
+            >
+              <div className="flex flex-col gap-2 min-w-0">
+                <p className={cn(
+                  "text-sm font-semibold tracking-tight transition-all",
+                  task.status === "done" ? "line-through text-muted-foreground opacity-60" : "text-slate-900"
+                )}>
                   {task.title}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className={`text-xs ${statusColors[task.status]}`}>
-                    {statusLabel[task.status]}
+                  <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0", statusColors[task.status as keyof typeof statusColors])}>
+                    {statusLabel[task.status as keyof typeof statusLabel]}
                   </Badge>
-                  <Badge variant="outline" className={`text-xs ${priorityColors[task.priority]}`}>
+                  <Badge variant="outline" className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0", priorityColors[task.priority as keyof typeof priorityColors])}>
                     {task.priority}
                   </Badge>
                   {task.assigneeName && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 group">
+                    <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border shadow-sm transition-all group-hover:border-primary/30">
                       {roomId && getAssigneePresence(task.assigneeName) && (
                          <div className="flex items-center mr-0.5">
                             <div className={cn(
@@ -251,23 +335,43 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
                             )} />
                          </div>
                       )}
-                      <UserIcon className="size-3 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-slate-700">{task.assigneeName}</span>
+                      <UserIcon className="size-3 text-muted-foreground/60" />
+                      <span className="text-[10px] font-bold text-slate-700">{task.assigneeName}</span>
                     </div>
                   )}
                   {task.dueDate && (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tight">
                       <CalendarIcon className="size-3" />{format(new Date(task.dueDate), "MMM d")}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
+                {task.status === "done" && (
+                   <TooltipProvider>
+                      <Tooltip>
+                         <TooltipTrigger asChild>
+                            <Button
+                               size="sm"
+                               variant="outline"
+                               className="size-8 p-0 rounded-full border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all opacity-80 group-hover:opacity-100"
+                               onClick={() => { setSelectedTask(task); setInfoModalOpen(true); }}
+                            >
+                               <EyeIcon className="size-4" />
+                            </Button>
+                         </TooltipTrigger>
+                         <TooltipContent>
+                            <p className="text-xs font-bold uppercase">View Completion Activity</p>
+                         </TooltipContent>
+                      </Tooltip>
+                   </TooltipProvider>
+                )}
+                
                 <Select
                   value={task.status}
                   onValueChange={(v) => updateTask.mutate({ id: task.id, status: v as "todo" | "in_progress" | "done" })}
                 >
-                  <SelectTrigger className="h-7 w-28 text-xs">
+                  <SelectTrigger className="h-8 w-32 text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm border-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -279,10 +383,10 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="size-7 p-0 text-muted-foreground hover:text-red-600"
+                  className="size-8 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
                   onClick={() => removeTask.mutate({ id: task.id })}
                 >
-                  <TrashIcon className="size-3.5" />
+                  <TrashIcon className="size-4" />
                 </Button>
               </div>
             </div>

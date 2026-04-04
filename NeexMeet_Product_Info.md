@@ -1,6 +1,6 @@
-# NeexMeet-AI: Comprehensive Product Overview
+# NeexMeetAI: Comprehensive Product Overview
 
-NeexMeet-AI is a modern, real-time communication platform that seamlessly integrates video conferencing, instant messaging, and advanced Artificial Intelligence capabilities. Built with scalability, performance, and user experience in mind, the platform serves as a next-generation solution for virtual communication and intelligent collaboration.
+NeexMeetAI is a modern, real-time communication platform that seamlessly integrates video conferencing, instant messaging, and advanced Artificial Intelligence capabilities. Built with scalability, performance, and user experience in mind, the platform serves as a next-generation solution for virtual communication and intelligent collaboration.
 
 ## Core Features & Functionality
 
@@ -26,7 +26,7 @@ NeexMeet-AI is a modern, real-time communication platform that seamlessly integr
 
 ## Technical Stack & Architecture
 
-NeexMeet-AI is built on a highly modern, edge-ready TypeScript stack, utilizing the best tools in the React ecosystem for type safety, performance, and developer experience.
+NeexMeetAI is built on a highly modern, edge-ready TypeScript stack, utilizing the best tools in the React ecosystem for type safety, performance, and developer experience.
 
 ### Framework & Language
 - **Next.js (v15)**: The core React framework utilizing the App Router for server-side rendering, static site generation, and optimized client-side performance.
@@ -71,4 +71,4 @@ NeexMeet-AI is built on a highly modern, edge-ready TypeScript stack, utilizing 
 - `src/db/`: Database schema definitions and Drizzle ORM configuration.
 
 ## Summary
-NeexMeet-AI is not just a standard video calling application; it is an *AI-first communication platform*. By combining the real-time reliability of Stream and Neon with the power of Next.js and tRPC, it provides an unparalleled architecture designed to scale while delivering cutting-edge AI features directly into the user's workflow.
+NeexMeetAI is not just a standard video calling application; it is an *AI-first communication platform*. By combining the real-time reliability of Stream and Neon with the power of Next.js and tRPC, it provides an unparalleled architecture designed to scale while delivering cutting-edge AI features directly into the user's workflow.
