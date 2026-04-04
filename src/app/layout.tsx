@@ -5,22 +5,22 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "NeexMeetAI — AI-Powered Team Execution System",
-    template: "%s | NeexMeetAI",
+    default: "NeexMeet — AI-Powered Team Execution System",
+    template: "%s | NeexMeet",
   },
-  description: "NeexMeetAI is an AI-powered team execution platform where every action is visible, trackable, and accountable. Rooms, Meetings, Workspace, Pulse, and Presence in one place.",
-  keywords: ["AI meetings", "team collaboration", "task tracking", "meeting summary", "NeexMeetAI"],
-  authors: [{ name: "NeexMeetAI" }],
-  creator: "NeexMeetAI",
+  description: "NeexMeet is an AI-powered team execution platform where every action is visible, trackable, and accountable. Rooms, Meetings, Workspace, Pulse, and Presence in one place.",
+  keywords: ["AI meetings", "team collaboration", "task tracking", "meeting summary", "NeexMeet"],
+  authors: [{ name: "NeexMeet" }],
+  creator: "NeexMeet",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
   openGraph: {
-    title: "NeexMeetAI — AI-Powered Team Execution System",
+    title: "NeexMeet — AI-Powered Team Execution System",
     description: "Every task has clear ownership. Every completion is tracked. Admin has full visibility.",
-    siteName: "NeexMeetAI",
+    siteName: "NeexMeet",
     type: "website",
   },
 };
