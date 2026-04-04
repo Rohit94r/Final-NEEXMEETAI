@@ -18,6 +18,7 @@ import {
   ZapIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProductExperience } from "./_components/product-experience";
 
 export default function LandingPage() {
   const [isMobile, setIsMobile] = useState(true);
@@ -77,7 +78,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-clip bg-background">
       {/* Background Animated Blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
@@ -339,54 +340,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
-        <section id="how-it-works" className="py-24 relative">
-          <div className="container mx-auto max-w-7xl px-4">
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeUpVariant}
-              className="text-center max-w-3xl mx-auto mb-16"
-            >
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">How it works</h2>
-              <p className="text-lg text-muted-foreground">
-                The frictionless lifecycle from conversation to completion.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              variants={staggerContainer}
-              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative"
-            >
-              {/* Connecting Line */}
-              <div className="hidden lg:block absolute top-[48px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-primary/10 via-primary/50 to-primary/10" />
-
-              {[
-                { step: "1", title: "Create a Room", desc: "Launch a dedicated space for your team or project." },
-                { step: "2", title: "Start Meeting", desc: "Jump into a live video call with built-in AI assistance." },
-                { step: "3", title: "AI Generation", desc: "The AI listens, understands, and builds a complete summary." },
-                { step: "4", title: "Tasks Auto-Assign", desc: "Action items pop straight into your Workspace, ready to do." }
-              ].map((item, i) => (
-                <motion.div 
-                  variants={fadeUpVariant} 
-                  key={item.step} 
-                  whileHover={isMobile ? {} : { y: -10 }}
-                  className="relative flex flex-col items-center text-center p-6 bg-card/40 backdrop-blur border border-border/60 rounded-2xl shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300"
-                >
-                  <div className="size-12 rounded-full bg-background border-2 border-primary text-primary flex items-center justify-center text-xl font-bold mb-6 shadow-[0_0_15px_var(--color-primary)]/20 z-10">
-                    {item.step}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.desc}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+        <ProductExperience />
 
         {/* CTA SECTION */}
         <section className="py-32 relative overflow-hidden">
