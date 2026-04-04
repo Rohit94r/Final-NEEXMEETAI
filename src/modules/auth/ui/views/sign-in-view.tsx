@@ -196,7 +196,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
 
           <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="NeexMeetAI logo"
               width={92}
               height={92}

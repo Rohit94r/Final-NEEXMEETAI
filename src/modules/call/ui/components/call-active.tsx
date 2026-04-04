@@ -37,7 +37,7 @@ export const CallActive = ({
         <div className="flex items-center gap-4 min-w-0">
           <Link href="/" className="flex items-center justify-center p-1 bg-white/10 rounded-full w-fit">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               width={22}
               height={22}
               alt="Logo"
