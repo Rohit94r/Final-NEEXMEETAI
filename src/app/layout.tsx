@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { AppProviders } from "@/app/providers";
 
 import "./globals.css";
@@ -34,6 +35,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <AppProviders>{children}</AppProviders>
+        <Script
+          src="https://apnaai.online/chatBot.js"
+          data-owner-id="usr_119633539883861273"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
