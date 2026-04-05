@@ -3,21 +3,22 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { OctagonAlertIcon } from "lucide-react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const errorParam = searchParams.get("error");
-    const errorDescription = searchParams.get("error_description");
-    const code = searchParams.get("code");
+    // Access URL params safely inside useEffect (browser-only)
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get("error");
+    const errorDescription = params.get("error_description");
+    const code = params.get("code");
 
     console.log("🔐 Auth Callback:", {
       error: errorParam,
@@ -49,7 +50,7 @@ export default function AuthCallbackPage() {
     }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [searchParams, router]);
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
