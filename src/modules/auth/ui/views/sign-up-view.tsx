@@ -86,22 +86,44 @@ export const SignUpView = ({ callbackUrl }: Props) => {
     setError(null);
     setPending(true);
 
-    authClient.signIn.social(
-      {
-        provider: provider,
-        callbackURL: safeCallbackUrl,
-      },
-      {
-        onSuccess: () => {
-          setPending(false);
-          router.push(safeCallbackUrl);
+    console.log("🔐 Initiating social signup:", {
+      provider,
+      baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+      callbackURL: safeCallbackUrl,
+    });
+
+    try {
+      authClient.signIn.social(
+        {
+          provider: provider,
+          callbackURL: safeCallbackUrl,
         },
-        onError: ({ error }) => {
-          setPending(false);
-          setError(error.message)
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            console.log("✓ Social signup successful, redirecting...");
+            setPending(false);
+            router.push(safeCallbackUrl);
+          },
+          onError: ({ error }) => {
+            console.error("✗ Social signup error:", {
+              message: error.message,
+              code: error.code,
+              status: error.status,
+            });
+            setPending(false);
+            setError(
+              error.message === "invalid_code"
+                ? "OAuth authentication failed. Please check that Google OAuth is properly configured and try again."
+                : error.message || "Social login failed"
+            );
+          },
+        }
+      );
+    } catch (err) {
+      console.error("✗ Social signup exception:", err);
+      setPending(false);
+      setError("An unexpected error occurred. Please try again.");
+    }
   };
 
   return (

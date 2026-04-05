@@ -25,9 +25,13 @@ function getSocialProviders() {
       clientId: googleClientId,
       clientSecret: googleClientSecret,
     };
-    console.log("✓ Google provider loaded with client ID:", googleClientId.substring(0, 20) + "...");
+    console.log("✓ Google provider loaded");
+    console.log("  - Client ID:", googleClientId.substring(0, 20) + "...");
+    console.log("  - Secret configured:", !!googleClientSecret);
   } else {
-    console.warn("⚠ Google provider not configured. GOOGLE_CLIENT_ID:", !!googleClientId, "GOOGLE_CLIENT_SECRET:", !!googleClientSecret);
+    console.warn("⚠ Google provider not configured");
+    console.warn("  - GOOGLE_CLIENT_ID:", !!googleClientId);
+    console.warn("  - GOOGLE_CLIENT_SECRET:", !!googleClientSecret);
   }
 
   return providers;
