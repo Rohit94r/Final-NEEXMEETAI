@@ -35,14 +35,23 @@ function getSocialProviders() {
 
 function createAuth() {
   const baseURL =
-    getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL") ?? "http://localhost:3000";
+    getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL") || 
+    (process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000");
+
+  const trustedOrigins = [baseURL];
+  
+  // Add localhost in development
+  if (process.env.NODE_ENV === "development") {
+    trustedOrigins.push("http://localhost:3000");
+  }
 
   console.log("🔐 Initializing Better Auth with baseURL:", baseURL);
+  console.log("🌐 Trusted origins:", trustedOrigins);
 
   return betterAuth({
     secret: getRequiredServerEnv("BETTER_AUTH_SECRET"),
     baseURL,
-    trustedOrigins: [baseURL],
+    trustedOrigins: trustedOrigins,
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: { user, session, account, verification },
