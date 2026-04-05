@@ -71,10 +71,10 @@ export default function AuthCallbackPage() {
                 <strong>Troubleshooting steps:</strong>
               </p>
               <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                <li>Clear your browser cookies and try again</li>
-                <li>Make sure you're on https://neexmeet.com</li>
-                <li>Check that your Google Client ID and Secret are correct</li>
-                <li>Verify OAuth redirect URI in Google Cloud Console</li>
+                <li>{`Clear your browser cookies and try again`}</li>
+                <li>{`Make sure you're on https://neexmeet.com`}</li>
+                <li>{`Check that your Google Client ID and Secret are correct`}</li>
+                <li>{`Verify OAuth redirect URI in Google Cloud Console`}</li>
               </ul>
             </div>
             <div className="flex gap-2">
