@@ -197,7 +197,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50 rounded-2xl pointer-events-none" />
                 <video 
                   src="/hero-mockup-abstract.mp4" 
-                  alt="NeexMeet Platform Overview" 
+                  aria-label="NeexMeet Platform Overview" 
                   className="rounded-xl border border-border/50 object-cover w-full h-auto relative z-10"
                   autoPlay
                   loop
