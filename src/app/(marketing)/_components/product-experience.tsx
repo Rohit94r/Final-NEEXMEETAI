@@ -160,7 +160,7 @@ export const ProductExperience = () => {
             </div>
 
             {/* Right Side: Animated Screenshot Swap in place */}
-            <div className="w-full lg:w-[55%] h-[280px] sm:h-[400px] lg:h-[550px] flex items-center perspective-[1200px] relative">
+            <div className="w-full lg:w-[55%] h-[450px] sm:h-[550px] md:h-[650px] lg:h-[750px] flex items-center justify-center relative">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep}
@@ -168,19 +168,21 @@ export const ProductExperience = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.98 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="w-full absolute inset-0 my-auto h-full rounded-xl lg:rounded-2xl shadow-xl lg:shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-border bg-card overflow-hidden"
+                  className="w-full h-full absolute inset-0"
                 >
-                  <div className="w-full h-full relative bg-card flex items-center justify-center">
+                  <motion.div
+                    className="w-full h-full relative rounded-lg overflow-hidden"
+                  >
                     <Image
                       src={productSteps[activeStep].image}
                       alt={productSteps[activeStep].title}
                       fill
-                      className="object-cover relative z-10"
+                      className="object-contain relative z-10"
                       onError={(e) => {
                         e.currentTarget.style.opacity = '0';
                       }}
                     />
-                  </div>
+                  </motion.div>
                 </motion.div>
               </AnimatePresence>
             </div>
