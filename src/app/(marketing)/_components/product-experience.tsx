@@ -10,49 +10,49 @@ const productSteps = [
     id: 1,
     title: "Everything in one place",
     desc: "Your entire workflow, condensed. Start your day with a clear overview of rooms, tasks, and meetings.",
-    image: "/0.png"
+    image: "/0.svg"
   },
   {
     id: 2,
     title: "Create meetings instantly",
     desc: "Configure your agenda, schedule the time, and assign specialized AI agents before you jump in.",
-    image: "/1.png"
+    image: "/1.svg"
   },
   {
     id: 3,
     title: "Track all meetings",
     desc: "A permanent, searchable system of record for all upcoming, missed, and historical team discussions.",
-    image: "/2.png"
+    image: "/2.svg"
   },
   {
     id: 4,
     title: "AI summaries & automation",
     desc: "Never take notes again. NeexMeet generates perfect transcripts, summaries, and action plans in real-time.",
-    image: "/3.png"
+    image: "/3.svg"
   },
   {
     id: 5,
     title: "Team collaboration",
     desc: "Persistent rooms map everything together. Group relevant people, meetings, and artifacts into dedicated hubs.",
-    image: "/4.png"
+    image: "/4.svg"
   },
   {
     id: 6,
     title: "Meetings + tasks + decisions",
     desc: "Deep work requires deep context. Switch instantly between live pulse arrays, tasks, and previous calls.",
-    image: "/5.png"
+    image: "/5.svg"
   },
   {
     id: 7,
     title: "Tasks & execution",
     desc: "Automated extraction means action items appear in your Workspace without copying and pasting.",
-    image: "/6.png"
+    image: "/6.svg"
   },
   {
     id: 8,
     title: "AI agents working for you",
     desc: "Deploy custom personas to join meetings, verify configurations, and execute complex workflows passively.",
-    image: "/7.png"
+    image: "/7.svg"
   }
 ];
 
