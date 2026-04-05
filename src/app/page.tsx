@@ -195,13 +195,14 @@ export default function LandingPage() {
                 className="relative rounded-2xl border border-border/50 bg-background/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-2"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50 rounded-2xl pointer-events-none" />
-                <Image 
-                  src="/hero-mockup-abstract.png" 
+                <video 
+                  src="/hero-mockup-abstract.mp4" 
                   alt="NeexMeet Platform Overview" 
-                  width={1200} 
-                  height={800} 
                   className="rounded-xl border border-border/50 object-cover w-full h-auto relative z-10"
-                  priority
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                 />
               </motion.div>
             </motion.div>
