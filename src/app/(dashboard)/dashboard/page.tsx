@@ -13,8 +13,7 @@ const Page = async () => {
     redirect("/sign-in");
   }
 
-  // Redirect to meetings page for default dashboard view
-  redirect("/dashboard/meetings");
+  return <HomeView />;
 };
 
 export default Page;

@@ -46,7 +46,7 @@ export default function AuthCallbackPage() {
     const timeout = setTimeout(() => {
       setIsLoading(false);
       // Redirect to dashboard
-      router.push("/dashboard/meetings");
+      router.push("/dashboard");
     }, 2000);
 
     return () => clearTimeout(timeout);
@@ -103,7 +103,7 @@ export default function AuthCallbackPage() {
               Redirecting to dashboard...
             </p>
             <Button
-              onClick={() => router.push("/dashboard/meetings")}
+              onClick={() => router.push("/dashboard")}
               className="w-full"
             >
               Go to Dashboard
