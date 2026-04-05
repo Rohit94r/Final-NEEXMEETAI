@@ -16,6 +16,8 @@ import {
   AgentsViewLoading
 } from "@/modules/agents/ui/views/agents-view";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   searchParams: Promise<SearchParams>;
 };

@@ -16,6 +16,8 @@ import {
   MeetingsViewLoading
 } from "@/modules/meetings/ui/views/meetings-view";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   searchParams: Promise<SearchParams>;
 }
