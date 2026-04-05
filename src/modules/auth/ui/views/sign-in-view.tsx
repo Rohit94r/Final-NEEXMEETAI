@@ -87,6 +87,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
         onSuccess: () => {
           console.log("✓ Social login successful");
           setPending(false);
+          router.push(safeCallbackUrl);
         },
         onError: ({ error }) => {
           console.error("✗ Social login error:", error);

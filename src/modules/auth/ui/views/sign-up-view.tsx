@@ -94,6 +94,7 @@ export const SignUpView = ({ callbackUrl }: Props) => {
       {
         onSuccess: () => {
           setPending(false);
+          router.push(safeCallbackUrl);
         },
         onError: ({ error }) => {
           setPending(false);
