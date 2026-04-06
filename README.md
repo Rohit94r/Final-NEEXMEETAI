@@ -8,7 +8,7 @@ NeexMeetAI is a production-ready, AI-driven collaboration platform that combines
 - **Workspace**: Consolidated view of tasks, docs, and team decisions.
 - **Pulse**: Real-time communication and activity feed.
 - **Presence**: Integrated attendance and team verification.
-
+update streak 
 ## 🛠️ Technology Stack
 - **Framework**: [Next.js 15](https://nextjs.org) (App Router)
 - **API**: [tRPC](https://trpc.io) (End-to-end type safety)
