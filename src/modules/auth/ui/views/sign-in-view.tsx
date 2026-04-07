@@ -53,6 +53,8 @@ export const SignInView = ({ callbackUrl }: Props) => {
     setError(null);
     setPending(true);
 
+    console.log("🔐 Initiating email sign-in for:", data.email);
+
     authClient.signIn.email(
       {
         email: data.email,
@@ -61,12 +63,26 @@ export const SignInView = ({ callbackUrl }: Props) => {
       },
       {
         onSuccess: () => {
+          console.log("✓ Email sign-in successful, redirecting...");
           setPending(false);
           router.push(safeCallbackUrl);
         },
         onError: ({ error }) => {
+          console.error("✗ Email sign-in error:", {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+          });
           setPending(false);
-          setError(error.message)
+          
+          // Provide helpful error messages based on error type
+          if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
+            setError("Network error: Unable to connect to authentication service. Please check your internet connection and try again.");
+          } else if (error.message?.includes("Invalid credentials") || error.message?.includes("not found")) {
+            setError("Invalid email or password. Please try again.");
+          } else {
+            setError(error.message || "Sign in failed. Please try again.");
+          }
         },
       }
     );
@@ -78,7 +94,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
 
     console.log("🔐 Initiating social login:", {
       provider,
-      baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+      appOrigin: typeof window !== "undefined" ? window.location.origin : "server-side",
       callbackURL: safeCallbackUrl,
     });
 
@@ -101,11 +117,15 @@ export const SignInView = ({ callbackUrl }: Props) => {
               status: error.status,
             });
             setPending(false);
-            setError(
-              error.message === "invalid_code"
-                ? "OAuth authentication failed. Please check that Google OAuth is properly configured and try again."
-                : error.message || "Social login failed"
-            );
+            
+            // Provide helpful error messages based on error type
+            if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
+              setError(`Network error: Cannot connect to ${provider} authentication. Please check if the auth service is properly configured for this domain.`);
+            } else if (error.message === "invalid_code") {
+              setError(`${provider} OAuth authentication failed. Please verify that ${provider} OAuth is properly configured.`);
+            } else {
+              setError(error.message || `${provider} sign-in failed. Please try again.`);
+            }
           },
         }
       );
