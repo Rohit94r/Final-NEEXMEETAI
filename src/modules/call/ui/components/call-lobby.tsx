@@ -59,11 +59,11 @@ export const CallLobby = ({ onJoin, isJoining = false }: Props) => {
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">
-      <div className="py-4 px-8 flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-y-6 bg-background rounded-lg p-10 shadow-sm">
+      <div className="py-4 px-4 md:px-8 flex flex-1 items-center justify-center w-full max-w-lg">
+        <div className="flex flex-col items-center justify-center gap-y-6 bg-background rounded-lg p-6 md:p-10 shadow-sm w-full">
           <div className="flex flex-col gap-y-2 text-center">
-            <h6 className="text-lg font-medium">Ready to join?</h6>
-            <p className="text-sm">Set up your call before joining</p>
+            <h6 className="text-base md:text-lg font-medium">Ready to join?</h6>
+            <p className="text-xs md:text-sm text-muted-foreground">Set up your call before joining</p>
           </div>
           <VideoPreview
             DisabledVideoPreview={

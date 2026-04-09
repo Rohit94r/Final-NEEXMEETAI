@@ -81,11 +81,15 @@ export const CallJoinRequests = ({ meetingId }: Props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type="button" className="relative border border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-          <BellIcon />
-          Requests
+        <Button 
+          type="button" 
+          size="sm"
+          className="relative border border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white h-9 px-3"
+        >
+          <BellIcon className="size-4" />
+          <span className="hidden sm:inline ml-1.5">Requests</span>
           {pendingRequests.length > 0 ? (
-            <Badge className="ml-1">{pendingRequests.length}</Badge>
+            <Badge className="ml-1 bg-primary text-primary-foreground">{pendingRequests.length}</Badge>
           ) : null}
         </Button>
       </SheetTrigger>

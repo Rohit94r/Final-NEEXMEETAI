@@ -79,25 +79,23 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen overflow-clip bg-background">
-      {/* Fixed Background Video */}
-      <div className="fixed inset-0 -z-50 w-full h-full overflow-hidden">
+      {/* Background Video */}
+      <div className="absolute inset-0 -z-20 overflow-hidden">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
           aria-label="Landing page background video"
         >
           <source src="/hero-mockup-abstract.mp4" type="video/mp4" />
         </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background/50" />
       </div>
 
-      {/* Dark Overlay for Readability */}
-      <div className="fixed inset-0 -z-40 bg-gradient-to-b from-background/60 via-background/40 to-background/60" />
-
       {/* Background Animated Blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden -z-30">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           animate={{
             y: [0, -30, 0],
