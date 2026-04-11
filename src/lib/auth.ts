@@ -42,7 +42,13 @@ function createAuth() {
     getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL") || 
     (process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000");
 
-  const trustedOrigins = [baseURL];
+  const trustedOrigins = [
+    baseURL,
+    "capacitor://localhost",
+    "http://localhost",
+    "https://neexmeet.com",
+    "https://www.neexmeet.com"
+  ];
   
   // Add localhost in development
   if (process.env.NODE_ENV === "development") {

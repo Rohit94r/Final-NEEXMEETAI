@@ -7,13 +7,21 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    
+    const checkMobile = () => {
+      // Better detection for native Capacitor environment
+      const isNative = (window as any).Capacitor?.isNative || false;
+      const isSmallScreen = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(isNative || isSmallScreen);
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+
+    mql.addEventListener("change", checkMobile)
+    checkMobile();
+    
+    return () => mql.removeEventListener("change", checkMobile)
   }, [])
 
+  // During SSR or initial hydration, return false to match desktop default
+  // and prevent layout shift loops
   return !!isMobile
 }
