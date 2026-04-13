@@ -1,15 +1,14 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
 
-import { getSessionOrNull } from "@/lib/auth";
+import { AuthGuard } from "@/components/auth-guard";
 import { RoomsView } from "@/modules/rooms/ui/views/rooms-view";
 
-export const dynamic = "force-dynamic";
-
-const Page = async () => {
-  const session = await getSessionOrNull(await headers());
-  if (!session) redirect("/sign-in");
-  return <RoomsView />;
+const Page = () => {
+  return (
+    <AuthGuard>
+      <RoomsView />
+    </AuthGuard>
+  );
 };
 
 export default Page;

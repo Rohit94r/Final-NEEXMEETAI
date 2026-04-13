@@ -1,15 +1,14 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
 
-import { getSessionOrNull } from "@/lib/auth";
+import { AuthGuard } from "@/components/auth-guard";
 import { WorkspaceView } from "@/modules/workspace/ui/views/workspace-view";
 
-export const dynamic = "force-dynamic";
-
-const Page = async () => {
-  const session = await getSessionOrNull(await headers());
-  if (!session) redirect("/sign-in");
-  return <WorkspaceView />;
+const Page = () => {
+  return (
+    <AuthGuard>
+      <WorkspaceView />
+    </AuthGuard>
+  );
 };
 
 export default Page;

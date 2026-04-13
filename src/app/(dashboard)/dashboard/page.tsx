@@ -1,19 +1,14 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
 
-import { getSessionOrNull } from "@/lib/auth";
+import { AuthGuard } from "@/components/auth-guard";
 import { HomeView } from "@/modules/home/ui/views/home-view";
 
-export const dynamic = "force-dynamic";
-
-const Page = async () => {
-  const session = await getSessionOrNull(await headers());
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  return <HomeView />;
+const Page = () => {
+  return (
+    <AuthGuard>
+      <HomeView />
+    </AuthGuard>
+  );
 };
 
 export default Page;
