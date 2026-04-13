@@ -1,5 +1,11 @@
 import * as React from "react"
 
+type WindowWithCapacitor = Window & {
+  Capacitor?: {
+    isNative?: boolean
+  }
+}
+
 const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
@@ -10,7 +16,8 @@ export function useIsMobile() {
     
     const checkMobile = () => {
       // Better detection for native Capacitor environment
-      const isNative = (window as any).Capacitor?.isNative || false;
+      const demandWindow = window as WindowWithCapacitor
+      const isNative = demandWindow.Capacitor?.isNative ?? false
       const isSmallScreen = window.innerWidth < MOBILE_BREAKPOINT;
       setIsMobile(isNative || isSmallScreen);
     }
