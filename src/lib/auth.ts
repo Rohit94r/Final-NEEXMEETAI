@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import { user, session, account, verification } from "@/db/schema";
 import { getOptionalServerEnv, getRequiredServerEnv } from "@/lib/env";
+import { ensureAbsoluteUrl } from "@/lib/url";
 
 function getSocialProviders() {
   const githubClientId = getOptionalServerEnv("GITHUB_CLIENT_ID");
@@ -38,22 +39,30 @@ function getSocialProviders() {
 }
 
 function createAuth() {
-  const baseURL =
-    getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL") || 
-    (process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000");
+  const envBaseURL = ensureAbsoluteUrl(getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL"));
+  const netlifyURL = ensureAbsoluteUrl(process.env.URL);
+  const deployURL = ensureAbsoluteUrl(process.env.DEPLOY_URL);
+  const fallbackBaseURL =
+    process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000";
 
-  const trustedOrigins = [
+  const baseURL = envBaseURL || netlifyURL || deployURL || fallbackBaseURL;
+
+  const trustedOriginsSet = new Set<string>([
     baseURL,
+    envBaseURL,
+    netlifyURL,
+    deployURL,
     "capacitor://localhost",
     "http://localhost",
     "https://neexmeet.com",
-    "https://www.neexmeet.com"
-  ];
-  
-  // Add localhost in development
+    "https://www.neexmeet.com",
+  ]);
+
   if (process.env.NODE_ENV === "development") {
-    trustedOrigins.push("http://localhost:3000");
+    trustedOriginsSet.add("http://localhost:3000");
   }
+
+  const trustedOrigins = Array.from(trustedOriginsSet).filter(Boolean);
 
   console.log("🔐 Initializing Better Auth with baseURL:", baseURL);
   console.log("🌐 Trusted origins:", trustedOrigins);
