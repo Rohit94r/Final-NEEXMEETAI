@@ -47,7 +47,7 @@ function createAuth() {
 
   const baseURL = envBaseURL || netlifyURL || deployURL || fallbackBaseURL;
 
-  const trustedOriginsSet = new Set<string>([
+  const fallbackOrigins = [
     baseURL,
     envBaseURL,
     netlifyURL,
@@ -56,7 +56,11 @@ function createAuth() {
     "http://localhost",
     "https://neexmeet.com",
     "https://www.neexmeet.com",
-  ]);
+  ];
+
+  const trustedOriginsSet = new Set<string>(
+    fallbackOrigins.filter((url): url is string => typeof url === "string" && url.length > 0)
+  );
 
   if (process.env.NODE_ENV === "development") {
     trustedOriginsSet.add("http://localhost:3000");
