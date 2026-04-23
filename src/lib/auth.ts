@@ -45,10 +45,24 @@ function createAuth() {
   const fallbackBaseURL =
     process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000";
 
-  const baseURL = envBaseURL || netlifyURL || deployURL || fallbackBaseURL;
+  const fallbackURL = envBaseURL || netlifyURL || deployURL || fallbackBaseURL;
+  const productionHosts = [
+    "neexmeet.com",
+    "www.neexmeet.com",
+    "localhost",
+    "localhost:3000",
+    "localhost:3001",
+  ];
+  const baseURL =
+    process.env.NODE_ENV === "production"
+      ? {
+          allowedHosts: productionHosts,
+          fallback: fallbackURL,
+        }
+      : fallbackURL;
 
   const fallbackOrigins = [
-    baseURL,
+    fallbackURL,
     envBaseURL,
     netlifyURL,
     deployURL,
@@ -79,6 +93,20 @@ function createAuth() {
       // Keep users signed in for 30 days and refresh active sessions daily.
       expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
+    },
+    advanced: {
+      useSecureCookies: process.env.NODE_ENV === "production",
+      crossSubDomainCookies:
+        process.env.NODE_ENV === "production"
+          ? {
+              enabled: true,
+              domain: ".neexmeet.com",
+            }
+          : undefined,
+      defaultCookieAttributes: {
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      },
     },
     database: drizzleAdapter(db, {
       provider: "pg",

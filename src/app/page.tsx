@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Tilt from "react-parallax-tilt";
+import { useEffect } from "react";
 import type { MouseEvent } from "react";
 import {
   motion,
@@ -25,6 +27,7 @@ import {
 
 import { ProductExperience } from "@/app/(marketing)/_components/product-experience";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
@@ -60,6 +63,8 @@ const heroLines = [
 ];
 
 export default function LandingPage() {
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const smoothX = useSpring(mouseX, { damping: 24, stiffness: 140 });
@@ -77,6 +82,12 @@ export default function LandingPage() {
     mouseX.set(0);
     mouseY.set(0);
   };
+
+  useEffect(() => {
+    if (!isPending && session) {
+      router.replace("/dashboard");
+    }
+  }, [isPending, router, session]);
 
   return (
     <div className="min-h-screen overflow-clip bg-white text-slate-950">
