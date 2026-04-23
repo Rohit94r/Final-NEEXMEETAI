@@ -133,7 +133,7 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
           >
             <Link href={isJoinable ? `/call/${row.original.id}` : `/meetings/${row.original.id}`}>
               {isJoinable ? <LogInIcon /> : <EyeIcon />}
-              {isJoinable ? "Join meeting" : "View details"}
+              {isJoinable ? "Join Meeting" : "View Details"}
             </Link>
           </Button>
           <MeetingRowActions

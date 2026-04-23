@@ -10,9 +10,9 @@ export const WorkspaceView = () => {
   return (
     <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4 overflow-y-auto">
       <div>
-        <h1 className="text-2xl font-semibold">Workspace</h1>
+        <h1 className="text-2xl font-semibold">Your Tasks</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Tasks, decisions, and documents — all linked to your meetings
+          Tasks, decisions, and documents linked to every meeting
         </p>
       </div>
 
@@ -24,7 +24,7 @@ export const WorkspaceView = () => {
               className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground"
             >
               <CheckSquareIcon className="size-4" />
-              Tasks
+              Your Tasks
             </TabsTrigger>
             <TabsTrigger
               value="decisions"

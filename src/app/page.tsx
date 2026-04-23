@@ -42,15 +42,15 @@ const stagger: Variants = {
 };
 
 const proofPoints = [
-  { icon: WorkflowIcon, label: "Meetings become tasks" },
-  { icon: GaugeIcon, label: "Execution visible by default" },
-  { icon: LockKeyholeIcon, label: "Context stays organized" },
+  { icon: WorkflowIcon, label: "Action items, captured" },
+  { icon: GaugeIcon, label: "Execution, always visible" },
+  { icon: LockKeyholeIcon, label: "Context, never lost" },
 ];
 
 const stats = [
-  { value: "7", label: "workflow surfaces unified" },
-  { value: "1", label: "AI execution layer" },
-  { value: "0", label: "manual recap scramble" },
+  { value: "7", label: "core workflows connected" },
+  { value: "1", label: "AI execution workspace" },
+  { value: "0", label: "manual follow-up chaos" },
 ];
 
 export default function LandingPage() {
@@ -112,7 +112,7 @@ export default function LandingPage() {
               className="h-10 rounded-lg bg-white px-5 text-slate-950 shadow-[0_0_34px_rgba(255,255,255,0.22)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_0_42px_rgba(110,231,183,0.34)]"
             >
               <Link href="/sign-up">
-                Start free
+                Start Free
                 <ChevronRightIcon className="ml-1 size-4" />
               </Link>
             </Button>
@@ -147,16 +147,16 @@ export default function LandingPage() {
                 className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/7 px-3.5 py-2 text-sm font-semibold text-white/76 shadow-2xl backdrop-blur-xl"
               >
                 <SparklesIcon className="size-4 text-emerald-200" />
-                AI meeting intelligence that actually closes the loop
+                AI meeting notes that become real work
               </motion.div>
 
               <motion.h1
                 variants={fadeUp}
                 className="text-5xl font-black leading-[0.96] tracking-tight text-balance md:text-7xl lg:text-[5.75rem]"
               >
-                Turn every meeting into{" "}
+                Turn Meetings Into{" "}
                 <span className="bg-gradient-to-r from-emerald-200 via-cyan-200 to-sky-300 bg-clip-text text-transparent">
-                  execution
+                  Execution
                 </span>
                 .
               </motion.h1>
@@ -165,9 +165,8 @@ export default function LandingPage() {
                 variants={fadeUp}
                 className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-white/68 md:text-xl lg:mx-0"
               >
-                NeexMeet listens, summarizes, extracts decisions, assigns tasks,
-                and keeps your team workspace current while people stay focused on
-                the conversation.
+                NeexMeet automatically turns meetings into summaries, decisions,
+                tasks, and follow-ups, so your team never misses what matters.
               </motion.p>
 
               <motion.div
@@ -180,7 +179,7 @@ export default function LandingPage() {
                   className="h-13 w-full rounded-lg bg-emerald-300 px-7 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.28)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)] sm:w-auto"
                 >
                   <Link href="/sign-up">
-                    Start free
+                    Try NeexMeet
                     <ArrowRightIcon className="ml-2 size-4" />
                   </Link>
                 </Button>
@@ -192,7 +191,7 @@ export default function LandingPage() {
                 >
                   <Link href="#demo">
                     <CirclePlayIcon className="mr-2 size-4" />
-                    Watch demo
+                    See It in Action
                   </Link>
                 </Button>
               </motion.div>
@@ -251,9 +250,9 @@ export default function LandingPage() {
               >
                 <div className="flex items-center gap-2 font-semibold text-white">
                   <CheckCircle2Icon className="size-4 text-emerald-200" />
-                  6 tasks generated
+                  6 action items ready
                 </div>
-                <p className="mt-1 text-xs text-white/55">Owners and decisions attached</p>
+                <p className="mt-1 text-xs text-white/55">Owners, context, and next steps included</p>
               </motion.div>
             </motion.div>
           </div>
@@ -287,15 +286,14 @@ export default function LandingPage() {
               className="mx-auto mb-14 max-w-3xl text-center"
             >
               <p className="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-emerald-700">
-                Product preview
+                Product Preview
               </p>
               <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-6xl">
-                A calmer operating system for busy teams.
+                Built for Real Team Work.
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                The interface is built around the moments that matter: preparing
-                the room, capturing the conversation, and making follow-through
-                visible.
+                Prepare the room, capture the conversation, and turn every
+                outcome into visible progress.
               </p>
             </motion.div>
 
@@ -339,11 +337,11 @@ export default function LandingPage() {
               <ZapIcon className="size-5" />
             </div>
             <h2 className="text-4xl font-black tracking-tight md:text-6xl">
-              Stop ending meetings with more work to organize.
+              End every meeting with momentum.
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/64">
-              Start with NeexMeet and give your team a workspace where decisions,
-              ownership, and execution are already connected.
+              Give your team one place where decisions, owners, and next steps
+              are already connected.
             </p>
             <div className="mt-9 flex justify-center">
               <Button
@@ -352,7 +350,7 @@ export default function LandingPage() {
                 className="h-13 rounded-lg bg-emerald-300 px-8 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.26)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)]"
               >
                 <Link href="/sign-up">
-                  Start free
+                  Run Your First Meeting
                   <ArrowRightIcon className="ml-2 size-4" />
                 </Link>
               </Button>
@@ -375,8 +373,8 @@ export default function LandingPage() {
               <span className="text-lg font-black tracking-tight">NeexMeet</span>
             </Link>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">
-              AI-powered meetings, decisions, tasks, rooms, and execution in one
-              serious team operating layer.
+              The AI workspace where meetings become decisions, tasks, and
+              measurable execution.
             </p>
           </div>
           <div className="flex flex-wrap gap-5 text-sm font-semibold text-slate-500">

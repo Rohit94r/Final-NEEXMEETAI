@@ -33,7 +33,7 @@ export const CreateRoomDialog = ({ trigger }: Props) => {
   const create = useMutation(
     trpc.rooms.create.mutationOptions({
       onSuccess: (data) => {
-        toast.success("Room created");
+        toast.success("Team space created");
         queryClient.invalidateQueries(trpc.rooms.getMany.queryOptions());
         setOpen(false);
         setName("");
@@ -49,11 +49,11 @@ export const CreateRoomDialog = ({ trigger }: Props) => {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Room</DialogTitle>
+          <DialogTitle>Create Team Space</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
           <Input
-            placeholder="Room name (e.g. Frontend Team)"
+            placeholder="Space name (e.g. Frontend Team)"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -68,7 +68,7 @@ export const CreateRoomDialog = ({ trigger }: Props) => {
             onClick={() => create.mutate({ name, description: description || null })}
           >
             {create.isPending && <LoaderIcon className="size-4 animate-spin" />}
-            Create Room
+            Create Space
           </Button>
         </div>
       </DialogContent>

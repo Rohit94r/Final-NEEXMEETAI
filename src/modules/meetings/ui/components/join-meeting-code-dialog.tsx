@@ -61,7 +61,7 @@ export const JoinMeetingCodeDialog = ({ open, onOpenChange }: Props) => {
       open={open}
       onOpenChange={onOpenChange}
       title="Join Meeting"
-      description="Enter the 4-digit meeting code shared by the meeting admin."
+      description="Enter the 4-digit code shared by the meeting owner."
     >
       <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -87,7 +87,7 @@ export const JoinMeetingCodeDialog = ({ open, onOpenChange }: Props) => {
             )}
           />
           <Button className="w-full" disabled={joinByCode.isPending} type="submit">
-            {joinByCode.isPending ? "Opening meeting..." : "Join meeting"}
+            {joinByCode.isPending ? "Opening meeting..." : "Join Meeting"}
           </Button>
         </form>
       </Form>

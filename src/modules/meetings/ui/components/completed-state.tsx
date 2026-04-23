@@ -67,7 +67,7 @@ export const CompletedState = ({ data }: Props) => {
                 className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground"
               >
                 <CheckSquareIcon />
-                Tasks
+                Your Tasks
               </TabsTrigger>
               <TabsTrigger
                 value="decisions"

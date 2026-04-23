@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   {
     icon: HomeIcon,
-    label: "Home",
+    label: "Overview",
     href: "/dashboard",
   },
   {
@@ -26,12 +26,12 @@ const navItems = [
   },
   {
     icon: CheckSquareIcon,
-    label: "Workspace",
+    label: "Your Tasks",
     href: "/workspace",
   },
   {
     icon: UsersIcon,
-    label: "Rooms",
+    label: "Spaces",
     href: "/rooms",
   },
   {

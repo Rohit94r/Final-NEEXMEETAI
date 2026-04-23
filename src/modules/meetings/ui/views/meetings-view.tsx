@@ -36,8 +36,8 @@ export const MeetingsView = () => {
       />
       {data.items.length === 0 && (
         <EmptyState
-          title="Create your first meeting"
-          description="Schedule a meeting to connect with others. Each meeting lets you collaborate, share ideas, and interact with participants in real time."
+          title="No meetings yet — start your first one"
+          description="Create a meeting and let NeexMeet capture the summary, decisions, and next steps."
         />
       )}
     </div>
@@ -47,8 +47,8 @@ export const MeetingsView = () => {
 export const MeetingsViewLoading = () => {
   return (
     <LoadingState
-      title="Loading Meetings"
-      description="This may take a fews econds"
+      title="Loading meetings"
+      description="Getting your meeting workspace ready"
     />
   );
 };
@@ -56,8 +56,8 @@ export const MeetingsViewLoading = () => {
 export const MeetingsViewError = () => {
   return (
     <ErrorState
-      title="Error Loading Meetings"
-      description="Something went wrong"
+      title="Could not load meetings"
+      description="Refresh the page and try again"
     />
   )
 }

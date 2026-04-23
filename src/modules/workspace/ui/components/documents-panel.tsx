@@ -74,7 +74,7 @@ export const DocumentsPanel = () => {
                 onClick={() => create.mutate({ title })}
               >
                 {create.isPending ? <LoaderIcon className="size-4 animate-spin" /> : null}
-                Create
+                Create Document
               </Button>
             </div>
           </DialogContent>
@@ -85,7 +85,7 @@ export const DocumentsPanel = () => {
         {docs.isPending ? (
           <div className="py-8 text-center text-sm text-muted-foreground">Loading...</div>
         ) : docs.data?.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">No documents yet. Create your first one.</div>
+          <div className="py-8 text-center text-sm text-muted-foreground">No documents yet — create your first one.</div>
         ) : (
           docs.data?.map((doc) => (
             <div key={doc.id} className="rounded-lg border bg-white">

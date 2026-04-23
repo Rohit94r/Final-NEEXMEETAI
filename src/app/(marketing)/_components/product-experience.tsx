@@ -28,57 +28,57 @@ import { cn } from "@/lib/utils";
 const executionFeatures = [
   {
     icon: Layers3Icon,
-    eyebrow: "Unified command center",
-    title: "Everything in one place",
-    desc: "Rooms, meetings, workspace, decisions, tasks, and presence all live in a single execution layer instead of scattered tabs.",
+    eyebrow: "Unified workspace",
+    title: "One Workspace for Everything",
+    desc: "Bring meetings, tasks, decisions, rooms, and presence into one clear place.",
     image: "/0.svg",
     accent: "from-emerald-300 via-cyan-300 to-sky-400",
   },
   {
     icon: CalendarPlusIcon,
-    eyebrow: "Instant meeting setup",
-    title: "Create meetings instantly",
-    desc: "Spin up a meeting, attach context, invite the right people, and let the AI agent prepare the room before the first word is spoken.",
+    eyebrow: "Fast setup",
+    title: "Start Meetings in Seconds",
+    desc: "Create a meeting, add context, invite your team, and start with everything ready.",
     image: "/1.svg",
     accent: "from-sky-300 via-indigo-300 to-violet-400",
   },
   {
     icon: Clock3Icon,
-    eyebrow: "Always searchable",
-    title: "Track all meetings",
-    desc: "Upcoming, active, missed, and completed conversations become a living system of record your team can trust.",
+    eyebrow: "Complete history",
+    title: "Track Every Meeting",
+    desc: "See upcoming, active, missed, and completed meetings in one reliable timeline.",
     image: "/2.svg",
     accent: "from-amber-200 via-orange-300 to-rose-400",
   },
   {
     icon: BotIcon,
-    eyebrow: "AI operating layer",
-    title: "AI summaries & automation",
-    desc: "NeexMeet captures transcripts, extracts key decisions, and turns scattered discussion into useful summaries automatically.",
+    eyebrow: "AI capture",
+    title: "AI That Captures Everything",
+    desc: "Automatically generate summaries, tasks, and key decisions from every meeting.",
     image: "/3.svg",
     accent: "from-lime-200 via-emerald-300 to-teal-400",
   },
   {
     icon: Users2Icon,
-    eyebrow: "Shared momentum",
-    title: "Team collaboration",
-    desc: "Dedicated rooms keep people, documents, meetings, and follow-ups aligned so project context does not disappear after the call.",
+    eyebrow: "Team alignment",
+    title: "Work Together, Seamlessly",
+    desc: "Keep people, meetings, documents, and follow-ups aligned inside dedicated team spaces.",
     image: "/4.svg",
     accent: "from-fuchsia-300 via-pink-300 to-rose-400",
   },
   {
     icon: MessageSquareTextIcon,
-    eyebrow: "Decisions with context",
-    title: "Meetings + tasks + decisions",
-    desc: "Every decision is connected to the conversation that created it, the tasks it unlocked, and the people accountable for next steps.",
+    eyebrow: "Connected outcomes",
+    title: "Meetings, Tasks & Decisions — Unified",
+    desc: "Connect every decision to the meeting, task, and owner behind it.",
     image: "/5.svg",
     accent: "from-cyan-200 via-blue-300 to-indigo-400",
   },
   {
     icon: CheckCircle2Icon,
-    eyebrow: "Execution visibility",
-    title: "Tasks & execution",
-    desc: "Action items land in the workspace with ownership, status, and visibility, making follow-through part of the workflow by default.",
+    eyebrow: "Visible follow-through",
+    title: "From Tasks to Execution",
+    desc: "Turn action items into assigned work your team can see, track, and complete.",
     image: "/6.svg",
     accent: "from-emerald-300 via-green-300 to-lime-300",
   },
@@ -87,33 +87,33 @@ const executionFeatures = [
 const railCards = [
   {
     icon: PanelTopIcon,
-    title: "Live workspace",
-    desc: "A single operating view for tasks, decisions, docs, rooms, and meetings.",
+    title: "Live Workspace",
+    desc: "One clean view for meetings, tasks, decisions, documents, and team spaces.",
   },
   {
     icon: SparklesIcon,
-    title: "AI extraction",
-    desc: "Summaries, next steps, blockers, and decisions generated from each call.",
+    title: "Smart Capture",
+    desc: "Summaries, next steps, blockers, and decisions generated after every call.",
   },
   {
     icon: Users2Icon,
-    title: "Room memory",
-    desc: "Persistent project spaces keep conversation history and team context together.",
+    title: "Team Spaces",
+    desc: "Persistent spaces keep people, meeting history, and project context together.",
   },
   {
     icon: Clock3Icon,
-    title: "Meeting timeline",
-    desc: "Track scheduled, active, completed, and missed meetings without manual upkeep.",
+    title: "Meeting Timeline",
+    desc: "Track scheduled, active, completed, and missed meetings without manual work.",
   },
   {
     icon: FileTextIcon,
-    title: "Decision log",
-    desc: "Turn spoken commitments into durable records everyone can revisit.",
+    title: "Decision Log",
+    desc: "Turn spoken commitments into clear records your team can revisit.",
   },
   {
     icon: ZapIcon,
-    title: "Execution loop",
-    desc: "Move from discussion to ownership to completion without the follow-up scramble.",
+    title: "Execution Loop",
+    desc: "Move from conversation to ownership to completion without the follow-up chase.",
   },
 ];
 
@@ -180,10 +180,10 @@ export const ProductExperience = () => {
                 className="mb-8 max-w-2xl"
               >
                 <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
-                  Feature flow
+                  Built for Real Team Work
                 </p>
                 <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
-                  The meeting-to-execution system.
+                  How NeexMeet Works.
                 </h2>
               </motion.div>
 
@@ -320,10 +320,10 @@ export const ProductExperience = () => {
             className="mb-12 max-w-3xl text-white md:mb-16"
           >
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
-              Sliding feature experience
+              Why Teams Choose NeexMeet
             </p>
             <h2 className="text-4xl font-black tracking-tight md:text-6xl">
-              Smooth workflows, not more dashboards.
+              Less Meeting Admin. More Progress.
             </h2>
           </motion.div>
 

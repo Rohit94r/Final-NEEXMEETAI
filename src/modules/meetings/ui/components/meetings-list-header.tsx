@@ -40,7 +40,7 @@ export const MeetingsListHeader = () => {
       />
       <div className="py-4 px-4 md:px-8 flex flex-col gap-y-4">
         <div className="flex items-center justify-between">
-          <h5 className="font-medium text-xl">My Meetings</h5>
+          <h5 className="font-medium text-xl">Meetings</h5>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setIsJoinDialogOpen(true)}>
               <LogInIcon />
@@ -48,7 +48,7 @@ export const MeetingsListHeader = () => {
             </Button>
             <Button onClick={() => setIsDialogOpen(true)}>
               <PlusIcon />
-              New Meeting
+              Create Meeting
             </Button>
           </div>
         </div>

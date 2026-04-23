@@ -36,7 +36,7 @@ export const JoinRoomDialog = ({ trigger }: Props) => {
           // User is already a member — navigate directly without a "Joined" toast
           router.push(`/rooms/${data.roomId}`);
         } else {
-          toast.success("Successfully joined the room!");
+          toast.success("Joined team space");
           router.push(`/rooms/${data.roomId}`);
         }
       },
@@ -49,7 +49,7 @@ export const JoinRoomDialog = ({ trigger }: Props) => {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Join a Room</DialogTitle>
+          <DialogTitle>Join Team Space</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
           <Input
@@ -62,7 +62,7 @@ export const JoinRoomDialog = ({ trigger }: Props) => {
             onClick={() => join.mutate({ code: code.trim() })}
           >
             {join.isPending && <LoaderIcon className="size-4 animate-spin" />}
-            Join Room
+            Join Space
           </Button>
         </div>
       </DialogContent>

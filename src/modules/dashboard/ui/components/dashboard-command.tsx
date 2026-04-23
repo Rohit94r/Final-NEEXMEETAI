@@ -39,7 +39,7 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
   return (
     <CommandResponsiveDialog shouldFilter={false} open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="Find a meeting or agent..."
+        placeholder="Search meetings or agents..."
         value={search}
         onValueChange={(value) => setSearch(value)}
       />
@@ -47,7 +47,7 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
         <CommandGroup heading="Meetings">
           <CommandEmpty>
             <span className="text-muted-foreground text-sm">
-              No meetings found
+              No meetings found — create one to get started
             </span>
           </CommandEmpty>
           {meetings.data?.items.map((meeting) => (

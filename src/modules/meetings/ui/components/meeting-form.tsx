@@ -225,7 +225,7 @@ export const MeetingForm = ({
               </Button>
             )}
             <Button disabled={isPending} type="submit">
-              {isEdit ? "Update" : "Create"}
+              {isEdit ? "Update Meeting" : "Create Meeting"}
             </Button>
           </div>
         </form>

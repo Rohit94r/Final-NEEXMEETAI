@@ -188,7 +188,7 @@ export const RoomIdView = ({ roomId }: Props) => {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild className="font-medium text-xl">
-                <Link href="/rooms">Rooms</Link>
+                <Link href="/rooms">Team Spaces</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-foreground text-xl font-medium [&>svg]:size-4">
@@ -275,7 +275,7 @@ export const RoomIdView = ({ roomId }: Props) => {
           <TabsList className="p-0 bg-background justify-start rounded-none h-13">
             {[
               { value: "meetings",  icon: VideoIcon,        label: "Meetings" },
-              { value: "tasks",     icon: CheckSquareIcon,  label: "Tasks" },
+              { value: "tasks",     icon: CheckSquareIcon,  label: "Your Tasks" },
               { value: "pulse",     icon: ActivityIcon,     label: "Pulse" },
               { value: "presence",  icon: FingerprintIcon,  label: "Presence" },
               { value: "decisions", icon: LightbulbIcon,    label: "Decisions" },
@@ -305,7 +305,7 @@ export const RoomIdView = ({ roomId }: Props) => {
                   <div className="py-10 text-center">
                     <CalendarIcon className="size-8 text-muted-foreground/30 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      {room.isOwner ? "No meetings today. Click Schedule Meeting to add one." : "No meetings scheduled for today."}
+                      {room.isOwner ? "No meetings today — schedule one to start capturing work." : "No meetings scheduled for today."}
                     </p>
                   </div>
                 ) : todayMeetings.map((meeting) => {
@@ -339,7 +339,7 @@ export const RoomIdView = ({ roomId }: Props) => {
                             className="h-7 text-xs"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <Link href={`/call/${meeting.id}`}>Join</Link>
+                            <Link href={`/call/${meeting.id}`}>Join Meeting</Link>
                           </Button>
                         )}
                         

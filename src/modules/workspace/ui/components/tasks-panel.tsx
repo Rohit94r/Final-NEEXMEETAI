@@ -200,7 +200,7 @@ export const TasksPanel = ({ meetingId, roomId, showExtract = false }: Props) =>
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>New Task</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Create Task</DialogTitle></DialogHeader>
               <div className="flex flex-col gap-3 pt-2">
                 <Input placeholder="Task title" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <Input placeholder="Assignee name (optional)" value={assigneeName} onChange={(e) => setAssigneeName(e.target.value)} />

@@ -19,10 +19,10 @@ const appMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "NeexMeet — AI-Powered Team Execution System",
+    default: "NeexMeet — Turn Meetings Into Execution",
     template: "%s | NeexMeet",
   },
-  description: "NeexMeet is an AI-powered team execution platform where every action is visible, trackable, and accountable. Rooms, Meetings, Workspace, Pulse, and Presence in one place.",
+  description: "NeexMeet turns meetings into summaries, decisions, tasks, and follow-ups automatically, so teams never miss what matters.",
   keywords: ["AI meetings", "team collaboration", "task tracking", "meeting summary", "NeexMeet"],
   authors: [{ name: "NeexMeet" }],
   creator: "NeexMeet",
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     apple: "/favicon.ico",
   },
   openGraph: {
-    title: "NeexMeet — AI-Powered Team Execution System",
-    description: "Every task has clear ownership. Every completion is tracked. Admin has full visibility.",
+    title: "NeexMeet — Turn Meetings Into Execution",
+    description: "AI-powered meeting summaries, decisions, tasks, and follow-ups in one workspace.",
     siteName: "NeexMeet",
     type: "website",
   },

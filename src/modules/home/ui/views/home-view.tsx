@@ -76,9 +76,9 @@ export const HomeView = () => {
     <div className="flex-1 py-6 px-4 md:px-8 flex flex-col gap-y-8 overflow-y-auto">
       {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-2xl font-semibold">Overview</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Overview of your meetings and AI agents
+          Your meetings, AI agents, and next steps at a glance
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export const HomeView = () => {
         <div className="flex items-center justify-between px-4 py-4 border-b">
           <div className="flex items-center gap-2">
             <VideoIcon className="size-4 text-muted-foreground" />
-            <h2 className="font-medium">Recent Meetings</h2>
+            <h2 className="font-medium">Latest Meetings</h2>
           </div>
           <Button asChild variant="ghost" size="sm">
             <Link href="/meetings">
@@ -120,9 +120,9 @@ export const HomeView = () => {
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">Loading...</div>
           ) : meetings.data?.items.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-              No meetings yet.{" "}
+              No meetings yet —{" "}
               <Link href="/meetings" className="underline underline-offset-4">
-                Create your first meeting
+                start your first one
               </Link>
             </div>
           ) : (
@@ -168,13 +168,13 @@ export const HomeView = () => {
           <Button asChild>
             <Link href="/meetings">
               <VideoIcon />
-              New Meeting
+              Create Meeting
             </Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/agents">
               <BotIcon />
-              New Agent
+              Create Agent
             </Link>
           </Button>
         </div>

@@ -34,12 +34,12 @@ const firstSection = [
   },
   {
     icon: UsersIcon,
-    label: "Rooms",
+    label: "Team Spaces",
     href: "/rooms",
   },
   {
     icon: LayoutDashboardIcon,
-    label: "Workspace",
+    label: "Your Tasks",
     href: "/workspace",
   },
 ];

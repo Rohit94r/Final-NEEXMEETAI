@@ -17,8 +17,8 @@ export const NewMeetingDialog = ({
 
   return (
     <ResponsiveDialog
-      title="New Meeting"
-      description="Create a new meeting"
+      title="Create Meeting"
+      description="Set up a meeting and let NeexMeet capture the work that follows."
       open={open}
       onOpenChange={onOpenChange}
     >

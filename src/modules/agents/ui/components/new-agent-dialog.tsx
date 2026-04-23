@@ -13,8 +13,8 @@ export const NewAgentDialog = ({
 }: NewAgentDialogProps) => {
   return (
     <ResponsiveDialog
-      title="New Agent"
-      description="Create a new agent"
+      title="Create AI Agent"
+      description="Add an agent to capture context and support your meetings."
       open={open}
       onOpenChange={onOpenChange}
     >

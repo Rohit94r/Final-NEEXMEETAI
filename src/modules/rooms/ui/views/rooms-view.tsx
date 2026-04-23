@@ -91,9 +91,9 @@ export const RoomsView = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Rooms</h1>
+          <h1 className="text-2xl font-semibold">Team Spaces</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Persistent team spaces — meetings, tasks, and decisions in one place
+            Keep meetings, tasks, decisions, and context together
           </p>
         </div>
         <div className="flex gap-2">
@@ -101,7 +101,7 @@ export const RoomsView = () => {
             trigger={
               <Button variant="outline">
                 <LogInIcon className="size-4" />
-                Join Room
+                Join Space
               </Button>
             }
           />
@@ -109,7 +109,7 @@ export const RoomsView = () => {
             trigger={
               <Button>
                 <PlusIcon className="size-4" />
-                New Room
+                Create Space
               </Button>
             }
           />
@@ -120,13 +120,13 @@ export const RoomsView = () => {
       <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Room</DialogTitle>
+            <DialogTitle>Rename Space</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 pt-2">
             <Input
               value={renameName}
               onChange={(e) => setRenameName(e.target.value)}
-              placeholder="Room name"
+              placeholder="Space name"
             />
             <Button
               disabled={!renameName.trim() || rename.isPending}
@@ -141,13 +141,13 @@ export const RoomsView = () => {
 
       {/* Content */}
       {isPending ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">Loading rooms...</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">Loading team spaces...</div>
       ) : sorted.length === 0 ? (
         <div className="rounded-lg border bg-white px-4 py-16 text-center">
           <UsersIcon className="size-10 text-muted-foreground mx-auto mb-3" />
-          <p className="font-medium">No rooms yet</p>
+          <p className="font-medium">No team spaces yet</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Create a room for your team or join one with an invite code.
+            Create a space for your team or join one with an invite code.
           </p>
         </div>
       ) : (
