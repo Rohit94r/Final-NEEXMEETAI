@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Tilt from "react-parallax-tilt";
 import type { MouseEvent } from "react";
 import {
   motion,
@@ -51,6 +52,11 @@ const stats = [
   { value: "7", label: "core workflows connected" },
   { value: "1", label: "AI execution workspace" },
   { value: "0", label: "manual follow-up chaos" },
+];
+
+const heroLines = [
+  "Turn Meetings Into",
+  "Execution.",
 ];
 
 export default function LandingPage() {
@@ -109,7 +115,7 @@ export default function LandingPage() {
             </Link>
             <Button
               asChild
-              className="h-10 rounded-lg bg-white px-5 text-slate-950 shadow-[0_0_34px_rgba(255,255,255,0.22)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_0_42px_rgba(110,231,183,0.34)]"
+              className="relative h-10 overflow-hidden rounded-lg bg-white px-5 text-slate-950 shadow-[0_0_34px_rgba(255,255,255,0.22)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_0_42px_rgba(110,231,183,0.34)] active:scale-[0.98]"
             >
               <Link href="/sign-up">
                 Start Free
@@ -122,6 +128,21 @@ export default function LandingPage() {
 
       <main>
         <section className="relative min-h-screen overflow-hidden bg-[#070b12] pt-32 text-white md:pt-36">
+          <motion.div
+            aria-hidden
+            animate={{
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 opacity-55"
+            style={{
+              backgroundImage:
+                "linear-gradient(125deg, rgba(16,185,129,0.22), rgba(14,165,233,0.12), rgba(168,85,247,0.18), rgba(16,185,129,0.16))",
+              backgroundSize: "260% 260%",
+              transform: "translateZ(0)",
+            }}
+          />
+          <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.045]" />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_bottom,black,transparent_84%)]" />
           <div className="absolute left-1/2 top-0 h-[44rem] w-[44rem] -translate-x-1/2 rounded-full bg-emerald-300/16 blur-3xl" />
           <motion.div
@@ -150,16 +171,29 @@ export default function LandingPage() {
                 AI meeting notes that become real work
               </motion.div>
 
-              <motion.h1
-                variants={fadeUp}
-                className="text-5xl font-black leading-[0.96] tracking-tight text-balance md:text-7xl lg:text-[5.75rem]"
-              >
-                Turn Meetings Into{" "}
-                <span className="bg-gradient-to-r from-emerald-200 via-cyan-200 to-sky-300 bg-clip-text text-transparent">
-                  Execution
-                </span>
-                .
-              </motion.h1>
+              <h1 className="overflow-hidden text-5xl font-black leading-[0.96] tracking-tight text-balance md:text-7xl lg:text-[5.75rem]">
+                {heroLines.map((line, index) => (
+                  <motion.span
+                    key={line}
+                    initial={{ opacity: 0, y: 80, rotateX: -16 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{
+                      duration: 0.75,
+                      delay: 0.18 + index * 0.13,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="block will-change-transform"
+                  >
+                    {index === 1 ? (
+                      <span className="bg-gradient-to-r from-emerald-200 via-cyan-200 to-sky-300 bg-clip-text text-transparent">
+                        {line}
+                      </span>
+                    ) : (
+                      line
+                    )}
+                  </motion.span>
+                ))}
+              </h1>
 
               <motion.p
                 variants={fadeUp}
@@ -176,7 +210,7 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   asChild
-                  className="h-13 w-full rounded-lg bg-emerald-300 px-7 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.28)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)] sm:w-auto"
+                  className="h-13 w-full overflow-hidden rounded-lg bg-emerald-300 px-7 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.28)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)] active:scale-[0.98] sm:w-auto"
                 >
                   <Link href="/sign-up">
                     Try NeexMeet
@@ -187,7 +221,7 @@ export default function LandingPage() {
                   size="lg"
                   variant="outline"
                   asChild
-                  className="h-13 w-full rounded-lg border-white/16 bg-white/7 px-7 text-base text-white backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-white/25 hover:bg-white/12 hover:text-white sm:w-auto"
+                  className="h-13 w-full overflow-hidden rounded-lg border-white/16 bg-white/7 px-7 text-base text-white backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-white/25 hover:bg-white/12 hover:text-white active:scale-[0.98] sm:w-auto"
                 >
                   <Link href="#demo">
                     <CirclePlayIcon className="mr-2 size-4" />
@@ -220,27 +254,38 @@ export default function LandingPage() {
               onMouseLeave={resetMouse}
               className="relative mx-auto w-full max-w-3xl [perspective:1200px]"
             >
-              <motion.div
-                style={{ rotateX, rotateY }}
-                animate={{ y: [0, -12, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="relative rounded-[1.6rem] border border-white/14 bg-white/[0.06] p-2 shadow-[0_34px_120px_rgba(0,0,0,0.46)] backdrop-blur-2xl"
+              <Tilt
+                tiltMaxAngleX={4}
+                tiltMaxAngleY={5}
+                perspective={1200}
+                glareEnable
+                glareMaxOpacity={0.12}
+                glareColor="#ffffff"
+                glarePosition="all"
+                scale={1.01}
               >
-                <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-r from-emerald-300/22 via-cyan-300/16 to-violet-400/18 blur-2xl" />
-                <div className="relative overflow-hidden rounded-[1.15rem] border border-white/10 bg-[#0a101a]">
-                  <video
-                    src="/hero-mockup-abstract.mp4"
-                    aria-label="NeexMeet product interface animation"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    poster="/hero-mockup-abstract.png"
-                    className="aspect-[16/10] w-full object-cover opacity-95"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#070b12]/10 via-transparent to-white/10" />
-                </div>
-              </motion.div>
+                <motion.div
+                  style={{ rotateX, rotateY }}
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative rounded-[1.6rem] border border-white/14 bg-white/[0.06] p-2 shadow-[0_34px_120px_rgba(0,0,0,0.46)] backdrop-blur-2xl will-change-transform"
+                >
+                  <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-r from-emerald-300/22 via-cyan-300/16 to-violet-400/18 blur-2xl" />
+                  <div className="relative overflow-hidden rounded-[1.15rem] border border-white/10 bg-[#0a101a]">
+                    <video
+                      src="/hero-mockup-abstract.mp4"
+                      aria-label="NeexMeet product interface animation"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      poster="/hero-mockup-abstract.png"
+                      className="aspect-[16/10] w-full object-cover opacity-95"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#070b12]/10 via-transparent to-white/10" />
+                  </div>
+                </motion.div>
+              </Tilt>
 
               <motion.div
                 initial={{ opacity: 0, x: -20, y: 20 }}
@@ -347,7 +392,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 asChild
-                className="h-13 rounded-lg bg-emerald-300 px-8 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.26)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)]"
+                className="h-13 overflow-hidden rounded-lg bg-emerald-300 px-8 text-base font-bold text-slate-950 shadow-[0_18px_56px_rgba(110,231,183,0.26)] transition-all duration-300 hover:scale-105 hover:bg-emerald-200 hover:shadow-[0_22px_70px_rgba(110,231,183,0.42)] active:scale-[0.98]"
               >
                 <Link href="/sign-up">
                   Run Your First Meeting

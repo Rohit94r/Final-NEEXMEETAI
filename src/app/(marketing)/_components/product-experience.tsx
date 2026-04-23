@@ -4,10 +4,11 @@ import Image from "next/image";
 import {
   AnimatePresence,
   motion,
-  useMotionValueEvent,
   useScroll,
   useTransform,
 } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   BotIcon,
   CalendarPlusIcon,
@@ -21,9 +22,12 @@ import {
   Users2Icon,
   ZapIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import Tilt from "react-parallax-tilt";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const executionFeatures = [
   {
@@ -129,14 +133,74 @@ export const ProductExperience = () => {
   const imageY = useTransform(scrollYProgress, [0, 1], [36, -36]);
   const haloX = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const nextStep = Math.min(
-      executionFeatures.length - 1,
-      Math.max(0, Math.floor(latest * executionFeatures.length))
-    );
+  useEffect(() => {
+    const element = containerRef.current;
 
-    setActiveStep((current) => (current === nextStep ? current : nextStep));
-  });
+    if (!element) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        ".gsap-reveal",
+        { autoAlpha: 0, y: 36, scale: 0.985 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 72%",
+          },
+        }
+      );
+
+      gsap.to(".feature-preview-shell", {
+        yPercent: -7,
+        scale: 1.035,
+        ease: "none",
+        scrollTrigger: {
+          trigger: element,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.8,
+        },
+      });
+
+      gsap.to(".feature-morph-light", {
+        rotate: 18,
+        scale: 1.18,
+        xPercent: 8,
+        ease: "none",
+        scrollTrigger: {
+          trigger: element,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+      });
+
+      ScrollTrigger.create({
+        trigger: element,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: (self) => {
+          const nextStep = Math.min(
+            executionFeatures.length - 1,
+            Math.max(0, Math.floor(self.progress * executionFeatures.length))
+          );
+
+          setActiveStep((current) => (current === nextStep ? current : nextStep));
+        },
+      });
+    }, element);
+
+    return () => context.revert();
+  }, []);
 
   const activeFeature = executionFeatures[activeStep];
 
@@ -156,11 +220,12 @@ export const ProductExperience = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className={cn(
-                "absolute inset-0 bg-gradient-to-br opacity-30 blur-3xl",
+                "feature-morph-light absolute inset-0 bg-gradient-to-br opacity-30 blur-3xl will-change-transform",
                 activeFeature.accent
               )}
             />
           </AnimatePresence>
+          <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.035]" />
 
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(circle_at_center,black,transparent_72%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.16),transparent_30%),linear-gradient(to_bottom,rgba(7,11,18,0.3),#070b12_90%)]" />
@@ -177,7 +242,7 @@ export const ProductExperience = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-120px" }}
                 transition={{ duration: 0.55, ease: "easeOut" }}
-                className="mb-8 max-w-2xl"
+                className="gsap-reveal mb-8 max-w-2xl"
               >
                 <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
                   Built for Real Team Work
@@ -194,7 +259,7 @@ export const ProductExperience = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 44 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="max-w-xl"
+                  className="gsap-reveal max-w-xl"
                 >
                   <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3 py-1 text-sm font-medium text-white/75 shadow-2xl backdrop-blur-xl">
                     <activeFeature.icon className="size-4 text-emerald-200" />
@@ -217,7 +282,7 @@ export const ProductExperience = () => {
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: -30, scale: 0.98 }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative mx-auto max-w-[520px] rounded-lg border border-white/14 bg-white/[0.06] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl"
+                    className="feature-preview-shell relative mx-auto max-w-[520px] rounded-lg border border-white/14 bg-white/[0.06] p-2 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl will-change-transform"
                   >
                     <Image
                       src={activeFeature.image}
@@ -276,7 +341,7 @@ export const ProductExperience = () => {
 
             <motion.div
               style={{ y: imageY }}
-              className="relative hidden min-h-[620px] items-center justify-center lg:flex"
+              className="feature-preview-shell relative hidden min-h-[620px] items-center justify-center will-change-transform lg:flex"
             >
               <div className="absolute inset-10 rounded-[2rem] bg-white/[0.04] blur-3xl" />
               <AnimatePresence mode="wait">
@@ -286,7 +351,7 @@ export const ProductExperience = () => {
                   animate={{ opacity: 1, x: 0, scale: 1, rotateY: 0 }}
                   exit={{ opacity: 0, x: -54, scale: 0.98, rotateY: 3 }}
                   transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative w-full max-w-[740px] rounded-[1.5rem] border border-white/14 bg-white/[0.06] p-3 shadow-[0_30px_100px_rgba(0,0,0,0.46)] backdrop-blur-2xl"
+                  className="relative w-full max-w-[740px] rounded-[1.5rem] border border-white/14 bg-white/[0.06] p-3 shadow-[0_30px_100px_rgba(0,0,0,0.46)] backdrop-blur-2xl will-change-transform"
                 >
                   <div className="absolute -inset-px rounded-[1.5rem] bg-gradient-to-br from-white/24 via-transparent to-transparent opacity-70" />
                   <div className="relative overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#0a101a]">
@@ -295,7 +360,7 @@ export const ProductExperience = () => {
                       alt={`${activeFeature.title} UI preview`}
                       width={900}
                       height={650}
-                      className="h-auto w-full object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-[1.025]"
+                      className="h-auto w-full object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-[1.035]"
                       priority={activeStep === 0}
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/10" />
@@ -329,30 +394,50 @@ export const ProductExperience = () => {
 
           <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {railCards.map((card, index) => (
-              <motion.article
+              <Tilt
                 key={card.title}
-                initial={{ opacity: 0, y: 34 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.45, delay: index * 0.05, ease: "easeOut" }}
-                whileHover={{ y: -10, scale: 1.015 }}
-                className="group min-h-[340px] w-[82vw] shrink-0 snap-center rounded-lg border border-white/35 bg-white/55 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur-2xl transition-colors duration-300 hover:bg-white/72 sm:w-[420px]"
+                tiltMaxAngleX={6}
+                tiltMaxAngleY={8}
+                perspective={1100}
+                glareEnable
+                glareMaxOpacity={0.16}
+                glareColor="#ffffff"
+                glarePosition="all"
+                scale={1.015}
+                transitionSpeed={1300}
+                className="w-[82vw] shrink-0 snap-center sm:w-[420px]"
               >
-                <div className="mb-16 flex items-center justify-between">
-                  <div className="flex size-12 items-center justify-center rounded-lg border border-emerald-500/15 bg-emerald-400/10 text-emerald-700 shadow-[0_12px_30px_rgba(16,185,129,0.18)] transition-transform duration-300 group-hover:scale-110">
-                    <card.icon className="size-5" />
+                <motion.article
+                  initial={{ opacity: 0, y: 34, scale: 0.98 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.45, delay: index * 0.05, ease: "easeOut" }}
+                  whileHover={{ y: -10 }}
+                  className="group relative min-h-[340px] overflow-hidden rounded-lg bg-gradient-to-br from-white/70 via-white/50 to-white/25 p-px shadow-[0_24px_80px_rgba(15,23,42,0.14)] transition-transform duration-300 will-change-transform"
+                >
+                  <div className="absolute -inset-20 bg-gradient-to-br from-emerald-300/20 via-cyan-300/10 to-violet-300/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="relative h-full min-h-[340px] rounded-lg border border-white/35 bg-white/62 p-6 backdrop-blur-2xl transition-colors duration-300 group-hover:bg-white/78">
+                    <div className="mb-16 flex items-center justify-between">
+                      <motion.div
+                        whileHover={{ rotate: -8, scale: 1.12 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 18 }}
+                        className="flex size-12 items-center justify-center rounded-lg border border-emerald-500/15 bg-emerald-400/10 text-emerald-700 shadow-[0_12px_30px_rgba(16,185,129,0.18)]"
+                      >
+                        <card.icon className="size-5" />
+                      </motion.div>
+                      <span className="text-sm font-semibold text-slate-400">
+                        0{index + 1}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-black tracking-tight text-slate-950">
+                      {card.title}
+                    </h3>
+                    <p className="mt-4 text-base leading-7 text-slate-600">
+                      {card.desc}
+                    </p>
                   </div>
-                  <span className="text-sm font-semibold text-slate-400">
-                    0{index + 1}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-black tracking-tight text-slate-950">
-                  {card.title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-slate-600">
-                  {card.desc}
-                </p>
-              </motion.article>
+                </motion.article>
+              </Tilt>
             ))}
           </div>
         </div>

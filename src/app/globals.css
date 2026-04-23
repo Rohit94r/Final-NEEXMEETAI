@@ -118,10 +118,6 @@
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
   * {
     @apply border-border outline-ring/50;
   }
@@ -129,6 +125,14 @@
   body {
     @apply bg-background text-foreground;
     text-rendering: geometricPrecision;
+  }
+}
+
+@layer utilities {
+  .noise-overlay {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.2) 1px, transparent 0);
+    background-size: 18px 18px;
   }
 }
 
