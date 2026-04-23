@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { OctagonAlertIcon } from "lucide-react";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,7 +34,6 @@ interface Props {
 }
 
 export const SignInView = ({ callbackUrl }: Props) => {
-  const router = useRouter();
   const safeCallbackUrl = getSafeCallbackUrl(callbackUrl);
 
   const [pending, setPending] = useState(false);
@@ -49,43 +47,44 @@ export const SignInView = ({ callbackUrl }: Props) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setError(null);
     setPending(true);
 
     console.log("🔐 Initiating email sign-in for:", data.email);
 
-    authClient.signIn.email(
-      {
+    try {
+      const result = await authClient.signIn.email({
         email: data.email,
         password: data.password,
         callbackURL: safeCallbackUrl,
-      },
-      {
-        onSuccess: () => {
-          console.log("✓ Email sign-in successful, redirecting...");
-          setPending(false);
-          router.push(safeCallbackUrl);
-        },
-        onError: ({ error }) => {
-          console.error("✗ Email sign-in error:", {
-            message: error.message,
-            code: error.code,
-            status: error.status,
-          });
-          setPending(false);
-          
-          // Provide helpful error messages based on error type
-          if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
-            setError("Network error: Unable to connect to authentication service. Please check your internet connection and try again.");
-          } else if (error.message?.includes("Invalid credentials") || error.message?.includes("not found")) {
-            setError("Invalid email or password. Please try again.");
-          } else {
-            setError(error.message || "Sign in failed. Please try again.");
-          }
-        },
+      });
+
+      if (result?.error) {
+        throw result.error;
       }
-    );
+
+      window.location.assign(
+        `/auth-callback?mode=credentials&callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+      );
+    } catch (error) {
+      console.error("✗ Email sign-in error:", error);
+
+      const message =
+        error && typeof error === "object" && "message" in error
+          ? String(error.message)
+          : "Sign in failed. Please try again.";
+
+      if (message.includes("Failed to fetch") || message.includes("network")) {
+        setError("Network error: Unable to connect to authentication service. Please check your internet connection and try again.");
+      } else if (message.includes("Invalid credentials") || message.includes("not found")) {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        setError(message);
+      }
+    } finally {
+      setPending(false);
+    }
   };
 
   const onSocial = (provider: "github" | "google") => {
@@ -108,7 +107,9 @@ export const SignInView = ({ callbackUrl }: Props) => {
           onSuccess: () => {
             console.log("✓ Social sign-in successful, redirecting...");
             setPending(false);
-            router.push(safeCallbackUrl);
+            window.location.assign(
+              `/auth-callback?mode=social&callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+            );
           },
           onError: ({ error }) => {
             console.error("✗ Social sign-in error:", {

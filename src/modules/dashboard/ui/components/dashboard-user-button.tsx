@@ -30,10 +30,14 @@ export const DashboardUserButton = () => {
   const { data, isPending } = authClient.useSession();
 
   const onLogout = () => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("postLogoutRedirect", "/");
+    }
+
     authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/sign-in");
+          router.replace("/");
         }
       }
     })
