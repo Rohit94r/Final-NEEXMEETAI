@@ -13,6 +13,8 @@ import {
   BotIcon,
   CalendarPlusIcon,
   CheckCircle2Icon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   Clock3Icon,
   FileTextIcon,
   Layers3Icon,
@@ -22,7 +24,6 @@ import {
   Users2Icon,
   ZapIcon,
 } from "lucide-react";
-import Tilt from "react-parallax-tilt";
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -121,9 +122,75 @@ const railCards = [
   },
 ];
 
+const getCircularDistance = (index: number, activeIndex: number, total: number) => {
+  let distance = index - activeIndex;
+
+  if (distance > total / 2) {
+    distance -= total;
+  }
+
+  if (distance < -total / 2) {
+    distance += total;
+  }
+
+  return distance;
+};
+
+const getRailCardMotion = (distance: number) => {
+  const side = Math.sign(distance);
+  const absDistance = Math.abs(distance);
+
+  if (absDistance === 0) {
+    return {
+      x: "-50%",
+      y: "-50%",
+      scale: 1,
+      opacity: 1,
+      rotateY: 0,
+      filter: "blur(0px)",
+      zIndex: 30,
+    };
+  }
+
+  if (absDistance === 1) {
+    return {
+      x: side < 0 ? "-108%" : "8%",
+      y: "-50%",
+      scale: 0.85,
+      opacity: 0.5,
+      rotateY: side < 0 ? 10 : -10,
+      filter: "blur(0px)",
+      zIndex: 20,
+    };
+  }
+
+  if (absDistance === 2) {
+    return {
+      x: side < 0 ? "-156%" : "56%",
+      y: "-50%",
+      scale: 0.7,
+      opacity: 0.2,
+      rotateY: side < 0 ? 14 : -14,
+      filter: "blur(3px)",
+      zIndex: 10,
+    };
+  }
+
+  return {
+    x: side < 0 ? "-190%" : "90%",
+    y: "-50%",
+    scale: 0.62,
+    opacity: 0,
+    rotateY: side < 0 ? 16 : -16,
+    filter: "blur(6px)",
+    zIndex: 0,
+  };
+};
+
 export const ProductExperience = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [activeRailIndex, setActiveRailIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -202,6 +269,24 @@ export const ProductExperience = () => {
     return () => context.revert();
   }, []);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveRailIndex((current) => (current + 1) % railCards.length);
+    }, 2750);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const showPreviousRailCard = () => {
+    setActiveRailIndex((current) =>
+      current === 0 ? railCards.length - 1 : current - 1
+    );
+  };
+
+  const showNextRailCard = () => {
+    setActiveRailIndex((current) => (current + 1) % railCards.length);
+  };
+
   const activeFeature = executionFeatures[activeStep];
 
   return (
@@ -209,9 +294,9 @@ export const ProductExperience = () => {
       <section
         id="features"
         ref={containerRef}
-        className="relative h-[520vh] overflow-clip border-y border-white/10 bg-[#070b12] text-white"
+        className="relative overflow-clip border-y border-white/10 bg-[#070b12] text-white lg:h-[520vh]"
       >
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <div className="relative flex min-h-screen items-center overflow-hidden py-20 lg:sticky lg:top-0 lg:h-screen lg:py-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeFeature.title}
@@ -235,19 +320,19 @@ export const ProductExperience = () => {
             className="absolute right-[-12rem] top-20 h-[34rem] w-[34rem] rounded-full border border-white/10 bg-white/5 blur-2xl"
           />
 
-          <div className="container relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 md:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <div className="container relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-4 py-8 sm:py-12 md:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-20">
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-120px" }}
                 transition={{ duration: 0.55, ease: "easeOut" }}
-                className="gsap-reveal mb-8 max-w-2xl"
+                className="gsap-reveal mb-6 max-w-2xl sm:mb-8"
               >
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/80 sm:text-sm sm:tracking-[0.22em]">
                   Built for Real Team Work
                 </p>
-                <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
+                <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-6xl">
                   How NeexMeet Works.
                 </h2>
               </motion.div>
@@ -265,10 +350,10 @@ export const ProductExperience = () => {
                     <activeFeature.icon className="size-4 text-emerald-200" />
                     {activeFeature.eyebrow}
                   </div>
-                  <h3 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+                  <h3 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
                     {activeFeature.title}
                   </h3>
-                  <p className="mt-5 text-lg leading-8 text-white/68">
+                  <p className="mt-4 text-base leading-7 text-white/68 sm:mt-5 sm:text-lg sm:leading-8">
                     {activeFeature.desc}
                   </p>
                 </motion.div>
@@ -374,71 +459,118 @@ export const ProductExperience = () => {
 
       <section
         id="how-it-works"
-        className="relative overflow-hidden bg-[linear-gradient(180deg,#070b12_0%,#f7faf9_42%,#ffffff_100%)] py-24 md:py-32"
+        className="relative overflow-hidden bg-[linear-gradient(180deg,#070b12_0%,#070b12_24rem,#f7faf9_36rem,#ffffff_100%)] py-[4.5rem] sm:py-24 md:py-32"
       >
         <div className="container mx-auto max-w-7xl px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 26 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
-            className="mb-12 max-w-3xl text-white md:mb-16"
-          >
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
-              Why Teams Choose NeexMeet
-            </p>
-            <h2 className="text-4xl font-black tracking-tight md:text-6xl">
-              Less Meeting Admin. More Progress.
-            </h2>
-          </motion.div>
+          <div className="mb-8 flex flex-col gap-7 text-white sm:mb-10 md:mb-14">
+            <motion.div
+              initial={{ opacity: 0, y: 26 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
+              className="max-w-3xl"
+            >
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/80 sm:text-sm sm:tracking-[0.22em]">
+                Why Teams Choose NeexMeet
+              </p>
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-6xl">
+                Less Meeting Admin. More Progress.
+              </h2>
+            </motion.div>
+          </div>
 
-          <div className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {railCards.map((card, index) => (
-              <Tilt
-                key={card.title}
-                tiltMaxAngleX={6}
-                tiltMaxAngleY={8}
-                perspective={1100}
-                glareEnable
-                glareMaxOpacity={0.16}
-                glareColor="#ffffff"
-                glarePosition="all"
-                scale={1.015}
-                transitionSpeed={1300}
-                className="w-[82vw] shrink-0 snap-center sm:w-[420px]"
-              >
+          <div className="relative -mx-4 flex h-[clamp(390px,_68vw,_560px)] items-center justify-center overflow-hidden px-4 [perspective:1500px]">
+            <div className="pointer-events-none absolute inset-x-0 bottom-8 top-20 bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.22),transparent_62%)]" />
+            {railCards.map((card, index) => {
+              const distance = getCircularDistance(
+                index,
+                activeRailIndex,
+                railCards.length
+              );
+              const motionState = getRailCardMotion(distance);
+              const isActive = distance === 0;
+
+              return (
                 <motion.article
-                  initial={{ opacity: 0, y: 34, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.45, delay: index * 0.05, ease: "easeOut" }}
-                  whileHover={{ y: -10 }}
-                  className="group relative min-h-[340px] overflow-hidden rounded-lg bg-gradient-to-br from-white/70 via-white/50 to-white/25 p-px shadow-[0_24px_80px_rgba(15,23,42,0.14)] transition-transform duration-300 will-change-transform"
+                  key={card.title}
+                  aria-hidden={!isActive}
+                  initial={false}
+                  animate={motionState}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className={cn(
+                    "group absolute left-1/2 top-1/2 min-h-[clamp(320px,_54vw,_430px)] w-[min(88vw,_680px)] -translate-y-1/2 overflow-hidden rounded-lg bg-gradient-to-br from-white/80 via-white/55 to-white/22 p-px shadow-[0_34px_110px_rgba(15,23,42,0.2)] will-change-transform",
+                    Math.abs(distance) <= 2 ? "pointer-events-auto" : "pointer-events-none"
+                  )}
                 >
-                  <div className="absolute -inset-20 bg-gradient-to-br from-emerald-300/20 via-cyan-300/10 to-violet-300/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-                  <div className="relative h-full min-h-[340px] rounded-lg border border-white/35 bg-white/62 p-6 backdrop-blur-2xl transition-colors duration-300 group-hover:bg-white/78">
-                    <div className="mb-16 flex items-center justify-between">
+                  <div
+                    className={cn(
+                      "absolute -inset-20 bg-gradient-to-br from-emerald-300/22 via-cyan-300/12 to-violet-300/20 blur-2xl transition-opacity duration-500",
+                      isActive ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <div
+                    className={cn(
+                      "relative flex h-full min-h-[clamp(320px,_54vw,_430px)] flex-col items-center justify-center rounded-lg border px-6 py-8 text-center backdrop-blur-2xl transition-all duration-300 sm:px-8 md:p-10",
+                      isActive
+                        ? "border-white/50 bg-white/78 group-hover:border-emerald-400/80 group-hover:shadow-[inset_0_0_0_1px_rgba(52,211,153,0.3)]"
+                        : "border-white/25 bg-white/50 group-hover:border-emerald-400/55"
+                    )}
+                  >
+                    <span className="absolute right-5 top-5 text-xs font-semibold text-slate-400 sm:right-8 sm:top-8 sm:text-sm md:right-10 md:top-10">
+                      0{index + 1}
+                    </span>
+
+                    <div className="mb-5 flex items-center justify-center sm:mb-8">
                       <motion.div
-                        whileHover={{ rotate: -8, scale: 1.12 }}
-                        transition={{ type: "spring", stiffness: 320, damping: 18 }}
-                        className="flex size-12 items-center justify-center rounded-lg border border-emerald-500/15 bg-emerald-400/10 text-emerald-700 shadow-[0_12px_30px_rgba(16,185,129,0.18)]"
+                        className="flex size-12 items-center justify-center rounded-lg border border-emerald-500/15 bg-emerald-400/10 text-emerald-700 shadow-[0_12px_30px_rgba(16,185,129,0.18)] sm:size-14"
                       >
-                        <card.icon className="size-5" />
+                        <card.icon className="size-5 sm:size-6" />
                       </motion.div>
-                      <span className="text-sm font-semibold text-slate-400">
-                        0{index + 1}
-                      </span>
                     </div>
-                    <h3 className="text-2xl font-black tracking-tight text-slate-950">
+                    <h3 className="mx-auto max-w-md text-2xl font-black tracking-tight text-slate-950 sm:text-3xl md:text-4xl">
                       {card.title}
                     </h3>
-                    <p className="mt-4 text-base leading-7 text-slate-600">
+                    <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-slate-600 sm:mt-5 sm:text-lg sm:leading-8">
                       {card.desc}
                     </p>
                   </div>
                 </motion.article>
-              </Tilt>
-            ))}
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              aria-label="Show previous card"
+              onClick={showPreviousRailCard}
+              className="flex size-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-950 shadow-[0_16px_42px_rgba(15,23,42,0.12)] transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:text-emerald-700 active:scale-95"
+            >
+              <ChevronLeftIcon className="size-5" />
+            </button>
+
+            <div className="flex min-w-32 justify-center gap-2">
+              {railCards.map((card, index) => (
+                <span
+                  key={card.title}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500",
+                    index === activeRailIndex
+                      ? "w-8 bg-emerald-500"
+                      : "w-2 bg-slate-300"
+                  )}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              aria-label="Show next card"
+              onClick={showNextRailCard}
+              className="flex size-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-950 shadow-[0_16px_42px_rgba(15,23,42,0.12)] transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:text-emerald-700 active:scale-95"
+            >
+              <ChevronRightIcon className="size-5" />
+            </button>
           </div>
         </div>
       </section>
