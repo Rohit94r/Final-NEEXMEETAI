@@ -1,4 +1,4 @@
-import { EmptyState } from "@/components/empty-state"
+import { EmptyState } from "@/components/feedback/empty-state"
 
 export const CancelledState = () => {
   return (

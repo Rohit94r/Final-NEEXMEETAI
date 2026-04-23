@@ -1,4 +1,4 @@
-import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 
 import { AgentForm } from "./agent-form";
 import { AgentGetOne } from "../../types";

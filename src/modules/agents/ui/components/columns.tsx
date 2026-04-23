@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { CornerDownRightIcon, StarIcon, VideoIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { GeneratedAvatar } from "@/components/generated-avatar"
+import { GeneratedAvatar } from "@/components/shared/generated-avatar"
 
 import { AgentsGetMany } from "../../types"
 import { AgentRowActions } from "./agent-row-actions";

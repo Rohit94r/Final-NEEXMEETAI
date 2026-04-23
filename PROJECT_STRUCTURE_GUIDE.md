@@ -69,7 +69,7 @@ Final-NEEXMEETAI/
 ├── src/                 # Main source code
 │   ├── app/            # Next.js App Router (pages)
 │   ├── modules/        # Feature-based modules
-│   ├── components/    # Reusable UI components
+│   ├── components/    # Shared app-level components grouped by purpose
 │   ├── lib/           # Utility functions & external integrations
 │   ├── hooks/         # Custom React hooks
 │   ├── trpc/          # tRPC API configuration
@@ -89,7 +89,7 @@ Final-NEEXMEETAI/
 | `public/` | Static files served directly (images, videos) | Add images, icons, downloadable files |
 | `src/app/` | Page routes and layouts | Create new pages, configure routing |
 | `src/modules/` | Feature modules (meetings, rooms, tasks) | Add business logic for features |
-| `src/components/` | Reusable UI components | Add buttons, cards, modals |
+| `src/components/` | Shared app-level components | Add shared feedback, navigation, and non-feature-specific components |
 | `src/lib/` | Third-party integrations (Stream, Auth, AI) | Connect external services |
 | `src/hooks/` | Custom React hooks | Extract reusable component logic |
 | `src/trpc/` | API router configuration | Define new API endpoints |

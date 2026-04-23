@@ -10,7 +10,7 @@ import { useTRPC } from "@/trpc/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 import {
   Form,
   FormControl,

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
-import { CommandSelect } from "@/components/command-select";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { CommandSelect } from "@/components/shared/command-select";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 
 import { useMeetingsFilters } from "../../hooks/use-meetings-filters";
 

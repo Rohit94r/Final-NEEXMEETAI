@@ -18,7 +18,7 @@ import {
 import { cn, formatDuration } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
-import { GeneratedAvatar } from "@/components/generated-avatar"
+import { GeneratedAvatar } from "@/components/shared/generated-avatar"
 
 import { MeetingGetMany } from "../../types"
 import { MeetingRowActions } from "./meeting-row-actions";

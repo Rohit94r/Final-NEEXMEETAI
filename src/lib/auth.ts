@@ -75,6 +75,11 @@ function createAuth() {
     secret: getRequiredServerEnv("BETTER_AUTH_SECRET"),
     baseURL,
     trustedOrigins: trustedOrigins,
+    session: {
+      // Keep users signed in for 30 days and refresh active sessions daily.
+      expiresIn: 60 * 60 * 24 * 30,
+      updateAge: 60 * 60 * 24,
+    },
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: { user, session, account, verification },

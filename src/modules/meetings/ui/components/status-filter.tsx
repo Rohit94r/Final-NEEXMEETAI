@@ -6,7 +6,7 @@ import {
   LoaderIcon,
 } from "lucide-react";
 
-import { CommandSelect } from "@/components/command-select";
+import { CommandSelect } from "@/components/shared/command-select";
 
 import { MeetingStatus } from "../../types";
 import { useMeetingsFilters } from "../../hooks/use-meetings-filters";

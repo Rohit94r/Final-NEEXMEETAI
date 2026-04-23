@@ -1,8 +1,21 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/app/providers";
 
 import "./globals.css";
+
+const appSans = Plus_Jakarta_Sans({
+  variable: "--font-app-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const appMono = JetBrains_Mono({
+  variable: "--font-app-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -33,7 +46,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={`${appSans.variable} ${appMono.variable} antialiased`}>
         <AppProviders>{children}</AppProviders>
         <Script
           src="https://apnaai.online/chatBot.js"

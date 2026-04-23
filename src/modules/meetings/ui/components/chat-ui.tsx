@@ -12,7 +12,7 @@ import {
 } from "stream-chat-react";
 
 import { useTRPC } from "@/trpc/client";
-import { LoadingState } from "@/components/loading-state";
+import { LoadingState } from "@/components/feedback/loading-state";
 
 import "stream-chat-react/dist/css/v2/index.css";
 

@@ -12,7 +12,7 @@ import { useTRPC } from "@/trpc/client";
 import { useConfirm } from "@/hooks/use-confirm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,

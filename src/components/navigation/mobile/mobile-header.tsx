@@ -6,7 +6,7 @@ import Image from "next/image";
 import { SearchIcon, BellIcon } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 

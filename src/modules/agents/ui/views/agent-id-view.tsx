@@ -9,9 +9,9 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { useTRPC } from "@/trpc/client";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { ErrorState } from "@/components/feedback/error-state";
+import { LoadingState } from "@/components/feedback/loading-state";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 
 import { UpdateAgentDialog } from "../components/update-agent-dialog";
 import { AgentIdViewHeader } from "../components/agent-id-view-header";

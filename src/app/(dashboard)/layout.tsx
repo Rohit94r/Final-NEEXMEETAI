@@ -4,8 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardNavbar } from "@/modules/dashboard/ui/components/dashboard-navbar";
 import { DashboardSidebar } from "@/modules/dashboard/ui/components/dashboard-sidebar";
-import { MobileHeader } from "@/components/mobile/mobile-header";
-import { BottomTabs } from "@/components/mobile/bottom-tabs";
+import { MobileHeader } from "@/components/navigation/mobile/mobile-header";
+import { BottomTabs } from "@/components/navigation/mobile/bottom-tabs";
 
 interface Props {
   children: React.ReactNode;

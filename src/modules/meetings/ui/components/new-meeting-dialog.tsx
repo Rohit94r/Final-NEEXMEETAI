@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 
-import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { ResponsiveDialog } from "@/components/shared/responsive-dialog";
 
 import { MeetingForm } from "./meeting-form";
 

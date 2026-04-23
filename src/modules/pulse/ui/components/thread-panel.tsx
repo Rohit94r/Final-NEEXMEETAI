@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 
 interface Props {
   messageId: string;

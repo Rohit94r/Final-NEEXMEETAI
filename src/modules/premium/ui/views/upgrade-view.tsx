@@ -1,8 +1,8 @@
 "use client";
 
 import { toast } from "sonner";
-import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/feedback/error-state";
+import { LoadingState } from "@/components/feedback/loading-state";
 
 import { PricingCard } from "../components/pricing-card";
 

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
-import { ErrorState } from "@/components/error-state";
+import { ErrorState } from "@/components/feedback/error-state";
 
 import { CallProvider } from "../components/call-provider";
 

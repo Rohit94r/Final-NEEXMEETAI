@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/shared/auth-guard";
 import { RoomsView } from "@/modules/rooms/ui/views/rooms-view";
 
 const Page = () => {

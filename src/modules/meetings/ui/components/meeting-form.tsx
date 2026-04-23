@@ -10,8 +10,8 @@ import { useTRPC } from "@/trpc/client";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CommandSelect } from "@/components/command-select";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { CommandSelect } from "@/components/shared/command-select";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 import {
   Form,
   FormControl,

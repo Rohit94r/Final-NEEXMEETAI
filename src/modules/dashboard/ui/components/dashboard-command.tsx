@@ -11,7 +11,7 @@ import {
   CommandEmpty
 } from "@/components/ui/command";
 import { useTRPC } from "@/trpc/client";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 
 interface Props {
   open: boolean;

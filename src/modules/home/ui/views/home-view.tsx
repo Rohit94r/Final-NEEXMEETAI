@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { useTRPC } from "@/trpc/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GeneratedAvatar } from "@/components/generated-avatar";
+import { GeneratedAvatar } from "@/components/shared/generated-avatar";
 
 const statusColors: Record<string, string> = {
   upcoming: "bg-blue-500/10 text-blue-700 border-blue-700/10",

@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/shared/auth-guard";
 import { WorkspaceView } from "@/modules/workspace/ui/views/workspace-view";
 
 const Page = () => {

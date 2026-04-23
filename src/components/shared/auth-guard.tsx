@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, memo } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LoaderIcon } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -11,19 +11,20 @@ interface AuthGuardProps {
 
 export const AuthGuard = memo(function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     if (!isPending) {
       if (!session) {
-        // Only redirect if we are certain no session exists
-        router.replace("/sign-in");
+        const callbackUrl = pathname ? `?callbackUrl=${encodeURIComponent(pathname)}` : "";
+        router.replace(`/sign-in${callbackUrl}`);
       } else {
         setIsAuthorized(true);
       }
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, pathname, router]);
 
   if (isPending || !isAuthorized) {
     return (

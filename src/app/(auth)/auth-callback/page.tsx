@@ -7,18 +7,24 @@ import { useRouter } from "next/navigation";
 import { OctagonAlertIcon } from "lucide-react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { getSafeCallbackUrl } from "@/modules/auth/lib/callback-url";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isWaitingForSession, setIsWaitingForSession] = useState(true);
+  const [callbackUrl, setCallbackUrl] = useState("/dashboard");
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    // Access URL params safely inside useEffect (browser-only)
     const params = new URLSearchParams(window.location.search);
     const errorParam = params.get("error");
     const errorDescription = params.get("error_description");
     const code = params.get("code");
+    const nextCallbackUrl = getSafeCallbackUrl(params.get("callbackUrl") ?? undefined);
+
+    setCallbackUrl(nextCallbackUrl);
 
     console.log("🔐 Auth Callback:", {
       error: errorParam,
@@ -30,32 +36,39 @@ export default function AuthCallbackPage() {
       setError(
         `OAuth Error: ${errorParam || "unknown_error"}. ${errorDescription || ""}`
       );
-      setIsLoading(false);
+      setIsWaitingForSession(false);
       return;
     }
 
-    // If we're here without an error and no code, something went wrong
     if (!code) {
       setError("Authentication failed: No authorization code received");
-      setIsLoading(false);
+      setIsWaitingForSession(false);
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (error || isPending) {
       return;
     }
 
-    // Successfully got the code, better-auth should handle the rest
-    // Wait a moment for the callback to complete
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-      // Redirect to dashboard
-      router.push("/dashboard");
-    }, 2000);
+    if (session) {
+      router.replace(callbackUrl);
+      return;
+    }
 
-    return () => clearTimeout(timeout);
-  }, [router]);
+    const timeout = window.setTimeout(() => {
+      setIsWaitingForSession(false);
+      setError("Authentication completed, but we could not restore your session automatically. Please sign in again.");
+    }, 5000);
+
+    return () => window.clearTimeout(timeout);
+  }, [callbackUrl, error, isPending, router, session]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md p-8">
-        {isLoading ? (
+        {isWaitingForSession ? (
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
             <h1 className="text-2xl font-bold mb-2">Completing Sign In</h1>
@@ -83,7 +96,7 @@ export default function AuthCallbackPage() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => router.push("/sign-in")}
+                onClick={() => router.push(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`)}
                 className="flex-1"
               >
                 Back to Sign In
@@ -100,13 +113,13 @@ export default function AuthCallbackPage() {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">Ready</h1>
             <p className="text-muted-foreground mb-4">
-              Redirecting to dashboard...
+              Redirecting to your workspace...
             </p>
             <Button
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push(callbackUrl)}
               className="w-full"
             >
-              Go to Dashboard
+              Continue
             </Button>
           </div>
         )}

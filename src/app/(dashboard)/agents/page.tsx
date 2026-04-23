@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/shared/auth-guard";
 import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
 import { 
   AgentsView, 

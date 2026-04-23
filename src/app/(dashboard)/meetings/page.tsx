@@ -4,7 +4,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/shared/auth-guard";
 import { MeetingsListHeader } from "@/modules/meetings/ui/components/meetings-list-header";
 import {
   MeetingsView,

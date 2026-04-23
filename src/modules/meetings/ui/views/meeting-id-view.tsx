@@ -7,8 +7,8 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 
 import { useTRPC } from "@/trpc/client";
 import { useConfirm } from "@/hooks/use-confirm";
-import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/feedback/error-state";
+import { LoadingState } from "@/components/feedback/loading-state";
 
 import { ActiveState } from "../components/active-state";
 import { UpcomingState } from "../components/upcoming-state";
