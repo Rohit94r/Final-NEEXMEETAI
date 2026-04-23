@@ -53,6 +53,12 @@ export default function RootLayout({
           data-owner-id="usr_119633539883861273"
           strategy="lazyOnload"
         />
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="67785649-8b05-456b-a6a3-eeee21fef9ee"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
