@@ -1,27 +1,14 @@
 import { polarClient } from "@polar-sh/better-auth";
 import { createAuthClient } from "better-auth/react";
-import { ensureAbsoluteUrl } from "@/lib/url";
 
 function getAuthBaseURL(): string {
   if (typeof window !== "undefined") {
     return window.location.origin.replace(/\/$/, "");
   }
 
-  const envUrl = ensureAbsoluteUrl(process.env.NEXT_PUBLIC_BETTER_AUTH_URL);
-  if (envUrl) {
-    return envUrl;
-  }
-
-  const deployUrl = ensureAbsoluteUrl(process.env.URL) || ensureAbsoluteUrl(process.env.DEPLOY_URL);
-  if (deployUrl) {
-    return deployUrl;
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    return "https://neexmeet.com";
-  }
-
-  return "http://localhost:3000";
+  return process.env.NODE_ENV === "production"
+    ? "https://neexmeet.com"
+    : "http://localhost:3000";
 }
 
 export const authClient = createAuthClient({

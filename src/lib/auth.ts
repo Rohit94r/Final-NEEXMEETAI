@@ -40,18 +40,15 @@ function getSocialProviders() {
 
 function createAuth() {
   const envBaseURL = ensureAbsoluteUrl(getOptionalServerEnv("NEXT_PUBLIC_BETTER_AUTH_URL"));
-  const netlifyURL = ensureAbsoluteUrl(process.env.URL);
-  const deployURL = ensureAbsoluteUrl(process.env.DEPLOY_URL);
+  const vercelURL = ensureAbsoluteUrl(process.env.VERCEL_URL);
   const fallbackBaseURL =
     process.env.NODE_ENV === "production" ? "https://neexmeet.com" : "http://localhost:3000";
 
-  const fallbackURL = envBaseURL || netlifyURL || deployURL || fallbackBaseURL;
+  const fallbackURL = envBaseURL || vercelURL || fallbackBaseURL;
   const productionHosts = [
     "neexmeet.com",
     "www.neexmeet.com",
-    "localhost",
-    "localhost:3000",
-    "localhost:3001",
+    ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
   ];
   const baseURL =
     process.env.NODE_ENV === "production"
@@ -64,8 +61,7 @@ function createAuth() {
   const fallbackOrigins = [
     fallbackURL,
     envBaseURL,
-    netlifyURL,
-    deployURL,
+    vercelURL,
     "capacitor://localhost",
     "http://localhost",
     "https://neexmeet.com",

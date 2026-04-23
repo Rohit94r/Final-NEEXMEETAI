@@ -296,7 +296,11 @@ export const roomsRouter = createTRPCRouter({
         if (recipients.length > 0) {
           const dateStr = scheduledDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
           const timeStr = scheduledDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-          const appUrl = getOptionalServerEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
+          const appUrl =
+            getOptionalServerEnv("NEXT_PUBLIC_APP_URL") ??
+            (process.env.NODE_ENV === "production"
+              ? "https://neexmeet.com"
+              : "http://localhost:3000");
 
           await fetch("https://api.resend.com/emails", {
             method: "POST",

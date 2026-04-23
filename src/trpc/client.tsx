@@ -26,9 +26,14 @@ function getQueryClient() {
 }
  
 function getUrl() {
-  const base = (() => {
-   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  })();
+  const base =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL ||
+        (process.env.NODE_ENV === 'production'
+          ? 'https://neexmeet.com'
+          : 'http://localhost:3000');
+
   return `${base}/api/trpc`;
 }
  
