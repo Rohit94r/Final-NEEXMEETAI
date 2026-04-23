@@ -233,7 +233,7 @@ export const ProductExperience = () => {
           trigger: element,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.8,
+          scrub: 0.4,
         },
       });
 
@@ -246,7 +246,7 @@ export const ProductExperience = () => {
           trigger: element,
           start: "top top",
           end: "bottom bottom",
-          scrub: 1,
+          scrub: 0.4,
         },
       });
 
@@ -305,7 +305,7 @@ export const ProductExperience = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className={cn(
-                "feature-morph-light absolute inset-0 bg-gradient-to-br opacity-30 blur-3xl will-change-transform",
+                "feature-morph-light absolute inset-0 bg-gradient-to-br opacity-30 blur-xl will-change-transform",
                 activeFeature.accent
               )}
             />
@@ -459,10 +459,10 @@ export const ProductExperience = () => {
 
       <section
         id="how-it-works"
-        className="relative overflow-hidden bg-[linear-gradient(180deg,#070b12_0%,#070b12_24rem,#f7faf9_36rem,#ffffff_100%)] py-[4.5rem] sm:py-24 md:py-32"
+        className="relative overflow-hidden bg-[linear-gradient(180deg,#070b12_0%,#070b12_20rem,#f7faf9_32rem,#ffffff_100%)] py-[4rem] sm:py-20 md:py-28"
       >
         <div className="container mx-auto max-w-7xl px-4">
-          <div className="mb-8 flex flex-col gap-7 text-white sm:mb-10 md:mb-14">
+          <div className="mb-6 flex flex-col gap-5 text-white sm:mb-8 md:mb-10">
             <motion.div
               initial={{ opacity: 0, y: 26 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -473,13 +473,13 @@ export const ProductExperience = () => {
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/80 sm:text-sm sm:tracking-[0.22em]">
                 Why Teams Choose NeexMeet
               </p>
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-6xl">
+              <h2 className="text-2xl font-black tracking-tight sm:text-3xl md:text-5xl">
                 Less Meeting Admin. More Progress.
               </h2>
             </motion.div>
           </div>
 
-          <div className="relative -mx-4 flex h-[clamp(390px,_68vw,_560px)] items-center justify-center overflow-hidden px-4 [perspective:1500px]">
+          <div className="relative -mx-4 flex h-[420px] items-center justify-center overflow-hidden px-4 will-change-transform sm:h-[480px] md:h-[520px] [perspective:1500px]">
             <div className="pointer-events-none absolute inset-x-0 bottom-8 top-20 bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.22),transparent_62%)]" />
             {railCards.map((card, index) => {
               const distance = getCircularDistance(
@@ -498,7 +498,7 @@ export const ProductExperience = () => {
                   animate={motionState}
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                   className={cn(
-                    "group absolute left-1/2 top-1/2 min-h-[clamp(320px,_54vw,_430px)] w-[min(88vw,_680px)] -translate-y-1/2 overflow-hidden rounded-lg bg-gradient-to-br from-white/80 via-white/55 to-white/22 p-px shadow-[0_34px_110px_rgba(15,23,42,0.2)] will-change-transform",
+                    "group absolute left-1/2 top-1/2 min-h-[300px] w-[min(92vw,_600px)] -translate-y-1/2 overflow-hidden rounded-lg bg-gradient-to-br from-white/80 via-white/55 to-white/22 p-px shadow-[0_34px_110px_rgba(15,23,42,0.2)] will-change-transform sm:min-h-[340px] sm:w-[min(88vw,_640px)] md:min-h-[430px] md:w-[min(88vw,_680px)]",
                     Math.abs(distance) <= 2 ? "pointer-events-auto" : "pointer-events-none"
                   )}
                 >
@@ -510,7 +510,7 @@ export const ProductExperience = () => {
                   />
                   <div
                     className={cn(
-                      "relative flex h-full min-h-[clamp(320px,_54vw,_430px)] flex-col items-center justify-center rounded-lg border px-6 py-8 text-center backdrop-blur-2xl transition-all duration-300 sm:px-8 md:p-10",
+                      "relative flex h-full min-h-[300px] flex-col items-center justify-center rounded-lg border px-5 py-7 text-center backdrop-blur-2xl transition-all duration-300 sm:min-h-[340px] sm:px-8 sm:py-8 md:min-h-[430px] md:p-10",
                       isActive
                         ? "border-white/50 bg-white/78 group-hover:border-emerald-400/80 group-hover:shadow-[inset_0_0_0_1px_rgba(52,211,153,0.3)]"
                         : "border-white/25 bg-white/50 group-hover:border-emerald-400/55"
@@ -527,10 +527,10 @@ export const ProductExperience = () => {
                         <card.icon className="size-5 sm:size-6" />
                       </motion.div>
                     </div>
-                    <h3 className="mx-auto max-w-md text-2xl font-black tracking-tight text-slate-950 sm:text-3xl md:text-4xl">
+                    <h3 className="mx-auto max-w-md text-center text-xl font-black tracking-tight text-slate-950 sm:text-3xl md:text-4xl">
                       {card.title}
                     </h3>
-                    <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-slate-600 sm:mt-5 sm:text-lg sm:leading-8">
+                    <p className="mx-auto mt-4 max-w-lg text-center text-sm leading-6 text-slate-600 sm:mt-5 sm:text-lg sm:leading-8">
                       {card.desc}
                     </p>
                   </div>
@@ -539,7 +539,7 @@ export const ProductExperience = () => {
             })}
           </div>
 
-          <div className="mt-4 flex items-center justify-center gap-4">
+          <div className="mt-8 flex items-center justify-center gap-4 sm:mt-10">
             <button
               type="button"
               aria-label="Show previous card"

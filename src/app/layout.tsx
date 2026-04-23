@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/app/providers";
+import { SmoothScroll } from "@/app/smooth-scroll";
 
 import "./globals.css";
 
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
     default: "NeexMeet — Turn Meetings Into Execution",
     template: "%s | NeexMeet",
   },
-  description: "NeexMeet turns meetings into summaries, decisions, tasks, and follow-ups automatically, so teams never miss what matters.",
+  description: "Turn meetings into tasks, decisions, and execution automatically with NeexMeet.",
   keywords: ["AI meetings", "team collaboration", "task tracking", "meeting summary", "NeexMeet"],
   authors: [{ name: "NeexMeet" }],
   creator: "NeexMeet",
@@ -47,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${appSans.variable} ${appMono.variable} antialiased`}>
+        <SmoothScroll />
         <AppProviders>{children}</AppProviders>
         <Script
           defer
