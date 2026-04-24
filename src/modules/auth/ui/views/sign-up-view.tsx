@@ -35,6 +35,19 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const establishServerSession = async (token?: string | null) => {
+  if (!token) {
+    return;
+  }
+
+  await fetch("/api/auth/establish-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ token }),
+  });
+};
+
 interface Props {
   callbackUrl?: string;
 }
@@ -72,6 +85,7 @@ export const SignUpView = ({ callbackUrl }: Props) => {
         throw result.error;
       }
 
+      await establishServerSession(result.data?.token);
       window.sessionStorage.setItem("authRedirectPending", "true");
       window.location.replace(safeCallbackUrl);
     } catch (error) {

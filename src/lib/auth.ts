@@ -95,13 +95,6 @@ function createAuth() {
     },
     advanced: {
       useSecureCookies: process.env.NODE_ENV === "production",
-      crossSubDomainCookies:
-        process.env.NODE_ENV === "production"
-          ? {
-              enabled: true,
-              domain: ".neexmeet.com",
-            }
-          : undefined,
       defaultCookieAttributes: {
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
