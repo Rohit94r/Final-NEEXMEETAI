@@ -29,6 +29,20 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Password is required" }),
 });
 
+const waitForSession = async () => {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const sessionResult = await authClient.getSession();
+
+    if (sessionResult.data?.user) {
+      return true;
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, 250));
+  }
+
+  return false;
+};
+
 interface Props {
   callbackUrl?: string;
 }
@@ -57,11 +71,17 @@ export const SignInView = ({ callbackUrl }: Props) => {
       const result = await authClient.signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: safeCallbackUrl,
+        rememberMe: true,
       });
 
       if (result?.error) {
         throw result.error;
+      }
+
+      const hasSession = await waitForSession();
+
+      if (!hasSession) {
+        throw new Error("Sign in completed, but the session was not restored. Please try again.");
       }
 
       window.location.replace(safeCallbackUrl);
