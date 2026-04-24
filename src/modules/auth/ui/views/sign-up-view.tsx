@@ -35,20 +35,6 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
-const waitForSession = async () => {
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const sessionResult = await authClient.getSession();
-
-    if (sessionResult.data?.user) {
-      return true;
-    }
-
-    await new Promise((resolve) => window.setTimeout(resolve, 250));
-  }
-
-  return false;
-};
-
 interface Props {
   callbackUrl?: string;
 }
@@ -84,12 +70,6 @@ export const SignUpView = ({ callbackUrl }: Props) => {
 
       if (result?.error) {
         throw result.error;
-      }
-
-      const hasSession = await waitForSession();
-
-      if (!hasSession) {
-        throw new Error("Sign up completed, but the session was not restored. Please try again.");
       }
 
       window.location.replace(safeCallbackUrl);
