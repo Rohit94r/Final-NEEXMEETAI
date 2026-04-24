@@ -85,6 +85,13 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (!isPending && session) {
+      const postLogoutRedirect = window.sessionStorage.getItem("postLogoutRedirect");
+
+      if (postLogoutRedirect === "/") {
+        window.sessionStorage.removeItem("postLogoutRedirect");
+        return;
+      }
+
       router.replace("/dashboard");
     }
   }, [isPending, router, session]);

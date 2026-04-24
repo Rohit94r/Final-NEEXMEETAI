@@ -64,9 +64,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
         throw result.error;
       }
 
-      window.location.assign(
-        `/auth-callback?mode=credentials&callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
-      );
+      window.location.replace(safeCallbackUrl);
     } catch (error) {
       console.error("✗ Email sign-in error:", error);
 
@@ -105,11 +103,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
         },
         {
           onSuccess: () => {
-            console.log("✓ Social sign-in successful, redirecting...");
-            setPending(false);
-            window.location.assign(
-              `/auth-callback?mode=social&callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
-            );
+            console.log("✓ Social sign-in started, waiting for provider redirect...");
           },
           onError: ({ error }) => {
             console.error("✗ Social sign-in error:", {

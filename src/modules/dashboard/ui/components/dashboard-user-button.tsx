@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { ChevronDownIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
@@ -25,7 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const DashboardUserButton = () => {
-  const router = useRouter();
   const isMobile = useIsMobile();
   const { data, isPending } = authClient.useSession();
 
@@ -37,7 +35,7 @@ export const DashboardUserButton = () => {
     authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.replace("/");
+          window.location.replace("/");
         }
       }
     })
