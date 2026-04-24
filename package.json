@@ -3,12 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20 <23"
+    "node": ">=20 <25"
   },
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
     "dev": "next dev --port 3000",
-    "prebuild": "npm run clean",
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "eslint .",
