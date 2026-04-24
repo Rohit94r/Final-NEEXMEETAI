@@ -1,6 +1,7 @@
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LinkIcon, SparklesIcon } from "lucide-react";
+import { LinkIcon, MessageCircleIcon, SendIcon, SparklesIcon, XIcon } from "lucide-react";
 import {
   CallControls,
   SpeakerLayout,
@@ -8,6 +9,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { CallJoinRequests } from "./call-join-requests";
 import { CallSharePanel } from "./call-share-panel";
 import { CallAiAssistant } from "./call-ai-assistant";
@@ -22,6 +24,21 @@ interface Props {
   isLeaving: boolean;
 };
 
+type ChatMessage = {
+  id: number;
+  sender: string;
+  text: string;
+  isOwn?: boolean;
+};
+
+const initialChatMessages: ChatMessage[] = [
+  {
+    id: 1,
+    sender: "NeexMeet AI",
+    text: "Chat is open for anyone who prefers typing instead of speaking.",
+  },
+];
+
 export const CallActive = ({
   meetingId,
   meetingName,
@@ -31,8 +48,31 @@ export const CallActive = ({
   onLeave,
   isLeaving,
 }: Props) => {
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
+
+  const sendChatMessage = () => {
+    const value = chatInput.trim();
+
+    if (!value) {
+      return;
+    }
+
+    setChatMessages((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        sender: "You",
+        text: value,
+        isOwn: true,
+      },
+    ]);
+    setChatInput("");
+  };
+
   return (
-    <div className="flex flex-col justify-between p-3 md:p-4 h-full text-white">
+    <div className="relative flex h-full flex-col justify-between p-3 text-white md:p-4">
       {/* Top Bar - Fixed at top */}
       <div className="bg-[#101213] rounded-2xl md:rounded-3xl p-3 md:p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {/* Left Section - Logo & Meeting Info */}
@@ -103,6 +143,84 @@ export const CallActive = ({
       <div className="flex-1 min-h-0 py-3 md:py-4">
         <SpeakerLayout />
       </div>
+      {/* Bottom Corner Chat */}
+     < div className="absolute bottom-24 right-3 z-20 flex flex-col items-end gap-3 md:bottom-28 md:right-5">
+        {chatOpen ? (
+          <div className="w-[calc(100vw-24px)] max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-[#101213]/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold">Meeting chat</p>
+                <p className="text-xs text-white/45">Type if you are not comfortable speaking</p>
+              </div>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="size-8 text-white/70 hover:bg-white/10 hover:text-white"
+                onClick={() => setChatOpen(false)}
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
+
+            <div className="max-h-72 space-y-3 overflow-y-auto px-4 py-3">
+              {chatMessages.map((message) => (
+                <div
+                  key={message.id}
+                  className={message.isOwn ? "ml-auto max-w-[86%] text-right" : "max-w-[86%]"}
+                >
+                  <p className="mb-1 text-[11px] text-white/40">{message.sender}</p>
+                  <div
+                    className={
+                      message.isOwn
+                        ? "rounded-2xl rounded-br-md bg-emerald-300 px-3 py-2 text-sm text-black"
+                        : "rounded-2xl rounded-bl-md bg-white/10 px-3 py-2 text-sm text-white/80"
+                    }
+                  >
+                    {message.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-2 border-t border-white/10 p-3">
+              <Input
+                value={chatInput}
+                onChange={(event) => setChatInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    sendChatMessage();
+                  }
+                }}
+                placeholder="Type a message..."
+                className="h-10 border-white/10 bg-white/5 text-white placeholder:text-white/35"
+              />
+              <Button
+                type="button"
+                size="icon"
+                className="size-10 shrink-0 bg-emerald-300 text-black hover:bg-emerald-200"
+                onClick={sendChatMessage}
+              >
+                <SendIcon className="size-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        <Button
+          type="button"
+          className="h-11 rounded-full border border-emerald-300/30 bg-emerald-300/15 px-4 text-emerald-50 shadow-[0_0_30px_rgba(16,185,129,0.22)] backdrop-blur-xl hover:bg-emerald-300/25 hover:text-white"
+          onClick={() => setChatOpen((current) => !current)}
+        >
+          <MessageCircleIcon className="size-4" />
+          <span>Chat</span>
+          {chatMessages.length > 1 ? (
+            <span className="ml-1 rounded-full bg-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold text-black">
+              {chatMessages.length - 1}
+            </span>
+          ) : null}
+        </Button>
+      </>
       {/* Bottom Controls */}
       <div className="bg-[#101213] rounded-full px-2 md:px-4">
         <CallControls onLeave={onLeave} />
