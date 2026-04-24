@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { CameraIcon, LoaderIcon, CheckCircle2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -142,7 +143,7 @@ export const CheckInCard = ({ roomId, onSuccess, alreadyCheckedIn = false }: Che
           <div className="relative aspect-video rounded-xl bg-slate-100 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center group">
             {photo ? (
               <div className="relative w-full h-full animate-in fade-in zoom-in duration-300">
-                <img src={photo} alt="Session capture" className="w-full h-full object-cover" />
+                <Image src={photo} alt="Session capture" fill className="object-cover" unoptimized />
                 <Button 
                    variant="secondary" 
                    size="sm" 

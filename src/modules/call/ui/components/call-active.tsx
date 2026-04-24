@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -144,7 +146,7 @@ export const CallActive = ({
         <SpeakerLayout />
       </div>
       {/* Bottom Corner Chat */}
-     < div className="absolute bottom-24 right-3 z-20 flex flex-col items-end gap-3 md:bottom-28 md:right-5">
+      <div className="absolute bottom-24 right-3 z-20 flex flex-col items-end gap-3 md:bottom-28 md:right-5">
         {chatOpen ? (
           <div className="w-[calc(100vw-24px)] max-w-sm overflow-hidden rounded-2xl border border-white/10 bg-[#101213]/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
@@ -220,7 +222,7 @@ export const CallActive = ({
             </span>
           ) : null}
         </Button>
-      </>
+      </div>
       {/* Bottom Controls */}
       <div className="bg-[#101213] rounded-full px-2 md:px-4">
         <CallControls onLeave={onLeave} />
