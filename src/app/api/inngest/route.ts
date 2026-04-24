@@ -12,4 +12,16 @@ export const { GET, POST, PUT } = serve({
     meetingsProcessing,
   ],
 });
+
+const methodNotAllowed = () =>
+  new Response("Method Not Allowed", {
+    status: 405,
+    headers: {
+      Allow: "GET, POST, PUT",
+    },
+  });
+
+export const PATCH = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const DELETE = methodNotAllowed;
                   
