@@ -64,6 +64,7 @@ export const SignInView = ({ callbackUrl }: Props) => {
         throw result.error;
       }
 
+      window.sessionStorage.setItem("authRedirectPending", "true");
       window.location.replace(safeCallbackUrl);
     } catch (error) {
       console.error("✗ Email sign-in error:", error);

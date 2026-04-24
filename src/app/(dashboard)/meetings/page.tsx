@@ -4,7 +4,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { AuthGuard } from "@/components/shared/auth-guard";
 import { MeetingsListHeader } from "@/modules/meetings/ui/components/meetings-list-header";
 import {
   MeetingsView,
@@ -14,14 +13,14 @@ import {
 
 const Page = () => {
   return (
-    <AuthGuard>
+    <>
       <MeetingsListHeader />
       <Suspense fallback={<MeetingsViewLoading />}>
         <ErrorBoundary fallback={<MeetingsViewError />}>
           <MeetingsView />
         </ErrorBoundary>
       </Suspense>
-    </AuthGuard>
+    </>
   );
 };
 

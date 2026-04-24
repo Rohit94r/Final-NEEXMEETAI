@@ -1,14 +1,9 @@
 "use client";
 
-import { AuthGuard } from "@/components/shared/auth-guard";
 import { HomeView } from "@/modules/home/ui/views/home-view";
 
 const Page = () => {
-  return (
-    <AuthGuard>
-      <HomeView />
-    </AuthGuard>
-  );
+  return <HomeView />;
 };
 
 export default Page;
