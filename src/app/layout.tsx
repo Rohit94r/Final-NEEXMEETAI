@@ -18,6 +18,8 @@ const appMono = JetBrains_Mono({
   display: "swap",
 });
 
+const googleAnalyticsId = "G-B2P2G8PR7K";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://neexmeet.com"),
   title: "NeexMeet – AI Meeting Notes & Task Execution Platform",
@@ -64,6 +66,18 @@ export default function RootLayout({
       <body className={`${appSans.variable} ${appMono.variable} antialiased`}>
         <SmoothScroll />
         <AppProviders>{children}</AppProviders>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleAnalyticsId}');
+          `}
+        </Script>
         <Script
           defer
           src="https://cloud.umami.is/script.js"
